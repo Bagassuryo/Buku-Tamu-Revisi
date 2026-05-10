@@ -10,4 +10,10 @@ class admin extends Authenticatable
     use Notifiable;
 
     public $timestamps = false;
+
+    protected $fillable = [
+    'username',
+    'password',
+    'role',
+];
 }
