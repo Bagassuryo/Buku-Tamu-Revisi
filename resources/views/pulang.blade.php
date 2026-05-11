@@ -6,6 +6,7 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Document</title>
     @vite('resources/css/app.css')
+    @include('layouts.nav')
 </head>
 <body class="bg-gray-100 min-h-screen flex flex-col">
     <main class="grow flex items-center justify-center p-4">
@@ -22,9 +23,9 @@
 
             <form action="{{ route('tamu.checkout.process') }}" method="POST">
                 @csrf
-                <input type="number" name="no_hp" required placeholder="08xxxxxxxx" 
+                <input type="number" name="no_hp" required placeholder="08xxxxxxxx"
                     class="w-full px-5 py-4 rounded-xl border-2 border-gray-200 focus:border-[#1B75BC] outline-none mb-4 text-lg">
-                
+
                 <button type="submit" class="w-full bg-[#1B75BC] text-white font-bold py-4 rounded-xl cursor-pointer hover:bg-[#2E3192] transition">
                     Pulang
                 </button>
