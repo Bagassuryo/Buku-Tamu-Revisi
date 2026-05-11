@@ -3,11 +3,11 @@
 <nav class="bg-linear-to-r from-[#2E3192] to-[#1B75BC] shadow-lg">
     <div class="px-5">
 
-        <div class="flex justify-between items-center h-16">
+        <div class="flex justify-between items-center h-17">
 
             <!-- Logo -->
             <div>
-                <img src="{{ asset('images/gresik.png') }}" alt="logo" class="h-15  w-auto mx-auto">
+                <img src="{{ asset('images/gresik.png') }}" alt="logo" class="h-18  w-auto mx-auto">
             </div>
 
             <!-- Menu -->
