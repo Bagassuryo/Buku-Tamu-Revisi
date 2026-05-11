@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Admin;
 use Illuminate\Http\Request; // Tambahkan ini untuk persiapan fitur kedepannya
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash; 
+use Illuminate\Support\Facades\Hash;
 
 class AdminController extends Controller
 {
@@ -18,13 +18,34 @@ class AdminController extends Controller
         return view('superadmin', compact('admins'));
     }
 
+    // --- TAMBAHKAN FUNGSI UPDATE DI SINI ---
+    public function update(Request $request, $username)
+    {
+        // Cari admin berdasarkan Username
+        $admin = Admin::where('username', $username)->firstOrFail();
+
+        // Validasi: Username harus unik tapi abaikan untuk ID admin ini sendiri
+        $request->validate([
+            'username' => 'required|unique:admins,username,' . $admin->id,
+            'status'   => 'required|in:aktif,nonaktif',
+        ]);
+
+        // Proses Update
+        $admin->update([
+            'username' => $request->username,
+            'status'   => $request->status,
+        ]);
+
+        return back()->with('success', 'Data admin ' . $admin->username . ' berhasil diperbarui!');
+    }
+
     // Menghapus admin
     public function destroy($username)
     {
         // Mencari data, jika tidak ada langsung error 404
         $admin = Admin::where('username', $username)
-              ->where('role', 'admin') // Memastikan yang dihapus HANYA yang rolenya admin
-              ->firstOrFail();
+            ->where('role', 'admin') // Memastikan yang dihapus HANYA yang rolenya admin
+            ->firstOrFail();
 
         // Proteksi: Jangan biarkan menghapus diri sendiri
         if (Auth::id() === $admin->id) {

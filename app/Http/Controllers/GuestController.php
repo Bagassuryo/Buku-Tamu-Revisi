@@ -8,12 +8,43 @@ use Illuminate\Http\Request; // Pastikan ini ada untuk menangkap data form
 
 class GuestController extends Controller
 {
-    // Fungsi yang sudah kamu punya (untuk Admin melihat daftar tamu)
-    public function index()
+    // Ganti fungsi index() lama kamu dengan ini
+    public function index(Request $request)
     {
-        // Saya tambahkan orderBy agar data terbaru muncul di paling atas
-        $guests = Guest::orderBy('id', 'desc')->get();
-        
+        // Ambil data dari input form search dan filter
+        $search = $request->input('search');
+        $tanggal = $request->input('tanggal');
+        $bulan = $request->input('bulan');
+        $layanan = $request->input('layanan');
+
+        // Mulai Query
+        $guests = Guest::query()
+            // Fitur Search: Cari berdasarkan nama_tamu atau asal_instansi
+            ->when($search, function ($query, $search) {
+                return $query->where(function ($q) use ($search) {
+                    $q->where('nama_tamu', 'like', '%' . $search . '%')
+                        ->orWhere('asal_instansi', 'like', '%' . $search . '%');
+                });
+            })
+            // Fitur Filter: Cari berdasarkan tanggal tertentu
+            ->when($tanggal, function ($query, $tanggal) {
+                return $query->whereDate('tanggal', $tanggal);
+            })
+
+            // 3. Filter: Bulan (Penting: Tambahkan ini!)
+            ->when($bulan, function ($query, $bulan) {
+                return $query->whereMonth('tanggal', $bulan);
+            })
+            // 4. Filter: Layanan (Penting: Tambahkan ini!)
+            ->when($layanan, function ($query, $layanan) {
+                return $query->where('layanan', $layanan);
+            })
+
+            // Urutkan dari yang terbaru
+            ->orderBy('id', 'desc')
+            ->get();
+
+        // Kirim data ke view 'guest'
         return view('guest', compact('guests'));
     }
 
@@ -49,25 +80,25 @@ class GuestController extends Controller
     }
 
     public function showCheckoutForm()
-{
-    return view('pulang'); 
-}
-
-public function processCheckout(Request $request)
-{
-    $request->validate(['no_hp' => 'required']);
-
-    // Cari tamu yang datang hari ini, HP sesuai, dan belum pulang
-    $guest = Guest::where('no_hp', $request->no_hp)
-                  ->where('tanggal', now()->toDateString())
-                  ->whereNull('pulang')
-                  ->first();
-
-    if ($guest) {
-        $guest->update(['pulang' => now()->toTimeString()]);
-        return redirect()->route('tamu.checkout.form')->with('success', 'Terima kasih ' . $guest->nama_tamu . ', jam pulang Anda telah dicatat!');
+    {
+        return view('pulang');
     }
 
-    return back()->with('error', 'Data tidak ditemukan atau Anda sudah tercatat pulang.');
-}
+    public function processCheckout(Request $request)
+    {
+        $request->validate(['no_hp' => 'required']);
+
+        // Cari tamu yang datang hari ini, HP sesuai, dan belum pulang
+        $guest = Guest::where('no_hp', $request->no_hp)
+            ->where('tanggal', now()->toDateString())
+            ->whereNull('pulang')
+            ->first();
+
+        if ($guest) {
+            $guest->update(['pulang' => now()->toTimeString()]);
+            return redirect()->route('tamu.checkout.form')->with('success', 'Terima kasih ' . $guest->nama_tamu . ', jam pulang Anda telah dicatat!');
+        }
+
+        return back()->with('error', 'Data tidak ditemukan atau Anda sudah tercatat pulang.');
+    }
 }
