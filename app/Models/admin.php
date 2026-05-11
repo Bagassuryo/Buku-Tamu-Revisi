@@ -9,11 +9,15 @@ class admin extends Authenticatable
 {
     use Notifiable;
 
-    public $timestamps = false;
-
     protected $fillable = [
-    'username',
-    'password',
-    'role',
-];
+        'username',
+        'password',
+        'role',
+        'status',
+        'last_active',
+    ];
+
+    protected $casts = [
+        'last_active' => 'datetime',
+    ];
 }

@@ -50,8 +50,26 @@ class AuthController extends Controller
 
         // E. PROSES AUTHENTIKASI
         if (Auth::attempt($credentials)) {
+            $admin = Auth::user();
+
+            if ($admin->status === 'nonaktif') {
+                Auth::logout();
+                return back()->withErrors([
+                    'login_error' => 'Akun Anda telah dinonaktifkan.'
+                ])->onlyInput('username');
+            }
+
+            // CARA ALTERNATIF: Gunakan DB table langsung
+            \Illuminate\Support\Facades\DB::table('admins')
+                ->where('username', $admin->username)
+                ->update(['last_active' => now()]);
+
             RateLimiter::clear($throttleKey);
             $request->session()->regenerate();
+
+            if ($admin->role === 'super_admin') {
+                return redirect()->intended('superadmin');
+            }
             return redirect()->intended('guest');
         }
 

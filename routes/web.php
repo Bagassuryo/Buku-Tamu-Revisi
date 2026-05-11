@@ -13,7 +13,7 @@ Route::post('/login', [AuthController::class, 'login']);
 Route::middleware(['auth'])->group(function () {
     
     // Pindahkan route guest kamu ke sini
-    Route::get('/guest', [GuestController::class, 'guest'])->name('guest');
+    Route::get('/guest', [GuestController::class, 'index'])->name('guest');
     
     // Route logout juga harus di sini agar hanya orang login yang bisa logout
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
@@ -37,3 +37,6 @@ Route::post('/form-tamu', [GuestController::class, 'store'])->name('tamu.store')
 
 Route::get('/pulang', [GuestController::class, 'showCheckoutForm'])->name('tamu.checkout.form');
 Route::post('/pulang', [GuestController::class, 'processCheckout'])->name('tamu.checkout.process');
+
+// Route untuk proses update data admin
+Route::put('/admin/update/{username}', [AdminController::class, 'update'])->name('superadmin.update');
