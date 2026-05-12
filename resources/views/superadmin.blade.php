@@ -11,7 +11,7 @@
 </head>
 
 <!-- Formulir Edit Admin -->
-<div id="modalEdit" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4">
+<div id="modalEdit" class="fixed inset-0 z-50 hidden items-center justify-center p-4">
     <div class="absolute inset-0 bg-gray-900/60 backdrop-blur-sm" onclick="closeEditModal()"></div>
 
     <div class="relative bg-white w-full max-w-md rounded-2xl shadow-2xl overflow-hidden border border-gray-100">
@@ -71,7 +71,7 @@
                                 onclick="document.getElementById('Tambah').classList.remove('hidden');
                                 document.getElementById('Tambah').classList.add('flex');"
                                 class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg shadow transition
-                                        flex items-center gap-1 leading-none">
+                                        flex items-center gap-1 leading-none cursor-pointer">
                                 Tambah Admin <i class="material-symbols-outlined">add</i>
                             </button>
                         </div>
@@ -106,7 +106,7 @@
                 <p class="text-white/80 text-sm">Berikan akses masuk untuk petugas baru</p>
             </div>
 
-            // Formulir Tambah Admin
+            <!-- Formulir Tambah Admin -->
             <form action="{{ route('superadmin.store') }}" method="POST" class="p-6">
                 @csrf
 
@@ -275,25 +275,29 @@
 </script>
 
 <script>
-    function openEditModal(username, status) {
-        const modal = document.getElementById('modalEdit');
-        const form = document.getElementById('formEdit');
+function openEditModal(username, status) {
+    const modal = document.getElementById('modalEdit');
+    const form = document.getElementById('formEdit');
 
-        // Set Action URL: Mengarah ke /admin/update/nama_username
-        // Kita gunakan template literal (backtick) agar dinamis
-        form.action = `/admin/update/${username}`;
+    // URL update
+    form.action = `/admin/update/${username}`;
 
-        // Isi field input di dalam modal
-        document.getElementById('edit_username').value = username;
-        document.getElementById('edit_status').value = status;
+    // Isi input
+    document.getElementById('edit_username').value = username;
+    document.getElementById('edit_status').value = status;
 
-        // Tampilkan modal
-        modal.classList.remove('hidden');
-    }
+    // Tampilkan modal
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+}
 
-    function closeEditModal() {
-        document.getElementById('modalEdit').classList.add('hidden');
-    }
+function closeEditModal() {
+    const modal = document.getElementById('modalEdit');
+
+    // Sembunyikan modal
+    modal.classList.remove('flex');
+    modal.classList.add('hidden');
+}
 </script>
 
 </html>
