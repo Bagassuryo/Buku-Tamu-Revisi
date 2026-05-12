@@ -1,6 +1,6 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
 
-<nav class="bg-linear-to-r from-[#2E3192] to-[#1B75BC] shadow-lg">
+<nav class="bg-linear-to-r from-[#2E3192] to-[#1B75BC] shadow-lg fixed top-0 left-0 w-full z-50">
     <div class="px-5">
 
         <div class="flex justify-between items-center h-17">
@@ -44,3 +44,5 @@
 
     </div>
 </nav>
+
+<div class="h-16"></div>

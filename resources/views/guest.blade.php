@@ -23,7 +23,7 @@
                 <!-- Menu kanan -->
                 <div class="flex items-center gap-4">
                     <li>
-                        <a href="#"
+                        <a href="{{ route('guest.export', request()->all()) }}"
                             class="bg-sky-600 hover:bg-sky-700 px-4 py-2 rounded-lg text-white transition duration-200
                         flex items-center gap-1">
                             Export <i class="material-symbols-outlined">download</i>
@@ -99,7 +99,7 @@
 
                 <div class="flex gap-2">
                     <button type="submit"
-                        class="bg-[#1B75BC] hover:bg-[#2E3192] text-white px-6 py-2 rounded-xl shadow-md transition font-semibold">
+                        class="bg-[#1B75BC] hover:bg-[#2E3192] text-white px-6 py-2 rounded-xl shadow-md transition font-semibold cursor-pointer">
                         Filter
                     </button>
                     <a href="{{ route('guest') }}"
@@ -138,7 +138,14 @@
                             <td class="p-3 border text-sm">{{ $guest->tanggal }}</td>
                             <td class="p-3 border text-sm text-green-600 font-medium">{{ $guest->datang }}</td>
                             <td class="p-3 border text-sm text-red-600 font-medium">{{ $guest->pulang ?? '-' }}</td>
-                            <td class="p-3 border text-sm">{{ $guest->foto ?? '-' }}</td>
+                            <td class="p-3 border text-sm">
+                                @if ($guest->foto)
+                                    <img src="{{ asset('storage/foto/' . $guest->foto) }}" alt="Foto Tamu"
+                                        class="w-16 h-16 object-cover rounded-lg mx-auto shadow-sm cursor-pointer hover:scale-110 transition">
+                                @else
+                                    <span class="text-gray-400 italic">No Photo</span>
+                                @endif
+                            </td>
                         </tr>
                     @empty
                         <tr>
