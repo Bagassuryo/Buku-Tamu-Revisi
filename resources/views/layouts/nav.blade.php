@@ -1,46 +1,33 @@
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
 
-<nav class="bg-linear-to-r from-[#2E3192] to-[#1B75BC] shadow-lg">
-    <div class="px-5">
+<nav class="bg-linear-to-r from-[#1a2a6c] via-[#1a2a6c] to-[#1B75BC] shadow-lg">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex flex-col gap-3 py-4 md:flex-row md:items-center md:justify-between">
+            <a href="/" class="flex items-center gap-3 transition-opacity hover:opacity-90">
+                <img src="{{ asset('images/gresik.png') }}" alt="Logo Gresik" class="h-12 w-auto drop-shadow-md">
+            </a>
 
-        <div class="flex justify-between items-center h-17">
-
-            <!-- Logo -->
-            <div>
-                <img src="{{ asset('images/gresik.png') }}" alt="logo" class="h-18  w-auto mx-auto">
-            </div>
-
-            <!-- Menu -->
-            <div class="flex items-center space-x-3">
-
-                <!-- Tombol Buku tamu -->
+            <div class="flex flex-wrap items-center gap-2 sm:gap-3 justify-end">
                 <a href="/"
-                    class="bg-white/20 hover:bg-white/30 text-white
-                    px-4 py-2 rounded-lg transition duration-300 flex items-center gap-1 leading-none">
-                    Buku Tamu
-                    <i class="material-symbols-outlined" >book</i>
+                    class="whitespace-nowrap px-4 py-2 text-sm font-medium text-white bg-white/10 border border-white/20 rounded-lg transition-all duration-200 flex items-center gap-2">
+                    <i class="ti ti-edit text-lg"></i>
+                    <span>Isi Buku Tamu</span>
                 </a>
 
-                <!-- Tombol Pulang -->
                 <a href="/pulang"
-                    class="bg-white/20 hover:bg-white/30 text-white
-                    px-4 py-2 rounded-lg transition duration-300 flex items-center gap-1 leading-none">
-                    Pulang
-                    <i class="material-symbols-outlined" >logout</i>
+                    class="whitespace-nowrap px-4 py-2 text-sm font-medium text-white/80 hover:text-white hover:bg-white/10 rounded-lg transition-all duration-200 flex items-center gap-2">
+                    <i class="ti ti-door-exit text-lg"></i>
+                    <span>Selesai Berkunjung</span>
                 </a>
 
-                <!-- Tombol Login -->
+                <div class="hidden sm:block h-6 w-px bg-white/20 mx-2"></div>
+
                 <a href="/login"
-                    class="bg-white text-[#2E3192]
-                    hover:bg-gray-100 font-semibold
-                    px-4 py-2 rounded-lg transition duration-300 shadow flex items-center gap-1 leading-none">
-                    Login
-                    <i class="material-symbols-outlined" >login</i>
+                    class="whitespace-nowrap px-4 py-2 text-sm font-medium text-white/60 hover:text-white border border-transparent hover:border-white/30 rounded-lg transition-all duration-200 flex items-center gap-2">
+                    <i class="ti ti-lock text-lg"></i>
+                    <span>Login</span>
                 </a>
-
             </div>
-
         </div>
-
     </div>
 </nav>
