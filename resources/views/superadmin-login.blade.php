@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login Administrator</title>
+    <title>Login Super Admin</title>
     @vite('resources/css/app.css')
 </head>
 
@@ -19,17 +19,17 @@
         <div class="border border-gray-300 rounded-2xl shadow-lg p-8 max-w-xl w-full bg-white">
 
             <div class="text-center mb-6">
-                <h1 class="text-3xl font-bold text-gray-800">Login Administrator</h1>
+                <h1 class="text-3xl font-bold text-gray-800">Login Super Admin</h1>
             </div>
 
-            @if ($errors->has('login_error'))
+            @if (session('error'))
                 <div class="bg-red-500 text-white p-4 rounded-xl mb-5">
-                    {{ $errors->first('login_error') }}
+                    {{ session('error') }}
                 </div>
             @endif
 
             {{-- Hanya SATU form --}}
-            <form action="{{ route('login') }}" method="POST" autocomplete="off">
+            <form action="{{ route('superadmin.login.process') }}" method="POST" autocomplete="off">
                 @csrf
 
                 <div class="mb-5">
@@ -56,9 +56,9 @@
 
                 <p class="text-center text-gray-500 my-4">atau</p>
 
-                <a href="{{ route('superadmin.login') }}"
+                <a href="{{ route('login') }}"
                     class="block w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-xl text-center transition duration-300 cursor-pointer">
-                    Super Admin
+                    Admin
                 </a>
 
             </form>

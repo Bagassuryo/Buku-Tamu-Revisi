@@ -77,7 +77,7 @@
                         </div>
                     </li>
                     <li>
-                        <form action="{{ route('logout') }}" method="POST">
+                        <form action="{{ route('superadmin.logout') }}" method="POST">
                             @csrf
                             <button type="submit"
                                 class="bg-red-500 hover:bg-red-600 cursor-pointer px-4 py-2 rounded-lg text-white transition duration-200
