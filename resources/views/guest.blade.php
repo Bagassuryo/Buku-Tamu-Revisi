@@ -88,6 +88,8 @@
                             {{ request('layanan') == 'KEPALA DINAS KOMINFO' ? 'selected' : '' }}>KEPALA DINAS KOMINFO
                         </option>
                         <option value="RADIO" {{ request('layanan') == 'RADIO' ? 'selected' : '' }}>RADIO</option>
+                        <option value="SEKRETARIAT" {{ request('layanan') == 'SEKRETARIAT' ? 'selected' : '' }}>SEKRETARIAT</option>
+                        <option value="SEKRETARIAT DINAS KOMINFO" {{ request('layanan') == 'SEKRETARIAT DINAS KOMINFO' ? 'selected' : '' }}>SEKRETARIAT DINAS KOMINFO</option>
                     </select>
                 </div>
 
