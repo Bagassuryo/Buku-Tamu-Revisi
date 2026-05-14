@@ -45,7 +45,7 @@ class AuthController extends Controller
         ]);
 
         if (!$response->json('success')) {
-            return back()->withErrors(['login_error' => 'Mohon centang Captcha dengan benar.'])->withInput();
+            return back()->withErrors(['login_error' => 'Mohon centang Captcha.'])->withInput();
         }
 
         // E. PROSES AUTHENTIKASI
@@ -68,7 +68,7 @@ class AuthController extends Controller
             $request->session()->regenerate();
 
             if ($admin->role === 'super_admin') {
-                return redirect()->intended('superadmin');
+                return redirect()->intended('guest');
             }
             return redirect()->intended('guest');
         }

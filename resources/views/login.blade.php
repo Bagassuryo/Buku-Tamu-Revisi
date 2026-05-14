@@ -21,7 +21,8 @@
 
             <div class="text-center -mx-8 -mt-8 mb-8 p-6 bg-[#1a2a6e] rounded-t-2xl">
                 <h1 class="text-3xl font-bold text-white gap-2 flex items-center justify-center">
-                    <i class="material-symbols-outlined" style="font-size: 35px">admin_panel_settings</i> Login Administrator
+                    <i class="material-symbols-outlined" style="font-size: 35px">admin_panel_settings</i> Login
+                    Administrator
                 </h1>
                 <p class="text-blue-100 mt-2 text-sm">
                     Masuk sebagai administrator untuk mengelola tamu.
@@ -29,9 +30,9 @@
             </div>
 
             {{-- Menampilkan Error Session --}}
-            @if (session('error'))
-                <div class="bg-red-500 text-white p-4 rounded-xl mb-5 text-sm">
-                    {{ session('error') }}
+            @if ($errors->has('login_error'))
+                <div class="bg-red-500 text-white p-4 rounded-xl mb-5 text-sm shadow">
+                    {{ $errors->first('login_error') }}
                 </div>
             @endif
 
@@ -42,7 +43,7 @@
                     <label for="username" class=" text-sm font-semibold text-black mb-2 flex items-center gap-1">
                         <i class="material-symbols-outlined">person</i> Username
                     </label>
-                    <input type="text" id="username" name="username" required
+                    <input type="text" id="username" name="username" value="{{ old('username') }}" required
                         class="w-full px-4 py-3 border border-black rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-400 transition duration-200"
                         placeholder="Masukkan username">
                 </div>

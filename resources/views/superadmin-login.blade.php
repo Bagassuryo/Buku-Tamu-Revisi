@@ -22,7 +22,7 @@
 
             <div class="text-center -mx-8 -mt-8 mb-8 p-6 bg-[#0f5c45] rounded-t-2xl">
                 <h1 class="text-3xl font-bold text-white gap-2 flex items-center justify-center">
-                    <i class="material-symbols-outlined" style="font-size: 35px">crown</i> 
+                    <i class="material-symbols-outlined" style="font-size: 35px">crown</i>
                     Login Super Admin
                 </h1>
                 <p class="text-blue-100 mt-2 text-sm">
@@ -30,9 +30,10 @@
                 </p>
             </div>
 
-            @if (session('error'))
-                <div class="bg-red-500 text-white p-4 rounded-xl mb-5">
-                    {{ session('error') }}
+            {{-- Error Messages --}}
+            @if ($errors->has('login_error'))
+                <div class="bg-red-500 text-white p-4 rounded-xl mb-5 text-sm">
+                    {{ $errors->first('login_error') }}
                 </div>
             @endif
 
@@ -88,7 +89,7 @@
 
     @include('layouts.footer')
 
-        {{-- Script Lihat Password --}}
+    {{-- Script Lihat Password --}}
     <script>
         const togglePassword = document.querySelector('#togglePassword');
         const passwordInput = document.querySelector('#password');

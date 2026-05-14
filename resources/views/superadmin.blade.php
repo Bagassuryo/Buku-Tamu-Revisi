@@ -7,7 +7,8 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Super Admin</title>
     @vite('resources/css/app.css')
-    <link rel="stylesheet"href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
+    <link
+        rel="stylesheet"href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
 </head>
 
 <!-- Formulir Edit Admin -->
@@ -18,6 +19,7 @@
         <div class="bg-yellow-500 p-6 text-white text-center">
             <h2 class="text-xl font-bold">Edit Akun Admin</h2>
             <p class="text-yellow-100 text-xs">Perbarui informasi username atau status akses</p>
+
         </div>
 
         <form id="formEdit" method="POST" class="p-6">
@@ -28,6 +30,13 @@
                     <input type="text" name="username" id="edit_username"
                         class="w-full border rounded-xl p-2.5 outline-none focus:ring-2 focus:ring-yellow-500 border-gray-300"
                         required>
+
+                    {{-- Pesan Error khusus Update --}}
+                    @if (session('openEditModal'))
+                        @error('username')
+                            <span class="text-red-500 text-sm mt-1">{{ $message }}</span>
+                        @endif
+                    @enderror
                 </div>
 
                 <div>
@@ -42,11 +51,11 @@
 
             <div class="flex items-center gap-3 mt-8">
                 <button type="button" onclick="closeEditModal()"
-                    class="flex-1 px-4 py-2.5 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-xl transition font-medium">
+                    class="flex-1 px-4 py-2.5 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-xl transition font-medium cursor-pointer">
                     Batal
                 </button>
                 <button type="submit"
-                    class="flex-1 px-4 py-2.5 bg-yellow-500 hover:bg-yellow-600 text-white font-bold rounded-xl shadow-lg transition">
+                    class="flex-1 px-4 py-2.5 bg-yellow-500 hover:bg-yellow-600 text-white font-bold rounded-xl shadow-lg transition cursor-pointer">
                     Simpan Perubahan
                 </button>
             </div>
@@ -92,7 +101,7 @@
     </nav>
 
     <div id="Tambah" class="fixed inset-0 z-50 hidden items-center justify-center p-4">
-        <div class="absolute inset-0 bg-gray-900/60 backdrop-blur-sm"></div>
+        <div class="absolute inset-0 bg-gray-900/60 backdrop-blur-sm" onclick="closeTambahModal()"></div>
 
         <div
             class="relative bg-white w-full max-w-md rounded-2xl shadow-2xl transform transition-all overflow-hidden border border-gray-100">
@@ -117,10 +126,15 @@
                             <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400">
                                 <span class="material-symbols-outlined text-sm">alternate_email</span>
                             </span>
-                            <input type="text" name="username" autocomplete="off" placeholder="Masukkan username..."
+                            <input type="text" name="username" autocomplete="off" value="{{ old('username') }}"
+                                placeholder="Masukkan username..."
                                 class="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#1B75BC] focus:border-transparent outline-none transition duration-200 bg-gray-50 focus:bg-white text-gray-800"
                                 required>
                         </div>
+                        {{-- Ini yang memunculkan peringatan --}}
+                        @error('username')
+                            <span class="text-red-500 text-sm mt-1">{{ $message }}</span>
+                        @enderror
                     </div>
 
                     <div>
@@ -133,18 +147,21 @@
                                 class="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#1B75BC] focus:border-transparent outline-none transition duration-200 bg-gray-50 focus:bg-white text-gray-800"
                                 required>
                         </div>
+                        {{-- Ini yang memunculkan peringatan --}}
+                        @error('password')
+                            <span class="text-red-500 text-sm mt-1">{{ $message }}</span>
+                        @enderror
                     </div>
                 </div>
 
                 <div class="flex items-center gap-3 mt-8">
                     <button type="button"
-                        onclick="document.getElementById('Tambah').classList.remove('flex');
-                                document.getElementById('Tambah').classList.add('hidden');"
-                        class="flex-1 px-4 py-2.5 text-gray-700 font-medium bg-gray-100 hover:bg-gray-200 rounded-xl transition duration-200">
+                        onclick="closeTambahModal()"
+                        class="flex-1 px-4 py-2.5 text-gray-700 font-medium bg-gray-100 hover:bg-gray-200 rounded-xl transition duration-200 cursor-pointer">
                         Batal
                     </button>
                     <button type="submit"
-                        class="flex-1 px-4 py-2.5 bg-linear-to-r from-[#2E3192] to-[#1B75BC] text-white font-bold rounded-xl shadow-lg hover:shadow-indigo-500/30 hover:-translate-y-0.5 transition duration-200">
+                        class="flex-1 px-4 py-2.5 bg-linear-to-r from-[#2E3192] to-[#1B75BC] text-white font-bold rounded-xl shadow-lg hover:shadow-indigo-500/30 hover:-translate-y-0.5 transition duration-200 cursor-pointer">
                         Simpan Admin
                     </button>
                 </div>
@@ -275,29 +292,100 @@
 </script>
 
 <script>
-function openEditModal(username, status) {
-    const modal = document.getElementById('modalEdit');
-    const form = document.getElementById('formEdit');
+    function openEditModal(username, status) {
+        const modal = document.getElementById('modalEdit');
+        const form = document.getElementById('formEdit');
 
-    // URL update
-    form.action = `/admin/update/${username}`;
+        // URL update
+        form.action = `/admin/update/${username}`;
 
-    // Isi input
-    document.getElementById('edit_username').value = username;
-    document.getElementById('edit_status').value = status;
+        // Isi input
+        document.getElementById('edit_username').value = username;
+        document.getElementById('edit_status').value = status;
 
-    // Tampilkan modal
-    modal.classList.remove('hidden');
-    modal.classList.add('flex');
-}
+        // Tampilkan modal
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+    }
 
-function closeEditModal() {
-    const modal = document.getElementById('modalEdit');
+    function closeEditModal() {
+        const modal = document.getElementById('modalEdit');
 
-    // Sembunyikan modal
-    modal.classList.remove('flex');
-    modal.classList.add('hidden');
-}
+        // 1. Sembunyikan modal
+        modal.classList.remove('flex');
+        modal.classList.add('hidden');
+
+        // 2. Cari dan hapus pesan error jika ada
+        const errorSpan = modal.querySelector('.text-red-500');
+        if (errorSpan) {
+            errorSpan.remove();
+        }
+
+        // 3. Kembalikan warna border input ke normal (abu-abu)
+        const inputUsername = document.getElementById('edit_username');
+        if (inputUsername) {
+            inputUsername.classList.remove('border-red-500');
+            inputUsername.classList.add('border-gray-300');
+        }
+    }
+
+    function closeTambahModal() {
+        const modal = document.getElementById('Tambah');
+
+        // 1. Sembunyikan modal
+        modal.classList.remove('flex');
+        modal.classList.add('hidden');
+
+        // 2. Hapus semua pesan error (span merah) di dalam modal ini
+        const errorMessages = modal.querySelectorAll('.text-red-500');
+        errorMessages.forEach(msg => msg.remove());
+
+        // 3. Reset form agar inputan lama (username/password) hilang saat dibuka lagi
+        const form = modal.querySelector('form');
+        if (form) {
+            form.reset();
+        }
+
+        // 4. Kembalikan warna border input ke normal (opsional jika kamu pakai border merah)
+        const inputs = modal.querySelectorAll('input');
+        inputs.forEach(input => {
+            input.classList.remove('border-red-500');
+            input.classList.add('border-gray-300');
+        });
+    }
+</script>
+
+<script>
+    @if ($errors->any())
+        @if (session('openEditModal'))
+            // Sesuai dengan ID modal edit di HTML kamu yaitu 'modalEdit'
+            const modalUpdate = document.getElementById('modalEdit');
+            const form = document.getElementById('formEdit');
+
+            // Ambil data username yang gagal di-update dari session
+            const failedUsername = "{{ session('openEditModal') }}";
+            const failedStatus = "{{ old('status') }}";
+
+            // Set ulang action form agar mengarah ke username yang benar
+            form.action = `/admin/update/${failedUsername}`;
+
+            // Isi kembali fieldnya
+            document.getElementById('edit_username').value = "{{ old('username') }}";
+            document.getElementById('edit_status').value = failedStatus;
+
+            if (modalUpdate) {
+                modalUpdate.classList.remove('hidden');
+                modalUpdate.classList.add('flex');
+            }
+        @else
+            // Jika bukan dari update, buka modal Tambah
+            const modalTambah = document.getElementById('Tambah');
+            if (modalTambah) {
+                modalTambah.classList.remove('hidden');
+                modalTambah.classList.add('flex');
+            }
+        @endif
+    @endif
 </script>
 
 </html>

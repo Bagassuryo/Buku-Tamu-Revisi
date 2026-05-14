@@ -4,40 +4,65 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Http;
 
 class SuperAdminAuthController extends Controller
 {
     public function showLogin()
     {
-        return view('superadmin-login'); // Folder resources/views/auth/
+        return view('superadmin-login');
     }
 
     public function login(Request $request)
     {
+        // 1. VALIDASI INPUT
         $credentials = $request->validate([
             'username' => 'required',
             'password' => 'required',
         ]);
 
+        // 2. VALIDASI GOOGLE RECAPTCHA
+        $response = Http::asForm()->post(
+            'https://www.google.com/recaptcha/api/siteverify',
+            [
+                'secret' => env('RECAPTCHA_SECRET_KEY'),
+                'response' => $request->input('g-recaptcha-response'),
+                'remoteip' => $request->ip(),
+            ]
+        );
+
+        // Jika captcha gagal
+        if (!$response->json('success')) {
+            return back()->withErrors([
+                'login_error' => 'Mohon centang Captcha.'
+            ])->withInput();
+        }
+
+        // 3. LOGIN
         if (Auth::attempt($credentials)) {
             $request->session()->regenerate();
 
-            // Pastikan user yang login memang punya role superadmin
-            if (Auth::user()->role == 'super_admin') {
+            // Cek role super admin
+            if (Auth::user()->role === 'super_admin') {
                 return redirect()->route('superadmin');
             }
 
-            // Jika bukan superadmin, logoutkan lagi
+            // Jika bukan superadmin
             Auth::logout();
-            return back()->with('error', 'Anda bukan Super Admin!');
+
+            return back()->withErrors([
+                'login_error' => 'Anda bukan Super Admin!'
+            ]);
         }
 
-        return back()->with('error', 'Username atau password salah.');
+        // Jika username/password salah
+        return back()->withErrors([
+            'login_error' => 'Username atau password salah.'
+        ])->onlyInput('username');
     }
 
     public function logout(Request $request)
     {
-        // cek URL sebelumnya
         $isSuperAdmin = str_contains(url()->previous(), 'superadmin');
 
         Auth::logout();
