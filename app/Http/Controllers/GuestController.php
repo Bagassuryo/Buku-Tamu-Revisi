@@ -86,10 +86,10 @@ class GuestController extends Controller
 
     public function processCheckout(Request $request)
     {
-        $request->validate(['no_hp' => 'required']);
+        $request->validate(['nama_tamu' => 'required']);
 
         // Cari tamu yang datang hari ini, HP sesuai, dan belum pulang
-        $guest = Guest::where('no_hp', $request->no_hp)
+        $guest = Guest::where('nama_tamu', $request->nama_tamu)
             ->where('tanggal', now()->toDateString())
             ->whereNull('pulang')
             ->first();
