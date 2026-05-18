@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Controller;
 use App\Models\Guest;
 use Illuminate\Http\Request; // Pastikan ini ada untuk menangkap data form
+use Illuminate\Support\Facades\Storage;
 
 class GuestController extends Controller
 {
@@ -66,11 +67,30 @@ class GuestController extends Controller
             'no_hp'         => 'required|numeric',
             'asal_instansi' => 'required',
             'keterangan'    => 'required',
+            'foto'          => 'nullable', // Bisa berupa file upload atau base64 data URL dari camera
         ]);
 
         // Menambahkan data waktu secara otomatis sebelum disimpan
         $validated['tanggal'] = now()->toDateString(); // Hasil: 2026-05-10
         $validated['datang']  = now()->toTimeString(); // Hasil: 14:00:00
+
+        // Jika ada file upload (multipart), simpan ke disk public
+        if ($request->hasFile('foto') && $request->file('foto')->isValid()) {
+            $validated['foto'] = $request->file('foto')->store('foto', 'public');
+        }
+
+        // Jika foto dikirim sebagai data URL (base64) dari canvas, decode dan simpan
+        elseif ($request->filled('foto') && preg_match('/^data:image\/(\w+);base64,/', $request->foto, $matches)) {
+            $extension = strtolower($matches[1]) === 'jpeg' ? 'jpg' : strtolower($matches[1]);
+            $data = substr($request->foto, strpos($request->foto, ',') + 1);
+            $data = base64_decode($data);
+            if ($data !== false) {
+                $filename = uniqid('foto_') . '.' . $extension;
+                $path = 'foto/' . $filename;
+                Storage::disk('public')->put($path, $data);
+                $validated['foto'] = $path;
+            }
+        }
 
         // Simpan ke database menggunakan Model Guest
         Guest::create($validated);

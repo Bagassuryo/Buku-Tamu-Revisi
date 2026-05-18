@@ -7,25 +7,45 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Rekap Data</title>
     @vite('resources/css/app.css')
-    <link
-        rel="stylesheet"href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
+    <style>
+        #modal-foto {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.75);
+            z-index: 9999;
+            align-items: center;
+            justify-content: center;
+        }
+        #modal-foto.aktif { display: flex; }
+    </style>
 </head>
 
 <body class="bg-gray-100 m-0 p-0">
 
+    {{-- Modal preview foto --}}
+    <div id="modal-foto" onclick="tutupModal()">
+        <div class="relative" onclick="event.stopPropagation()">
+            <img id="modal-img" src="" alt="Foto Tamu"
+                class="max-w-[90vw] max-h-[85vh] rounded-2xl shadow-2xl border-4 border-white object-contain">
+            <button onclick="tutupModal()"
+                class="absolute -top-3 -right-3 bg-white rounded-full w-8 h-8 flex items-center justify-center shadow-md text-gray-600 hover:text-red-500 transition text-lg font-bold">
+                ✕
+            </button>
+        </div>
+    </div>
+
     <nav class="bg-linear-to-r from-[#2E3192] to-[#1B75BC] shadow-md">
         <div class="container mx-auto px-6 py-2">
             <ul class="flex items-center justify-between">
-                <!-- Logo / Judul -->
                 <li class="text-white text-2xl font-bold">
-                    <img src="{{ asset('images/gresik.png') }}" alt="logo" class="h-16  w-auto mx-auto">
+                    <img src="{{ asset('images/gresik.png') }}" alt="logo" class="h-16 w-auto mx-auto">
                 </li>
-                <!-- Menu kanan -->
                 <div class="flex items-center gap-4">
                     <li>
                         <a href="{{ route('guest.export', request()->all()) }}"
-                            class="bg-sky-600 hover:bg-sky-700 px-4 py-2 rounded-lg text-white transition duration-200
-                        flex items-center gap-1">
+                            class="bg-sky-600 hover:bg-sky-700 px-4 py-2 rounded-lg text-white transition duration-200 flex items-center gap-1">
                             Export <i class="material-symbols-outlined">download</i>
                         </a>
                     </li>
@@ -33,8 +53,7 @@
                         <form action="{{ route('logout') }}" method="POST">
                             @csrf
                             <button type="submit"
-                                class="bg-red-500 hover:bg-red-600 cursor-pointer px-4 py-2 rounded-lg text-white transition duration-200
-            flex items-center gap-1">
+                                class="bg-red-500 hover:bg-red-600 cursor-pointer px-4 py-2 rounded-lg text-white transition duration-200 flex items-center gap-1">
                                 Logout <i class="material-symbols-outlined">logout</i>
                             </button>
                         </form>
@@ -46,7 +65,6 @@
 
     <div class="p-2">
 
-        <!-- Judul -->
         <div class="mb-6 text-center">
             <h1 class="text-3xl font-bold text-gray-800 mt-2">Daftar Tamu</h1>
         </div>
@@ -54,7 +72,7 @@
         <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 mb-6">
             <form action="{{ route('guest') }}" method="GET" class="flex flex-wrap items-end gap-4">
 
-                <div class="flex-1 min-w-[200]">
+                <div class="flex-1 min-w-200px">
                     <label class="block text-xs font-bold text-gray-600 uppercase mb-1 ml-1">Cari Nama/Instansi</label>
                     <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari tamu..."
                         class="w-full rounded-xl border border-gray-300 px-4 py-2 focus:ring-2 focus:ring-[#1B75BC] focus:border-transparent outline-none transition">
@@ -78,17 +96,12 @@
                     <select name="layanan"
                         class="w-full rounded-xl border border-gray-300 px-4 py-2 focus:ring-2 focus:ring-[#1B75BC] outline-none">
                         <option value="">Semua Layanan</option>
-                        <option value="BIDANG SIP" {{ request('layanan') == 'BIDANG SIP' ? 'selected' : '' }}>BIDANG SIP
-                        </option>
-                        <option value="BIDANG SPBE" {{ request('layanan') == 'BIDANG SPBE' ? 'selected' : '' }}>BIDANG
-                            SPBE</option>
-                        <option value="BIDANG TI" {{ request('layanan') == 'BIDANG TI' ? 'selected' : '' }}>BIDANG TI
-                        </option>
-                        <option value="KEPALA DINAS KOMINFO"
-                            {{ request('layanan') == 'KEPALA DINAS KOMINFO' ? 'selected' : '' }}>KEPALA DINAS KOMINFO
-                        </option>
-                        <option value="RADIO" {{ request('layanan') == 'RADIO' ? 'selected' : '' }}>RADIO</option>
-                        <option value="SEKRETARIAT" {{ request('layanan') == 'SEKRETARIAT' ? 'selected' : '' }}>SEKRETARIAT</option>
+                        <option value="BIDANG SIP"              {{ request('layanan') == 'BIDANG SIP'              ? 'selected' : '' }}>BIDANG SIP</option>
+                        <option value="BIDANG SPBE"             {{ request('layanan') == 'BIDANG SPBE'             ? 'selected' : '' }}>BIDANG SPBE</option>
+                        <option value="BIDANG TI"               {{ request('layanan') == 'BIDANG TI'               ? 'selected' : '' }}>BIDANG TI</option>
+                        <option value="KEPALA DINAS KOMINFO"    {{ request('layanan') == 'KEPALA DINAS KOMINFO'    ? 'selected' : '' }}>KEPALA DINAS KOMINFO</option>
+                        <option value="RADIO"                   {{ request('layanan') == 'RADIO'                   ? 'selected' : '' }}>RADIO</option>
+                        <option value="SEKRETARIAT"             {{ request('layanan') == 'SEKRETARIAT'             ? 'selected' : '' }}>SEKRETARIAT</option>
                         <option value="SEKRETARIAT DINAS KOMINFO" {{ request('layanan') == 'SEKRETARIAT DINAS KOMINFO' ? 'selected' : '' }}>SEKRETARIAT DINAS KOMINFO</option>
                     </select>
                 </div>
@@ -113,7 +126,7 @@
         </div>
 
         <div class="overflow-x-auto bg-white shadow-md rounded-md">
-            <table class=" w-full text-center border-collapse">
+            <table class="w-full text-center border-collapse">
                 <thead>
                     <tr class="bg-[#1B75BC] text-white">
                         <th class="p-3 border">No</th>
@@ -142,10 +155,13 @@
                             <td class="p-3 border text-sm text-red-600 font-medium">{{ $guest->pulang ?? '-' }}</td>
                             <td class="p-3 border text-sm">
                                 @if ($guest->foto)
-                                    <img src="{{ asset('storage/foto/' . $guest->foto) }}" alt="Foto Tamu"
+                                    {{-- Stored path already includes folder (e.g. foto/filename.jpg) --}}
+                                    <img src="{{ asset('storage/' . $guest->foto) }}"
+                                        alt="Foto {{ $guest->nama_tamu }}"
+                                        onclick="bukaModal('{{ asset('storage/' . $guest->foto) }}')"
                                         class="w-16 h-16 object-cover rounded-lg mx-auto shadow-sm cursor-pointer hover:scale-110 transition">
                                 @else
-                                    <span class="text-gray-400 italic">No Photo</span>
+                                    <span class="text-gray-400 italic text-xs">Tidak ada foto</span>
                                 @endif
                             </td>
                         </tr>
@@ -160,6 +176,21 @@
             </table>
         </div>
     </div>
-</body>
 
+    <script>
+        function bukaModal(src) {
+            document.getElementById('modal-img').src = src;
+            document.getElementById('modal-foto').classList.add('aktif');
+        }
+        function tutupModal() {
+            document.getElementById('modal-foto').classList.remove('aktif');
+            document.getElementById('modal-img').src = '';
+        }
+        // Tutup modal dengan tombol Escape
+        document.addEventListener('keydown', e => {
+            if (e.key === 'Escape') tutupModal();
+        });
+    </script>
+
+</body>
 </html>

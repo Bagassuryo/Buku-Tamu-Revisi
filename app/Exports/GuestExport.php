@@ -9,13 +9,14 @@ use Maatwebsite\Excel\Concerns\WithDrawings;
 use PhpOffice\PhpSpreadsheet\Worksheet\Drawing;
 use Maatwebsite\Excel\Concerns\WithStyles;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
+use Illuminate\Support\Collection;
 
 class GuestExport implements FromCollection, WithHeadings, WithMapping, WithDrawings, WithStyles
 {
-    protected $guests;
+    protected Collection $guests;
 
     // Kita terima data dari Controller agar filter tetap jalan
-    public function __construct($guests)
+    public function __construct(Collection $guests)
     {
         $this->guests = $guests;
     }
