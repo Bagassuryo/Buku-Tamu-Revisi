@@ -130,7 +130,8 @@
                 <thead>
                     <tr class="bg-[#1B75BC] text-white">
                         <th class="p-3 border">No</th>
-                        <th class="p-3 border text-left">Nama Tamu</th>
+                        <th class="p-3 border">Nama Tamu</th>
+                        <th class="p-3 border">OPD</th>
                         <th class="p-3 border">Layanan</th>
                         <th class="p-3 border">No HP</th>
                         <th class="p-3 border">Instansi</th>

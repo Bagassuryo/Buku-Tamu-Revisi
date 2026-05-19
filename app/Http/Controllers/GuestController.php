@@ -63,6 +63,7 @@ class GuestController extends Controller
         // Validasi data agar tidak kosong atau salah format
         $validated = $request->validate([
             'nama_tamu'     => 'required|string|max:255',
+            'opd'           => 'required',
             'layanan'       => 'required',
             'no_hp'         => 'required|numeric',
             'asal_instansi' => 'required',
@@ -121,4 +122,87 @@ class GuestController extends Controller
 
         return back()->with('error', 'Data tidak ditemukan atau Anda sudah tercatat pulang.');
     }
-}
+
+    // --- TAMBAHKAN FUNGSI EXPORT INI DI PALING BAWAH CONTROLLER ---
+
+    public function export(Request $request)
+    {
+        // 1. Ambil data dengan filter yang sama
+        $search = $request->input('search');
+        $tanggal = $request->input('tanggal');
+        $bulan = $request->input('bulan');
+        $layanan = $request->input('layanan');
+
+        $guests = Guest::query()
+            ->when($search, function ($query, $search) {
+                return $query->where(function ($q) use ($search) {
+                    $q->where('nama_tamu', 'like', '%' . $search . '%')
+                      ->orWhere('asal_instansi', 'like', '%' . $search . '%');
+                });
+            })
+            ->when($tanggal, function ($query, $tanggal) {
+                return $query->whereDate('tanggal', $tanggal);
+            })
+            ->when($bulan, function ($query, $bulan) {
+                return $query->whereMonth('tanggal', $bulan);
+            })
+            ->when($layanan, function ($query, $layanan) {
+                return $query->where('layanan', $layanan);
+            })
+            ->orderBy('id', 'desc')
+            ->get();
+
+        // 2. Set nama file dan Header agar kedownload sebagai Excel (.xls)
+        $fileName = 'data_tamu_' . now()->format('Y-m-d_H-i-s') . '.xls';
+        
+        header("Content-Type: application/vnd.ms-excel");
+        header("Content-Disposition: attachment; filename=\"$fileName\"");
+        header("Cache-Control: max-age=0");
+
+        // 3. Buat struktur tabel HTML yang otomatis diterjemahkan jadi kolom oleh Excel
+        echo '<table border="1">';
+        echo '<thead>';
+        echo '<tr>
+                <th style="background-color: #00ffff;">Nama Tamu</th>
+                <th style="background-color: #00ffff;">Layanan</th>
+                <th style="background-color: #00ffff;">No HP</th>
+                <th style="background-color: #00ffff;">Asal Instansi</th>
+                <th style="background-color: #00ffff;">Tanggal</th>
+                <th style="background-color: #00ffff;">Jam Datang</th>
+                <th style="background-color: #00ffff;">Jam Pulang</th>
+                <th style="background-color: #00ffff;">Keterangan</th>
+                <th style="background-color: #00ffff; width: 120px;">Foto</th>
+              </tr>';
+        echo '</thead>';
+        echo '<tbody>';
+
+        foreach ($guests as $guest) {
+            echo '<tr>';
+            echo '<td>' . e($guest->nama_tamu) . '</td>';
+            echo '<td>' . e($guest->layanan) . '</td>';
+            // Menambahkan tanda petik (') di no_hp agar tidak berubah jadi format urutan angka aneh di Excel
+            echo '<td>\'' . e($guest->no_hp) . '</td>'; 
+            echo '<td>' . e($guest->asal_instansi) . '</td>';
+            echo '<td>' . e($guest->tanggal) . '</td>';
+            echo '<td>' . e($guest->datang) . '</td>';
+            echo '<td>' . e($guest->pulang ?? '-') . '</td>';
+            echo '<td>' . e($guest->keterangan) . '</td>';
+            
+            // LOGIKA FOTO:
+            if ($guest->foto) {
+                // Mengambil url full (contoh: http://buku-tamu.test/storage/foto/xxx.jpg)
+                $urlFoto = asset('storage/' . $guest->foto);
+                // Menampilkan tag gambar dengan tinggi di-lock 80px agar rapi di Excel
+                echo '<td><img src="' . $urlFoto . '" height="80" alt="Foto"></td>';
+            } else {
+                echo '<td>Tidak ada foto</td>';
+            }
+            
+            echo '</tr>';
+        }
+
+        echo '</tbody>';
+        echo '</table>';
+        exit;
+    }
+} // Ini adalah tanda kurung kurawal penutup akhir class GuestController
