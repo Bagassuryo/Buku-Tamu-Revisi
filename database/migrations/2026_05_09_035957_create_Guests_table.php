@@ -14,7 +14,8 @@ return new class extends Migration
         Schema::create('guests', function (Blueprint $table) {
             $table->id();
             $table->string('nama_tamu');
-            $table->enum('layanan', ['bidang sip', 'bidang spbe', 'bidang ti', 'kepala dinas kominfo', 'radio', 'sekretariat', 'sekretariat dinas kominfo']);
+            $table->string('opd');
+            $table->string('layanan') ->nullable();
             $table->string('no_hp');
             $table->string('asal_instansi');
             $table->text('keterangan');

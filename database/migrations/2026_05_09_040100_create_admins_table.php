@@ -16,6 +16,10 @@ return new class extends Migration
             $table->string('username')->unique();
             $table->string('password');
             $table->enum('role', ['admin', 'super_admin'])->default('admin');
+            $table->string('opd')->nullable();
+            $table->enum('status', ['aktif', 'nonaktif'])->default('aktif'); // Kolom Status
+            $table->timestamp('last_active')->nullable(); // Kolom Terakhir Aktif
+            $table->timestamps(); // Otomatis membuat created_at dan updated_at
         });
     }
 

@@ -4,48 +4,65 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Models\Guest;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request; // Pastikan ini ada untuk menangkap data form
 use Illuminate\Support\Facades\Storage;
+use App\Exports\GuestExport;
+use Maatwebsite\Excel\Facades\Excel;
 
 class GuestController extends Controller
 {
     // Ganti fungsi index() lama kamu dengan ini
     public function index(Request $request)
     {
-        // Ambil data dari input form search dan filter
         $search = $request->input('search');
         $tanggal = $request->input('tanggal');
         $bulan = $request->input('bulan');
         $layanan = $request->input('layanan');
+        $opd = $request->input('opd'); // tambahkan ini
 
-        // Mulai Query
+        $user = Auth::user();
+
         $guests = Guest::query()
-            // Fitur Search: Cari berdasarkan nama_tamu atau asal_instansi
+
+            // Jika bukan superadmin, tampilkan hanya OPD miliknya
+            ->when($user->role !== 'super_admin', function ($query) use ($user) {
+                return $query->where('opd', $user->opd);
+            })
+
+            // Filter OPD (khusus superadmin)
+            ->when($opd, function ($query, $opd) {
+                return $query->where('opd', $opd);
+            })
+
+            // Search
             ->when($search, function ($query, $search) {
                 return $query->where(function ($q) use ($search) {
                     $q->where('nama_tamu', 'like', '%' . $search . '%')
-                        ->orWhere('asal_instansi', 'like', '%' . $search . '%');
+                        ->orWhere('asal_instansi', 'like', '%' . $search . '%')
+                        ->orWhere('opd', 'like', '%' . $search . '%')
+                        ->orWhere('layanan', 'like', '%' . $search . '%');
                 });
             })
-            // Fitur Filter: Cari berdasarkan tanggal tertentu
+
+            // Filter tanggal
             ->when($tanggal, function ($query, $tanggal) {
                 return $query->whereDate('tanggal', $tanggal);
             })
 
-            // 3. Filter: Bulan (Penting: Tambahkan ini!)
+            // Filter bulan
             ->when($bulan, function ($query, $bulan) {
                 return $query->whereMonth('tanggal', $bulan);
             })
-            // 4. Filter: Layanan (Penting: Tambahkan ini!)
+
+            // Filter layanan
             ->when($layanan, function ($query, $layanan) {
                 return $query->where('layanan', $layanan);
             })
 
-            // Urutkan dari yang terbaru
             ->orderBy('id', 'desc')
             ->get();
 
-        // Kirim data ke view 'guest'
         return view('guest', compact('guests'));
     }
 
@@ -72,7 +89,7 @@ class GuestController extends Controller
         ]);
 
         // Simpan nama OPD ke kolom layanan, dan gunakan layanan jika ada.
-        
+
 
         // Menambahkan data waktu secara otomatis sebelum disimpan
         $validated['tanggal'] = now()->toDateString(); // Hasil: 2026-05-10
@@ -105,15 +122,25 @@ class GuestController extends Controller
 
     public function showCheckoutForm()
     {
-        return view('pulang');
+        // Ambil semua tamu yang datang hari ini dan belum mengisi jam pulang
+        $activeGuests = Guest::where('tanggal', now()->toDateString())
+            ->whereNull('pulang')
+            ->orderBy('nama_tamu', 'asc')
+            ->get();
+
+        // Kirim data tamu ke view 'pulang'
+        return view('pulang', compact('activeGuests'));
     }
 
     public function processCheckout(Request $request)
     {
-        $request->validate(['nama_tamu' => 'required']);
+        // Validasi bahwa ID tamu wajib dipilih dan harus ada di tabel guests
+        $request->validate([
+            'id' => 'required|exists:guests,id'
+        ]);
 
-        // Cari tamu yang datang hari ini, HP sesuai, dan belum pulang
-        $guest = Guest::where('nama_tamu', $request->nama_tamu)
+        // Cari tamu berdasarkan ID yang dipilih
+        $guest = Guest::where('id', $request->id)
             ->where('tanggal', now()->toDateString())
             ->whereNull('pulang')
             ->first();
@@ -130,82 +157,44 @@ class GuestController extends Controller
 
     public function export(Request $request)
     {
-        // 1. Ambil data dengan filter yang sama
         $search = $request->input('search');
         $tanggal = $request->input('tanggal');
         $bulan = $request->input('bulan');
         $layanan = $request->input('layanan');
 
+        $user = Auth::user();
+
         $guests = Guest::query()
+
+            // Pembatasan OPD
+            ->when($user->role !== 'super_admin', function ($query) use ($user) {
+                return $query->where('opd', $user->opd);
+            })
+
             ->when($search, function ($query, $search) {
                 return $query->where(function ($q) use ($search) {
                     $q->where('nama_tamu', 'like', '%' . $search . '%')
-                      ->orWhere('asal_instansi', 'like', '%' . $search . '%');
+                        ->orWhere('asal_instansi', 'like', '%' . $search . '%');
                 });
             })
+
             ->when($tanggal, function ($query, $tanggal) {
                 return $query->whereDate('tanggal', $tanggal);
             })
+
             ->when($bulan, function ($query, $bulan) {
                 return $query->whereMonth('tanggal', $bulan);
             })
+
             ->when($layanan, function ($query, $layanan) {
                 return $query->where('layanan', $layanan);
             })
+
             ->orderBy('id', 'desc')
             ->get();
 
-        // 2. Set nama file dan Header agar kedownload sebagai Excel (.xls)
-        $fileName = 'data_tamu_' . now()->format('Y-m-d_H-i-s') . '.xls';
-        
-        header("Content-Type: application/vnd.ms-excel");
-        header("Content-Disposition: attachment; filename=\"$fileName\"");
-        header("Cache-Control: max-age=0");
+        $fileName = 'data_tamu_' . now()->format('Y-m-d') . '.xlsx';
 
-        // 3. Buat struktur tabel HTML yang otomatis diterjemahkan jadi kolom oleh Excel
-        echo '<table border="1">';
-        echo '<thead>';
-        echo '<tr>
-                <th style="background-color: #00ffff;">Nama Tamu</th>
-                <th style="background-color: #00ffff;">Layanan</th>
-                <th style="background-color: #00ffff;">No HP</th>
-                <th style="background-color: #00ffff;">Asal Instansi</th>
-                <th style="background-color: #00ffff;">Tanggal</th>
-                <th style="background-color: #00ffff;">Jam Datang</th>
-                <th style="background-color: #00ffff;">Jam Pulang</th>
-                <th style="background-color: #00ffff;">Keterangan</th>
-                <th style="background-color: #00ffff; width: 120px;">Foto</th>
-              </tr>';
-        echo '</thead>';
-        echo '<tbody>';
-
-        foreach ($guests as $guest) {
-            echo '<tr>';
-            echo '<td>' . e($guest->nama_tamu) . '</td>';
-            echo '<td>' . e($guest->layanan) . '</td>';
-            // Menambahkan tanda petik (') di no_hp agar tidak berubah jadi format urutan angka aneh di Excel
-            echo '<td>\'' . e($guest->no_hp) . '</td>'; 
-            echo '<td>' . e($guest->asal_instansi) . '</td>';
-            echo '<td>' . e($guest->tanggal) . '</td>';
-            echo '<td>' . e($guest->datang) . '</td>';
-            echo '<td>' . e($guest->pulang ?? '-') . '</td>';
-            echo '<td>' . e($guest->keterangan) . '</td>';
-            
-            // LOGIKA FOTO:
-            if ($guest->foto) {
-                // Mengambil url full (contoh: http://buku-tamu.test/storage/foto/xxx.jpg)
-                $urlFoto = asset('storage/' . $guest->foto);
-                // Menampilkan tag gambar dengan tinggi di-lock 80px agar rapi di Excel
-                echo '<td><img src="' . $urlFoto . '" height="80" alt="Foto"></td>';
-            } else {
-                echo '<td>Tidak ada foto</td>';
-            }
-            
-            echo '</tr>';
-        }
-
-        echo '</tbody>';
-        echo '</table>';
-        exit;
+        return Excel::download(new GuestExport($guests), $fileName);
     }
-} // Ini adalah tanda kurung kurawal penutup akhir class GuestController
+}

@@ -79,9 +79,11 @@ class AdminController extends Controller
             // Ganti 'admins' jadi 'users' jika itu nama tabelmu
             'username' => 'required|unique:admins,username',
             'password' => 'required|min:6',
+            'opd' => 'required'
         ], [
             'username.unique' => 'Username ini sudah terdaftar, masukkan username lain.',
-            'password.min' => 'Password minimal harus 6 karakter.'
+            'password.min' => 'Password minimal harus 6 karakter.',
+            'opd.required' => 'OPD wajib diisi.'
         ]);
 
         // 2. Simpan data
@@ -89,6 +91,7 @@ class AdminController extends Controller
             'username' => $request->username,
             'password' => Hash::make($request->password),
             'role' => 'admin',
+            'opd' => $request->opd,
         ]);
 
         return back()->with('success', 'Admin baru berhasil ditambahkan!');

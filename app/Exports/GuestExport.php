@@ -10,8 +10,10 @@ use PhpOffice\PhpSpreadsheet\Worksheet\Drawing;
 use Maatwebsite\Excel\Concerns\WithStyles;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use Illuminate\Support\Collection;
+use Maatwebsite\Excel\Concerns\ShouldAutoSize; 
+use Maatwebsite\Excel\Concerns\WithColumnWidths;
 
-class GuestExport implements FromCollection, WithHeadings, WithMapping, WithDrawings, WithStyles
+class GuestExport implements FromCollection, WithHeadings, WithMapping, WithDrawings, WithStyles, ShouldAutoSize, WithColumnWidths
 {
     protected Collection $guests;
 
@@ -29,13 +31,14 @@ class GuestExport implements FromCollection, WithHeadings, WithMapping, WithDraw
     // Menentukan Header
     public function headings(): array
     {
-        return ['Layanan', 'Nama', 'No HP', 'Instansi', 'Keterangan', 'Tanggal', 'Datang', 'Pulang', 'Foto'];
+        return ['opd','Layanan', 'Nama', 'No HP', 'Instansi', 'Keterangan', 'Tanggal', 'Datang', 'Pulang', 'Foto'];
     }
 
     // Memetakan kolom database ke Excel
     public function map($guest): array
     {
         return [
+            $guest->opd,
             $guest->layanan,
             $guest->nama_tamu,
             $guest->no_hp,
@@ -54,16 +57,23 @@ class GuestExport implements FromCollection, WithHeadings, WithMapping, WithDraw
         $drawings = [];
         foreach ($this->guests as $index => $guest) {
             // Pastikan kolom foto ada isinya dan file fisik ada
-            if ($guest->foto && file_exists(public_path('storage/foto/' . $guest->foto))) {
+            if ($guest->foto && file_exists(public_path('storage/' . $guest->foto))) {
                 $drawing = new Drawing();
                 $drawing->setName('Foto');
-                $drawing->setPath(public_path('storage/foto/' . $guest->foto));
+                $drawing->setPath(public_path('storage/' . $guest->foto));
                 $drawing->setHeight(70);
-                $drawing->setCoordinates('I' . ($index + 2)); // Mulai dari baris 2
+                $drawing->setCoordinates('J' . ($index + 2)); // Mulai dari baris 2
                 $drawings[] = $drawing;
             }
         }
         return $drawings;
+    }
+
+    public function columnWidths(): array
+    {
+        return [
+            'J' => 18, // Mengunci lebar kolom J (Foto) agar pas dengan gambar setinggi 70, sisanya (A-I) otomatis auto-size
+        ];
     }
 
     // Mengatur tinggi baris agar gambar muat
