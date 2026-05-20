@@ -29,16 +29,16 @@ class GuestController extends Controller
             })
             // Fitur Filter: Cari berdasarkan tanggal tertentu
             ->when($tanggal, function ($query, $tanggal) {
-                return $query->whereDate('tanggal', $tanggal);
+                return $query->whereDate('tanggal', '=', $tanggal);
             })
 
             // 3. Filter: Bulan (Penting: Tambahkan ini!)
             ->when($bulan, function ($query, $bulan) {
-                return $query->whereMonth('tanggal', $bulan);
+                return $query->whereMonth('tanggal', '=', $bulan, 'and');
             })
             // 4. Filter: Layanan (Penting: Tambahkan ini!)
             ->when($layanan, function ($query, $layanan) {
-                return $query->where('layanan', $layanan);
+                return $query->where('layanan', '=', $layanan);
             })
 
             // Urutkan dari yang terbaru
@@ -100,28 +100,38 @@ class GuestController extends Controller
         return redirect()->back()->with('success', 'Data kunjungan Anda berhasil terkirim!');
     }
 
-    public function showCheckoutForm()
-    {
-        return view('pulang');
+        public function showCheckoutForm()
+{
+    $guest = Guest::query()
+        ->whereDate('tanggal', now()->toDateString())
+        ->whereNull('pulang')
+        ->get();
+
+    return view('pulang', compact('guest'));
+}
+
+public function processCheckout(Request $request)
+{
+    // Perbaikan 1: Validasi 'id', bukan 'nama_tamu'
+    $request->validate([
+        'id' => 'required|exists:guests,id'
+    ]);
+
+    // Perbaikan 2: Cari langsung berdasarkan ID tamu
+    $guest = Guest::find($request->id);
+
+    // Keamanan tambahan: Pastikan tamu memang belum pulang hari ini
+    if ($guest && is_null($guest->pulang) && $guest->tanggal == now()->toDateString()) {
+        $guest->update([
+            'pulang' => now()->toTimeString()
+        ]);
+
+        // Redirect ke halaman survei eksternal setelah berhasil checkout
+        return redirect('https://sukma.jatimprov.go.id/home/survei?idUser=1186');
     }
 
-    public function processCheckout(Request $request)
-    {
-        $request->validate(['nama_tamu' => 'required']);
-
-        // Cari tamu yang datang hari ini, HP sesuai, dan belum pulang
-        $guest = Guest::where('nama_tamu', $request->nama_tamu)
-            ->where('tanggal', now()->toDateString())
-            ->whereNull('pulang')
-            ->first();
-
-        if ($guest) {
-            $guest->update(['pulang' => now()->toTimeString()]);
-            return redirect()->route('tamu.checkout.form')->with('success', 'Terima kasih ' . $guest->nama_tamu . ', jam pulang Anda telah dicatat!');
-        }
-
-        return back()->with('error', 'Data tidak ditemukan atau Anda sudah tercatat pulang.');
-    }
+    return back()->with('error', 'Data tidak ditemukan atau Anda sudah tercatat pulang.');
+}
 
     // --- TAMBAHKAN FUNGSI EXPORT INI DI PALING BAWAH CONTROLLER ---
 
@@ -141,20 +151,20 @@ class GuestController extends Controller
                 });
             })
             ->when($tanggal, function ($query, $tanggal) {
-                return $query->whereDate('tanggal', $tanggal);
+                return $query->whereDate('tanggal', '=', $tanggal, 'and');
             })
             ->when($bulan, function ($query, $bulan) {
-                return $query->whereMonth('tanggal', $bulan);
+                return $query->whereMonth('tanggal', '=', $bulan, 'and');
             })
             ->when($layanan, function ($query, $layanan) {
-                return $query->where('layanan', $layanan);
+                return $query->where('layanan', '=', $layanan);
             })
             ->orderBy('id', 'desc')
             ->get();
 
         // 2. Set nama file dan Header agar kedownload sebagai Excel (.xls)
         $fileName = 'data_tamu_' . now()->format('Y-m-d_H-i-s') . '.xls';
-        
+
         header("Content-Type: application/vnd.ms-excel");
         header("Content-Disposition: attachment; filename=\"$fileName\"");
         header("Cache-Control: max-age=0");
@@ -181,13 +191,13 @@ class GuestController extends Controller
             echo '<td>' . e($guest->nama_tamu) . '</td>';
             echo '<td>' . e($guest->layanan) . '</td>';
             // Menambahkan tanda petik (') di no_hp agar tidak berubah jadi format urutan angka aneh di Excel
-            echo '<td>\'' . e($guest->no_hp) . '</td>'; 
+            echo '<td>\'' . e($guest->no_hp) . '</td>';
             echo '<td>' . e($guest->asal_instansi) . '</td>';
             echo '<td>' . e($guest->tanggal) . '</td>';
             echo '<td>' . e($guest->datang) . '</td>';
             echo '<td>' . e($guest->pulang ?? '-') . '</td>';
             echo '<td>' . e($guest->keterangan) . '</td>';
-            
+
             // LOGIKA FOTO:
             if ($guest->foto) {
                 // Mengambil url full (contoh: http://buku-tamu.test/storage/foto/xxx.jpg)
@@ -197,7 +207,7 @@ class GuestController extends Controller
             } else {
                 echo '<td>Tidak ada foto</td>';
             }
-            
+
             echo '</tr>';
         }
 
@@ -205,4 +215,4 @@ class GuestController extends Controller
         echo '</table>';
         exit;
     }
-} // Ini adalah tanda kurung kurawal penutup akhir class GuestController
+}
