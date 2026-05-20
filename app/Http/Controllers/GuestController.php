@@ -47,17 +47,17 @@ class GuestController extends Controller
 
             // Filter tanggal
             ->when($tanggal, function ($query, $tanggal) {
-                return $query->whereDate('tanggal', $tanggal);
+                return $query->whereDate('tanggal', '=', $tanggal);
             })
 
             // Filter bulan
             ->when($bulan, function ($query, $bulan) {
-                return $query->whereMonth('tanggal', $bulan);
+                return $query->whereMonth('tanggal', '=', $bulan, 'and');
             })
 
             // Filter layanan
             ->when($layanan, function ($query, $layanan) {
-                return $query->where('layanan', $layanan);
+                return $query->where('layanan', '=', $layanan);
             })
 
             ->orderBy('id', 'desc')
@@ -120,38 +120,38 @@ class GuestController extends Controller
         return redirect()->back()->with('success', 'Data kunjungan Anda berhasil terkirim!');
     }
 
-    public function showCheckoutForm()
-    {
-        // Ambil semua tamu yang datang hari ini dan belum mengisi jam pulang
-        $activeGuests = Guest::where('tanggal', now()->toDateString())
-            ->whereNull('pulang')
-            ->orderBy('nama_tamu', 'asc')
-            ->get();
+        public function showCheckoutForm()
+{
+    $guest = Guest::query()
+        ->whereDate('tanggal', now()->toDateString())
+        ->whereNull('pulang')
+        ->get();
 
-        // Kirim data tamu ke view 'pulang'
-        return view('pulang', compact('activeGuests'));
-    }
+    return view('pulang', compact('guest'));
+}
 
-    public function processCheckout(Request $request)
-    {
-        // Validasi bahwa ID tamu wajib dipilih dan harus ada di tabel guests
-        $request->validate([
-            'id' => 'required|exists:guests,id'
+public function processCheckout(Request $request)
+{
+    // Perbaikan 1: Validasi 'id', bukan 'nama_tamu'
+    $request->validate([
+        'id' => 'required|exists:guests,id'
+    ]);
+
+    // Perbaikan 2: Cari langsung berdasarkan ID tamu
+    $guest = Guest::find($request->id);
+
+    // Keamanan tambahan: Pastikan tamu memang belum pulang hari ini
+    if ($guest && is_null($guest->pulang) && $guest->tanggal == now()->toDateString()) {
+        $guest->update([
+            'pulang' => now()->toTimeString()
         ]);
 
-        // Cari tamu berdasarkan ID yang dipilih
-        $guest = Guest::where('id', $request->id)
-            ->where('tanggal', now()->toDateString())
-            ->whereNull('pulang')
-            ->first();
-
-        if ($guest) {
-            $guest->update(['pulang' => now()->toTimeString()]);
-            return redirect()->route('tamu.checkout.form')->with('success', 'Terima kasih ' . $guest->nama_tamu . ', jam pulang Anda telah dicatat!');
-        }
-
-        return back()->with('error', 'Data tidak ditemukan atau Anda sudah tercatat pulang.');
+        // Redirect ke halaman survei eksternal setelah berhasil checkout
+        return redirect ('https://sukma.jatimprov.go.id/home/survei?idUser=1186');
     }
+
+    return back()->with('error', 'Data tidak ditemukan atau Anda sudah tercatat pulang.');
+}
 
     // --- TAMBAHKAN FUNGSI EXPORT INI DI PALING BAWAH CONTROLLER ---
 
@@ -179,15 +179,15 @@ class GuestController extends Controller
             })
 
             ->when($tanggal, function ($query, $tanggal) {
-                return $query->whereDate('tanggal', $tanggal);
+                return $query->whereDate('tanggal', '=', $tanggal, 'and');
             })
 
             ->when($bulan, function ($query, $bulan) {
-                return $query->whereMonth('tanggal', $bulan);
+                return $query->whereMonth('tanggal', '=', $bulan, 'and');
             })
 
             ->when($layanan, function ($query, $layanan) {
-                return $query->where('layanan', $layanan);
+                return $query->where('layanan', '=', $layanan);
             })
 
             ->orderBy('id', 'desc')
