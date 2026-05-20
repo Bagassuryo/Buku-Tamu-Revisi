@@ -72,7 +72,7 @@ class GuestController extends Controller
         ]);
 
         // Simpan nama OPD ke kolom layanan, dan gunakan layanan jika ada.
-        
+
 
         // Menambahkan data waktu secara otomatis sebelum disimpan
         $validated['tanggal'] = now()->toDateString(); // Hasil: 2026-05-10
@@ -130,7 +130,7 @@ public function processCheckout(Request $request)
         ]);
 
         // Redirect ke halaman survei eksternal setelah berhasil checkout
-        return redirect('https://sukma.jatimprov.go.id/home/survei?idUser=1186');
+        return redirect ('https://sukma.jatimprov.go.id/home/survei?idUser=1186');
     }
 
     return back()->with('error', 'Data tidak ditemukan atau Anda sudah tercatat pulang.');
