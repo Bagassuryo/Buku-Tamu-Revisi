@@ -170,52 +170,52 @@
                             OPD yang Dituju <span class="text-red-500">*</span>
                         </label>
 
-                        <input type="hidden" name="layanan" id="layanan-value" value="{{ old('layanan') }}">
+                        <input type="hidden" name="opd" id="opd-value" value="{{ old('opd') }}">
 
                         <div class="relative" id="search-wrap">
                             <div class="relative flex items-center">
                                 <i
                                     class="ti ti-search absolute left-3 text-slate-400 text-base pointer-events-none z-10"></i>
-                                <input type="text" id="layanan-search" autocomplete="off"
-                                    placeholder="Ketik nama OPD atau layanan..."
+                                <input type="text" id="opd-search" autocomplete="off"
+                                    placeholder="Ketik nama OPD..."
                                     class="w-full pl-9 pr-9 py-2.75 border-[1.5px] rounded-xl text-sm text-slate-800 placeholder-slate-400 outline-none transition
                                         focus:border-[#1B75BC] focus:ring-2 focus:ring-blue-100
-                                        {{ $errors->has('layanan') ? 'border-red-400 ring-2 ring-red-100' : 'border-slate-200' }}"
-                                    value="{{ old('layanan') }}">
-                                <button type="button" id="layanan-clear"
+                                        {{ $errors->has('opd') ? 'border-red-400 ring-2 ring-red-100' : 'border-slate-200' }}"
+                                    value="{{ old('opd') }}">
+                                <button type="button" id="opd-clear"
                                     class="absolute right-2.5 hidden items-center justify-center w-5 h-5 rounded-full text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition">
                                     <i class="ti ti-x text-xs"></i>
                                 </button>
                             </div>
 
-                            <div id="layanan-dropdown"
+                            <div id="opd-dropdown"
                                 class="hidden absolute top-[calc(100%+4px)] left-0 right-0 bg-white border-[1.5px] border-slate-200 rounded-xl shadow-xl z-50 max-h-60 overflow-y-auto">
                             </div>
 
-                            <div id="selected-layanan-display">
-                                @if (old('layanan'))
+                            <div id="selected-opd-display">
+                                @if (old('opd'))
                                     <div
                                         class="inline-flex items-center gap-1.5 bg-blue-50 border border-blue-200 text-[#1a2a6c] text-[13px] font-semibold px-2.5 py-1.5 rounded-lg mt-1.5">
                                         <i class="ti ti-check text-green-500 text-xs"></i>
-                                        {{ old('layanan') }}
+                                        {{ old('opd') }}
                                     </div>
                                 @endif
                             </div>
                         </div>
 
                         <p class="text-[11.5px] text-slate-400 mt-1.5">Cari berdasarkan nama OPD</p>
-                        @error('layanan')
+                        @error('opd')
                             <p class="text-xs text-red-500 mt-1">{{ $message }}</p>
                         @enderror
                     </div>
 
-                    {{-- Sub Layanan (muncul setelah OPD dipilih) --}}
-                    <div id="sub-layanan-wrap" class="hidden">
+                    {{--Layanan (muncul setelah OPD dipilih) --}}
+                    <div id="layanan-wrap" class="hidden">
                         <label class="flex items-center gap-1.5 text-[13px] font-semibold text-slate-700 mb-1.5">
                             <i class="ti ti-list-details text-[15px] text-[#1B75BC]"></i>
                             Jenis Layanan <span class="text-red-500">*</span>
                         </label>
-                        <select name="sub_layanan" id="sub-layanan-select"
+                        <select name="layanan" id="layanan-select"
                             class="w-full px-3.5 py-2.75 border-[1.5px] border-slate-200 rounded-xl text-sm text-slate-800 outline-none transition
                focus:border-[#1B75BC] focus:ring-2 focus:ring-blue-100 bg-white cursor-pointer appearance-none">
                             <option value="">Pilih Jenis Layanan</option>
@@ -331,7 +331,7 @@
         // ═══════════════════════════════════════════════════
         // DATA OPD
         // ═══════════════════════════════════════════════════
-        const LAYANAN_DATA = [
+        const OPD_DATA = [
             // ── BADAN ──
             {
                 id: 'bkpsdm',
@@ -671,7 +671,7 @@
         // ═══════════════════════════════════════════════════
         // DATA SUB LAYANAN PER OPD
         // ═══════════════════════════════════════════════════
-        const SUB_LAYANAN = {
+        const LAYANAN_DATA = {
             bkpsdm: [
                 'Layanan Administrasi Kepegawaian',
                 'Pengembangan Kompetensi ASN',
@@ -1061,18 +1061,18 @@
             const nama = document.querySelector('[name="nama_tamu"]').value.trim();
             const instansi = document.querySelector('[name="asal_instansi"]').value.trim();
             const nohp = document.querySelector('[name="no_hp"]').value.trim();
+            const opd = document.querySelector('[name="opd"]').value.trim();
             const layanan = document.querySelector('[name="layanan"]').value.trim();
-            const subLayanan = document.querySelector('[name="sub_layanan"]').value.trim();
             const keterangan = document.querySelector('[name="keterangan"]').value.trim();
 
-            if (!nama || !instansi || !nohp || !layanan || !keterangan) {
+            if (!nama || !instansi || !nohp || !opd || !layanan || !keterangan) {
                 showToast('error', 'Form Belum Lengkap', 'Mohon isi semua data terlebih dahulu.', 3500);
                 return;
             }
 
-            // Validasi sub_layanan hanya jika wrap-nya tampil
-            const subWrap = document.getElementById('sub-layanan-wrap');
-            if (!subWrap.classList.contains('hidden') && !subLayanan) {
+            // Validasi layanan hanya jika wrap-nya tampil
+            const subWrap = document.getElementById('layanan-wrap');
+            if (!subWrap.classList.contains('hidden') && !layanan) {
                 showToast('error', 'Jenis Layanan Belum Dipilih', 'Mohon pilih jenis layanan yang dituju.',
                     3500);
                 return;
@@ -1125,17 +1125,17 @@
         // ═══════════════════════════════════════════════════
         // SEARCH LAYANAN + SUB LAYANAN
         // ═══════════════════════════════════════════════════
-        let selectedLayanan = null;
+        let selectedOPD = null;
 
-        const searchInput = document.getElementById('layanan-search');
-        const dropdown = document.getElementById('layanan-dropdown');
-        const clearBtn = document.getElementById('layanan-clear');
-        const selectedDisp = document.getElementById('selected-layanan-display');
-        const hiddenInput = document.getElementById('layanan-value');
+        const searchInput = document.getElementById('opd-search');
+        const dropdown = document.getElementById('opd-dropdown');
+        const clearBtn = document.getElementById('opd-clear');
+        const selectedDisp = document.getElementById('selected-opd-display');
+        const hiddenInput = document.getElementById('opd-value');
 
-        // Sub layanan elements
-        const subWrap = document.getElementById('sub-layanan-wrap');
-        const subSelect = document.getElementById('sub-layanan-select');
+        // Layanan elements
+        const subWrap = document.getElementById('layanan-wrap');
+        const subSelect = document.getElementById('layanan-select');
 
         function highlight(text, query) {
             if (!query) return text;
@@ -1147,7 +1147,7 @@
         }
 
         function renderDropdown(query) {
-            const filtered = LAYANAN_DATA.filter(l =>
+            const filtered = OPD_DATA.filter(l =>
                 l.nama.toLowerCase().includes(query.toLowerCase()) ||
                 l.desc.toLowerCase().includes(query.toLowerCase())
             );
@@ -1155,7 +1155,7 @@
                 dropdown.innerHTML = `
             <div class="py-5 text-center text-slate-400 text-sm">
                 <i class="ti ti-search-off block text-2xl mb-1.5 opacity-40"></i>
-                Layanan tidak ditemukan
+                OPD tidak ditemukan
             </div>`;
             } else {
                 dropdown.innerHTML = filtered.map(l => `
@@ -1174,15 +1174,15 @@
                 dropdown.querySelectorAll('.dd-item').forEach(item => {
                     item.addEventListener('mousedown', e => {
                         e.preventDefault();
-                        const found = LAYANAN_DATA.find(l => l.id === item.dataset.id);
-                        selectLayanan(found);
+                        const found = OPD_DATA.find(l => l.id === item.dataset.id);
+                        selectOPD(found);
                     });
                 });
             }
         }
 
-        function loadSubLayanan(opdId) {
-            const list = SUB_LAYANAN[opdId] || [];
+        function loadLayanan(opdId) {
+            const list = LAYANAN_DATA[opdId] || [];
             subSelect.innerHTML = '<option value="">-- Pilih Jenis Layanan --</option>';
             if (list.length > 0) {
                 list.forEach(item => {
@@ -1214,8 +1214,8 @@
             dropdown.classList.add('hidden');
         }
 
-        function selectLayanan(item) {
-            selectedLayanan = item;
+        function selectOPD(item) {
+            selectedOPD = item;
             hiddenInput.value = item.nama;
             searchInput.value = '';
             searchInput.placeholder = item.nama;
@@ -1232,11 +1232,11 @@
         </div>`;
 
             // Muat sub layanan
-            loadSubLayanan(item.id);
+            loadLayanan(item.id);
         }
 
-        function clearLayanan() {
-            selectedLayanan = null;
+        function clearOPD() {
+            selectedOPD = null;
             hiddenInput.value = '';
             searchInput.value = '';
             searchInput.placeholder = 'Ketik nama OPD atau layanan...';
@@ -1251,8 +1251,8 @@
 
         searchInput.addEventListener('focus', openDropdown);
         searchInput.addEventListener('input', () => {
-            if (selectedLayanan) {
-                selectedLayanan = null;
+            if (selectedOPD) {
+                selectedOPD = null;
                 hiddenInput.value = '';
                 selectedDisp.innerHTML = '';
                 subWrap.classList.add('hidden');
@@ -1263,7 +1263,7 @@
             renderDropdown(searchInput.value);
             dropdown.classList.remove('hidden');
         });
-        clearBtn.addEventListener('click', clearLayanan);
+        clearBtn.addEventListener('click', clearOPD);
         document.addEventListener('click', e => {
             if (!document.getElementById('search-wrap').contains(e.target)) closeDropdown();
         });

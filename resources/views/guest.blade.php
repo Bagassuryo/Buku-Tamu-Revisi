@@ -147,6 +147,7 @@
                         <tr class="hover:bg-gray-50 transition border-b">
                             <td class="p-3 border text-gray-500 text-sm">{{ $loop->iteration }}</td>
                             <td class="p-3 border font-semibold text-left">{{ $guest->nama_tamu }}</td>
+                            <td class="p-3 border">{{ $guest->opd }}</td>
                             <td class="p-3 border">{{ $guest->layanan }}</td>
                             <td class="p-3 border">{{ $guest->no_hp }}</td>
                             <td class="p-3 border text-sm">{{ $guest->asal_instansi }}</td>

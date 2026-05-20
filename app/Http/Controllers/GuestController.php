@@ -63,13 +63,16 @@ class GuestController extends Controller
         // Validasi data agar tidak kosong atau salah format
         $validated = $request->validate([
             'nama_tamu'     => 'required|string|max:255',
-            'opd'           => 'required',
-            'layanan'       => 'required',
+            'opd'           => 'required|string|max:255',
+            'layanan'   => 'nullable|string|max:255',
             'no_hp'         => 'required|numeric',
             'asal_instansi' => 'required',
             'keterangan'    => 'required',
             'foto'          => 'nullable', // Bisa berupa file upload atau base64 data URL dari camera
         ]);
+
+        // Simpan nama OPD ke kolom layanan, dan gunakan layanan jika ada.
+        
 
         // Menambahkan data waktu secara otomatis sebelum disimpan
         $validated['tanggal'] = now()->toDateString(); // Hasil: 2026-05-10
