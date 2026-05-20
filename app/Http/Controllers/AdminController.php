@@ -30,15 +30,18 @@ class AdminController extends Controller
                 // unique:admins,username,[ID_YANG_DIABAIKAN]
                 'username' => 'required|unique:admins,username,' . $admin->id,
                 'status'   => 'required|in:aktif,nonaktif',
+                'opd'      => 'required'
             ], [
                 // Pesan kustom diletakkan di parameter kedua validate, bukan di update()
                 'username.unique' => 'Username ini sudah terdaftar, masukkan username lain.',
+                'opd.required' => 'OPD wajib diisi.'
             ]);
 
             // 3. Proses Update
             $admin->update([
                 'username' => $request->username,
                 'status'   => $request->status,
+                'opd'      => $request->opd,
             ]);
 
             return back()->with('success', 'Data admin ' . $admin->username . ' berhasil diperbarui!');
