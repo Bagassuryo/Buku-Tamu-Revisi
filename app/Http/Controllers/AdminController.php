@@ -13,7 +13,7 @@ class AdminController extends Controller
     public function index()
     {
         // Mengambil semua data admin agar bisa ditampilkan di tabel
-        $admins = Admin::where('role', 'admin')->get();
+        $admins = Admin::all();
 
         return view('superadmin', compact('admins'));
     }
@@ -27,21 +27,26 @@ class AdminController extends Controller
         try {
             // 2. Validasi
             $request->validate([
-                // unique:admins,username,[ID_YANG_DIABAIKAN]
                 'username' => 'required|unique:admins,username,' . $admin->id,
                 'status'   => 'required|in:aktif,nonaktif',
-                'opd'      => 'required'
+                'role'     => 'required|in:admin,super_admin',
+                // OPD wajib diisi HANYA JIKA role yang dipilih adalah 'admin'
+                'opd'      => 'required_if:role,admin|nullable|string',
             ], [
                 // Pesan kustom diletakkan di parameter kedua validate, bukan di update()
                 'username.unique' => 'Username ini sudah terdaftar, masukkan username lain.',
-                'opd.required' => 'OPD wajib diisi.'
+                'opd.required_if' => 'Instansi (OPD) wajib diisi jika mendaftar sebagai Admin biasa.',
             ]);
+
+            // Trik Otomatisasi: Jika superadmin, set OPD jadi 'Semua OPD'
+            $opdValue = $request->role === 'super_admin' ? 'Semua OPD' : $request->opd;
 
             // 3. Proses Update
             $admin->update([
                 'username' => $request->username,
                 'status'   => $request->status,
-                'opd'      => $request->opd,
+                'opd'      => $opdValue,
+                'role'      => $request->role,
             ]);
 
             return back()->with('success', 'Data admin ' . $admin->username . ' berhasil diperbarui!');
@@ -79,22 +84,26 @@ class AdminController extends Controller
     {
         // 1. Validasi dengan pesan kustom agar lebih ramah
         $request->validate([
-            // Ganti 'admins' jadi 'users' jika itu nama tabelmu
             'username' => 'required|unique:admins,username',
             'password' => 'required|min:6',
-            'opd' => 'required'
+            'role'     => 'required|in:admin,super_admin',
+            // OPD wajib diisi HANYA JIKA role bernilai 'admin'
+            'opd'      => 'required_if:role,admin|nullable|string',
         ], [
             'username.unique' => 'Username ini sudah terdaftar, masukkan username lain.',
-            'password.min' => 'Password minimal harus 6 karakter.',
-            'opd.required' => 'OPD wajib diisi.'
+            'password.min'    => 'Password minimal harus 6 karakter.',
+            'opd.required_if' => 'Instansi (OPD) wajib diisi jika mendaftar sebagai Admin biasa.',
         ]);
+
+        // Trik Otomatisasi: Jika superadmin, set OPD jadi 'Semua OPD'
+        $opdValue = $request->role === 'super_admin' ? 'Semua OPD' : $request->opd;
 
         // 2. Simpan data
         Admin::create([
             'username' => $request->username,
             'password' => Hash::make($request->password),
-            'role' => 'admin',
-            'opd' => $request->opd,
+            'role' => $request->role,
+            'opd' => $opdValue,
         ]);
 
         return back()->with('success', 'Admin baru berhasil ditambahkan!');

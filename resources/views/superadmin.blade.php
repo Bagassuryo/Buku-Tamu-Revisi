@@ -42,9 +42,8 @@
                 <div>
                     <label class="block text-sm font-semibold text-gray-700 mb-1">Instansi (OPD)</label>
                     <select name="opd" id="edit_opd"
-                        class="w-full border rounded-xl p-2.5 outline-none focus:ring-2 focus:ring-yellow-500 border-gray-300"
-                        required>
-                        <option value="">-- Pilih Instansi --</option>
+                        class="w-full border rounded-xl p-2.5 outline-none focus:ring-2 focus:ring-yellow-500 border-gray-300">
+                        <option value="">-- Pilih Instansi -- (Kosongkan jika super admin)</option>
                         <option value="Dinas Komunikasi dan Informatika">Dinas Komunikasi dan Informatika</option>
                         <option value="Dinas Pendidikan">Dinas Pendidikan</option>
                         <option value="Dinas Kesehatan">Dinas Kesehatan</option>
@@ -53,6 +52,21 @@
                     </select>
                     @if (session('openEditModal'))
                         @error('opd')
+                            <span class="text-red-500 text-sm mt-1">{{ $message }}</span>
+                        @enderror
+                    @endif
+                </div>
+
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">Role</label>
+                    <select name="role" id="edit_role"
+                        class="w-full border rounded-xl p-2.5 outline-none focus:ring-2 focus:ring-yellow-500 border-gray-300"
+                        required>
+                        <option value="admin">Admin</option>
+                        <option value="super_admin">Super Admin</option>
+                    </select>
+                    @if (session('openEditModal'))
+                        @error('role')
                             <span class="text-red-500 text-sm mt-1">{{ $message }}</span>
                         @enderror
                     @endif
@@ -152,13 +166,28 @@
                         @enderror
                     </div>
 
-                    {{-- PERUBAHAN 2: Menambahkan Dropdown Pilihan OPD pada Modal Tambah Admin --}}
                     <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">Password</label>
+                        <div class="relative">
+                            <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400">
+                                <span class="material-symbols-outlined text-sm">lock</span>
+                            </span>
+                            <input type="password" name="password" autocomplete="off" placeholder="Min. 6 karakter"
+                                class="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#1B75BC] focus:border-transparent outline-none transition duration-200 bg-gray-50 focus:bg-white text-gray-800"
+                                required>
+                        </div>
+                        @error('password')
+                            <span class="text-red-500 text-sm mt-1">{{ $message }}</span>
+                        @enderror
+                    </div>
+                </div>
+
+                {{-- PERUBAHAN 2: Menambahkan Dropdown Pilihan OPD pada Modal Tambah Admin --}}
+                    <div class="mt-3">
                         <label class="block text-sm font-semibold text-gray-700 mb-1">Instansi (OPD)</label>
                         <div class="relative">
                             <select name="opd"
-                                class="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#1B75BC] focus:border-transparent outline-none transition duration-200 bg-gray-50 focus:bg-white text-gray-800"
-                                required>
+                                class="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#1B75BC] focus:border-transparent outline-none transition duration-200 bg-gray-50 focus:bg-white text-gray-800">
                                 <option value="">-- Pilih Instansi --</option>
                                 <option value="Dinas Komunikasi dan Informatika"
                                     {{ old('opd') == 'Dinas Komunikasi dan Informatika' ? 'selected' : '' }}>Dinas
@@ -177,21 +206,21 @@
                         @enderror
                     </div>
 
-                    <div>
-                        <label class="block text-sm font-semibold text-gray-700 mb-1">Password</label>
+                    <div class="mt-3">
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">Role</label>
                         <div class="relative">
-                            <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400">
-                                <span class="material-symbols-outlined text-sm">lock</span>
-                            </span>
-                            <input type="password" name="password" autocomplete="off" placeholder="Min. 6 karakter"
-                                class="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#1B75BC] focus:border-transparent outline-none transition duration-200 bg-gray-50 focus:bg-white text-gray-800"
+                            <select name="role"
+                                class="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#1B75BC] focus:border-transparent outline-none transition duration-200 bg-gray-50 focus:bg-white text-gray-800"
                                 required>
+                                <option value="">-- Pilih Role --</option>
+                                <option value="admin" {{ old('role') == 'admin' ? 'selected' : '' }}>Admin</option>
+                                <option value="super_admin" {{ old('role') == 'super_admin' ? 'selected' : '' }}>Super Admin</option>
+                            </select>
                         </div>
-                        @error('password')
+                        @error('role')
                             <span class="text-red-500 text-sm mt-1">{{ $message }}</span>
                         @enderror
                     </div>
-                </div>
 
                 <div class="flex items-center gap-3 mt-8">
                     <button type="button" onclick="closeTambahModal()"
@@ -236,6 +265,7 @@
                         <th class="p-3 border">Username</th>
                         <th class="p-3 border">OPD</th>
                         <th class="p-3 border">Status</th>
+                        <th class="p-3 border">Role</th>
                         <th class="p-3 border">Last Active</th>
                         <th class="p-3 border">Dibuat Pada</th>
                         <th class="p-3 border">Actions</th>
@@ -262,6 +292,14 @@
                                     </span>
                                 @endif
                             </td>
+                            
+                            <td class="p-3 border text-center">
+                                @if ($admin->role == 'super_admin')
+                                    <span class="px-2.5 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800 whitespace-nowrap">Super Admin</span>
+                                @else
+                                    <span class="px-2.5 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800 whitespace-nowrap">Admin</span>
+                                @endif
+                            </td>
 
                             <td class="p-3 border text-sm">
                                 @if ($admin->last_active)
@@ -273,13 +311,14 @@
                                 @endif
                             </td>
 
-                            <td class="p-3 border text-sm text-gray-500">
+
+                            <td class="p-3 border text-sm text-gray-500 NOW">
                                 {{ $admin->created_at ? $admin->created_at->format('d M Y') : '-' }}
                             </td>
                             <td class="p-3 border">
                                 <div class="flex justify-center gap-2">
                                     <button type="button"
-                                        onclick="openEditModal('{{ $admin->username }}', '{{ $admin->status }}', '{{ $admin->opd }}')"
+                                        onclick="openEditModal('{{ $admin->username }}', '{{ $admin->status }}', '{{ $admin->opd }}', '{{ $admin->role }}')"
                                         class="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded-lg text-sm cursor-pointer flex items-center gap-1 leading-none">
                                         <i class="material-symbols-outlined text-sm">edit</i> Edit
                                     </button>
@@ -296,7 +335,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="7" class="p-6 text-center text-gray-500">
+                            <td colspan="8" class="p-6 text-center text-gray-500">
                                 Belum ada data admin
                             </td>
                         </tr>
@@ -322,7 +361,7 @@
 </script>
 
 <script>
-    function openEditModal(username, status, opd) {
+    function openEditModal(username, status, opd, role) {
         const modal = document.getElementById('modalEdit');
         const form = document.getElementById('formEdit');
 
@@ -331,6 +370,7 @@
         document.getElementById('edit_username').value = username;
         document.getElementById('edit_status').value = status;
         document.getElementById('edit_opd').value = opd; // Berfungsi mengisi otomatis dropdown edit
+        document.getElementById('edit_role').value = role; // Berfungsi mengisi otomatis dropdown role
 
         modal.classList.remove('hidden');
         modal.classList.add('flex');
@@ -381,13 +421,15 @@
             const failedUsername = "{{ session('openEditModal') }}";
             const failedStatus = "{{ old('status') }}";
             const failedOpd =
-            "{{ old('opd') }}"; // PERUBAHAN 3: Mengembalikan input OPD lama saat validasi edit gagal
+                "{{ old('opd') }}"; // PERUBAHAN 3: Mengembalikan input OPD lama saat validasi edit gagal
+            const failedRole = "{{ old('role') }}";
 
             form.action = `/admin/update/${failedUsername}`;
 
             document.getElementById('edit_username').value = "{{ old('username') }}";
             document.getElementById('edit_status').value = failedStatus;
             document.getElementById('edit_opd').value = failedOpd; // Set kembali pilihan OPD yang gagal disubmit
+            document.getElementById('edit_role').value = failedRole;
 
             if (modalUpdate) {
                 modalUpdate.classList.remove('hidden');

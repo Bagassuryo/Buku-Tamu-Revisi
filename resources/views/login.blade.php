@@ -17,12 +17,12 @@
 
     <main class="flex-1 flex flex-col items-center px-4 py-8 pt-1 pb-8">
 
-        <div class="border border-gray-300 rounded-2xl shadow-lg p-8 max-w-md w-full bg-white mb-10">
+        <div class="border border-gray-300 rounded-2xl shadow-lg p-8 max-w-md w-full bg-white mb-10 mt-5">
 
             <div class="text-center -mx-8 -mt-8 mb-8 p-6 bg-[#1a2a6e] rounded-t-2xl">
                 <h1 class="text-3xl font-bold text-white gap-2 flex items-center justify-center">
-                    <i class="material-symbols-outlined" style="font-size: 35px">admin_panel_settings</i> Login
-                    Administrator
+                    <i class="material-symbols-outlined" style="font-size: 35px">admin_panel_settings</i> 
+                    Login Administrator
                 </h1>
                 <p class="text-blue-100 mt-2 text-sm">
                     Masuk sebagai administrator untuk mengelola tamu.

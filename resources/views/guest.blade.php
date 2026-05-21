@@ -79,7 +79,7 @@
         <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 mb-6">
             <form action="{{ route('guest') }}" method="GET" class="flex flex-wrap items-end gap-4">
 
-                <div class="flex-1 min-w-[200px]">
+                <div class="flex-1 min-w-50">
                     <label class="block text-xs font-bold text-gray-600 uppercase mb-1 ml-1">Cari Nama/Instansi</label>
                     <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari tamu..."
                         class="w-full rounded-xl border border-gray-300 px-4 py-2 focus:ring-2 focus:ring-[#1B75BC] focus:border-transparent outline-none transition">
@@ -179,8 +179,7 @@
                                     <img src="{{ asset('storage/' . $guest->foto) }}"
                                         alt="Foto {{ $guest->nama_tamu }}"
                                         onclick="bukaModal('{{ asset('storage/' . $guest->foto) }}')"
-                                        class="w-16 h-16 object-cover rounded-lg mx-auto shadow-sm cursor-pointer hover:scale-110 transition">
-                                    @Custom
+                                        class="w-16 h-16 object-cover rounded-lg mx-auto shadow-sm cursor-pointer hover:scale-110 transition">                                    
                                 @else
                                     <span class="text-gray-400 italic text-xs">Tidak ada foto</span>
                                 @endif
