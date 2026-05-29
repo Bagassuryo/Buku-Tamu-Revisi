@@ -13,7 +13,8 @@ class AdminController extends Controller
     public function index()
     {
         // Mengambil semua data admin agar bisa ditampilkan di tabel
-        $admins = Admin::all();
+        // Mengurutkan berdasarkan nama OPD secara alfabet (A ke Z)
+        $admins = Admin::orderBy('opd', 'asc')->get();
 
         return view('superadmin', compact('admins'));
     }

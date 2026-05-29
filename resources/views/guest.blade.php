@@ -26,7 +26,7 @@
     </style>
 </head>
 
-<body class="bg-gray-100 m-0 p-0">
+<body class="bg-gray-100 m-0 p-0 font-sans">
 
     {{-- Modal preview foto --}}
     <div id="modal-foto" onclick="tutupModal()">
@@ -40,35 +40,8 @@
         </div>
     </div>
 
-    <nav class="bg-linear-to-r from-[#2E3192] to-[#1B75BC] shadow-md">
-        <div class="container mx-auto px-6 py-2">
-            <ul class="flex items-center justify-between">
-                <li class="text-white text-2xl font-bold">
-                    <img src="{{ asset('images/gresik.png') }}" alt="logo" class="h-16 w-auto mx-auto">
-                </li>
-
-                <!-- Gunakan flex gap agar tombol berjejer rapi di sebelah kanan -->
-                <div class="flex items-center gap-4">
-                    <li>
-                        <a href="{{ route('guest.export', request()->all()) }}"
-                            class="bg-sky-600 hover:bg-sky-700 px-4 py-2 rounded-lg text-white transition duration-200 flex items-center gap-1">
-                            Export <i class="material-symbols-outlined">download</i>
-                        </a>
-                    </li> <!-- Tag penutup ini sudah diperbaiki -->
-
-                    <li>
-                        <form action="{{ route('logout') }}" method="POST">
-                            @csrf
-                            <button type="submit"
-                                class="bg-red-500 hover:bg-red-600 cursor-pointer px-4 py-2 rounded-lg text-white transition duration-200 flex items-center gap-1">
-                                Logout <i class="material-symbols-outlined">logout</i>
-                            </button>
-                        </form>
-                    </li>
-                </div>
-            </ul>
-        </div>
-    </nav>
+    {{-- Navbar --}}
+    @include('layouts.nav')
 
     <div class="p-2">
 
@@ -163,15 +136,15 @@
                 </thead>
                 <tbody>
                     @forelse($guests as $guest)
-                        <tr class="hover:bg-gray-50 transition border-b">
+                        <tr class="hover:bg-gray-50 transition border-b text-sm">
                             <td class="p-3 border text-gray-500 text-sm">{{ $loop->iteration }}</td>
                             <td class="p-3 border font-semibold text-left">{{ $guest->nama_tamu }}</td>
                             <td class="p-3 border">{{ $guest->opd }}</td>
                             <td class="p-3 border">{{ $guest->layanan }}</td>
                             <td class="p-3 border">{{ $guest->no_hp }}</td>
                             <td class="p-3 border text-sm">{{ $guest->asal_instansi }}</td>
-                            <td class="p-3 border text-sm text-gray-600 italic">"{{ $guest->keterangan }}"</td>
-                            <td class="p-3 border text-sm">{{ $guest->tanggal }}</td>
+                            <td class="p-3 border text-sm text-gray-600">{{ $guest->keterangan }}</td>
+                            <td class="p-3 border text-sm whitespace-nowrap">{{ \Carbon\Carbon::parse($guest->tanggal)->translatedFormat('d F Y') }}</td>
                             <td class="p-3 border text-sm text-green-600 font-medium">{{ $guest->datang }}</td>
                             <td class="p-3 border text-sm text-red-600 font-medium">{{ $guest->pulang ?? '-' }}</td>
                             <td class="p-3 border text-sm">

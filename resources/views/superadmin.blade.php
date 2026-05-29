@@ -98,38 +98,7 @@
 
 <body class="bg-gray-100 m-0 p-0">
 
-    <nav class="bg-linear-to-r from-[#2E3192] to-[#1B75BC] shadow-md">
-        <div class="container mx-auto px-6 py-2">
-            <ul class="flex items-center justify-between">
-                <div>
-                    <img src="{{ asset('images/gresik.png') }}" alt="logo" class="h-16 w-auto mx-auto">
-                </div>
-                <div class="flex items-center gap-2">
-                    <li>
-                        <div class="flex justify-between items-center">
-                            <button
-                                onclick="document.getElementById('Tambah').classList.remove('hidden');
-                                document.getElementById('Tambah').classList.add('flex');"
-                                class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg shadow transition
-                                        flex items-center gap-1 leading-none cursor-pointer">
-                                Tambah Admin <i class="material-symbols-outlined">add</i>
-                            </button>
-                        </div>
-                    </li>
-                    <li>
-                        <form action="{{ route('superadmin.logout') }}" method="POST">
-                            @csrf
-                            <button type="submit"
-                                class="bg-red-500 hover:bg-red-600 cursor-pointer px-4 py-2 rounded-lg text-white transition duration-200
-                                        flex items-center gap-1 leading-none">
-                                Logout <i class="material-symbols-outlined">logout</i>
-                            </button>
-                        </form>
-                    </li>
-                </div>
-            </ul>
-        </div>
-    </nav>
+    @include('layouts.nav')
 
     <div id="Tambah" class="fixed inset-0 z-50 hidden items-center justify-center p-4">
         <div class="absolute inset-0 bg-gray-900/60 backdrop-blur-sm" onclick="closeTambahModal()"></div>
@@ -183,44 +152,45 @@
                 </div>
 
                 {{-- PERUBAHAN 2: Menambahkan Dropdown Pilihan OPD pada Modal Tambah Admin --}}
-                    <div class="mt-3">
-                        <label class="block text-sm font-semibold text-gray-700 mb-1">Instansi (OPD)</label>
-                        <div class="relative">
-                            <select name="opd"
-                                class="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#1B75BC] focus:border-transparent outline-none transition duration-200 bg-gray-50 focus:bg-white text-gray-800">
-                                <option value="">-- Pilih Instansi --</option>
-                                <option value="Dinas Komunikasi dan Informatika"
-                                    {{ old('opd') == 'Dinas Komunikasi dan Informatika' ? 'selected' : '' }}>Dinas
-                                    Komunikasi dan Informatika</option>
-                                <option value="Dinas Pendidikan"
-                                    {{ old('opd') == 'Dinas Pendidikan' ? 'selected' : '' }}>Dinas Pendidikan</option>
-                                <option value="Dinas Kesehatan" {{ old('opd') == 'Dinas Kesehatan' ? 'selected' : '' }}>
-                                    Dinas Kesehatan</option>
-                                <option value="Badan Kepegawaian Daerah"
-                                    {{ old('opd') == 'Badan Kepegawaian Daerah' ? 'selected' : '' }}>Badan Kepegawaian
-                                    Daerah</option>
-                            </select>
-                        </div>
-                        @error('opd')
-                            <span class="text-red-500 text-sm mt-1">{{ $message }}</span>
-                        @enderror
+                <div class="mt-3">
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">Instansi (OPD)</label>
+                    <div class="relative">
+                        <select name="opd"
+                            class="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#1B75BC] focus:border-transparent outline-none transition duration-200 bg-gray-50 focus:bg-white text-gray-800">
+                            <option value="">-- Pilih Instansi --</option>
+                            <option value="Dinas Komunikasi dan Informatika"
+                                {{ old('opd') == 'Dinas Komunikasi dan Informatika' ? 'selected' : '' }}>Dinas
+                                Komunikasi dan Informatika</option>
+                            <option value="Dinas Pendidikan" {{ old('opd') == 'Dinas Pendidikan' ? 'selected' : '' }}>
+                                Dinas Pendidikan</option>
+                            <option value="Dinas Kesehatan" {{ old('opd') == 'Dinas Kesehatan' ? 'selected' : '' }}>
+                                Dinas Kesehatan</option>
+                            <option value="Badan Kepegawaian Daerah"
+                                {{ old('opd') == 'Badan Kepegawaian Daerah' ? 'selected' : '' }}>Badan Kepegawaian
+                                Daerah</option>
+                        </select>
                     </div>
+                    @error('opd')
+                        <span class="text-red-500 text-sm mt-1">{{ $message }}</span>
+                    @enderror
+                </div>
 
-                    <div class="mt-3">
-                        <label class="block text-sm font-semibold text-gray-700 mb-1">Role</label>
-                        <div class="relative">
-                            <select name="role"
-                                class="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#1B75BC] focus:border-transparent outline-none transition duration-200 bg-gray-50 focus:bg-white text-gray-800"
-                                required>
-                                <option value="">-- Pilih Role --</option>
-                                <option value="admin" {{ old('role') == 'admin' ? 'selected' : '' }}>Admin</option>
-                                <option value="super_admin" {{ old('role') == 'super_admin' ? 'selected' : '' }}>Super Admin</option>
-                            </select>
-                        </div>
-                        @error('role')
-                            <span class="text-red-500 text-sm mt-1">{{ $message }}</span>
-                        @enderror
+                <div class="mt-3">
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">Role</label>
+                    <div class="relative">
+                        <select name="role"
+                            class="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#1B75BC] focus:border-transparent outline-none transition duration-200 bg-gray-50 focus:bg-white text-gray-800"
+                            required>
+                            <option value="">-- Pilih Role --</option>
+                            <option value="admin" {{ old('role') == 'admin' ? 'selected' : '' }}>Admin</option>
+                            <option value="super_admin" {{ old('role') == 'super_admin' ? 'selected' : '' }}>Super
+                                Admin</option>
+                        </select>
                     </div>
+                    @error('role')
+                        <span class="text-red-500 text-sm mt-1">{{ $message }}</span>
+                    @enderror
+                </div>
 
                 <div class="flex items-center gap-3 mt-8">
                     <button type="button" onclick="closeTambahModal()"
@@ -237,8 +207,34 @@
         </div>
     </div>
 
-    <div class="p-6 max-w-5xl mx-auto">
-        <h1 class="text-2xl font-bold my-3 ml-0 text-gray-800 text-center">Daftar Admin</h1>
+    <div class="p-6 max-w-7xl mx-auto">
+        {{-- Top Bar --}}
+        <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-6">
+            {{-- Judul dan Counter --}}
+            <div>
+                <h1 class="text-lg font-semibold text-gray-800">Daftar Admin</h1>
+                <p class="text-sm text-gray-400 mt-0.5">{{ $admins->count() }} admin terdaftar dalam sistem</p>
+            </div>
+
+            {{-- Kontrol Panel (Search & Tambah) --}}
+            <div class="flex flex-wrap items-center gap-3 justify-start sm:justify-end">
+                {{-- Search Bar --}}
+                <div
+                    class="flex items-center gap-2 bg-white border border-gray-200 rounded-xl px-3 h-10 shadow-sm w-full sm:w-auto">
+                    <i class="ti ti-search text-gray-400 text-lg"></i>
+                    <input type="text" id="searchInput" placeholder="Cari username atau OPD..."
+                        class="text-sm outline-none bg-transparent text-gray-700 placeholder-gray-400 w-full sm:w-48">
+                </div>
+
+                {{-- Tombol Tambah Admin (Memicu Modal ID: Tambah) --}}
+                <button
+                    onclick="document.getElementById('Tambah').classList.remove('hidden'); document.getElementById('Tambah').classList.add('flex');"
+                    class="flex items-center justify-center gap-2 h-10 px-4 bg-[#1e3a8a] hover:bg-blue-900 text-white text-sm font-medium rounded-xl transition cursor-pointer shadow-sm w-full sm:w-auto">
+                    <i class="ti ti-user-plus text-lg"></i>
+                    <span>Tambah Admin</span>
+                </button>
+            </div>
+        </div>
 
         @if (session('success') || session('error'))
             <div id="notification-alert" class="fixed top-5 right-5 z-50 transition-opacity duration-500">
@@ -292,12 +288,15 @@
                                     </span>
                                 @endif
                             </td>
-                            
+
                             <td class="p-3 border text-center">
                                 @if ($admin->role == 'super_admin')
-                                    <span class="px-2.5 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800 whitespace-nowrap">Super Admin</span>
+                                    <span
+                                        class="px-2.5 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800 whitespace-nowrap">Super
+                                        Admin</span>
                                 @else
-                                    <span class="px-2.5 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800 whitespace-nowrap">Admin</span>
+                                    <span
+                                        class="px-2.5 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800 whitespace-nowrap">Admin</span>
                                 @endif
                             </td>
 
@@ -358,9 +357,7 @@
             }, 3000);
         }
     });
-</script>
 
-<script>
     function openEditModal(username, status, opd, role) {
         const modal = document.getElementById('modalEdit');
         const form = document.getElementById('formEdit');
@@ -410,9 +407,7 @@
             input.classList.add('border-gray-300');
         });
     }
-</script>
 
-<script>
     @if ($errors->any())
         @if (session('openEditModal'))
             const modalUpdate = document.getElementById('modalEdit');
@@ -443,6 +438,57 @@
             }
         @endif
     @endif
+
+    document.addEventListener('DOMContentLoaded', function () {
+    const searchInput = document.getElementById('searchInput');
+    const tableRows = document.querySelectorAll('tbody tr');
+
+    searchInput.addEventListener('input', function () {
+        const filterValue = searchInput.value.toLowerCase().trim();
+
+        tableRows.forEach(row => {
+            // Mengambil teks dari kolom Username (kolom ke-2, indeks 1) 
+            // dan kolom OPD (kolom ke-3, indeks 2)
+            const usernameText = row.cells[1] ? row.cells[1].textContent.toLowerCase() : '';
+            const opdText = row.cells[2] ? row.cells[2].textContent.toLowerCase() : '';
+
+            // Jika kata kunci cocok dengan username ATAU nama OPD
+            if (usernameText.includes(filterValue) || opdText.includes(filterValue)) {
+                row.style.display = ''; // Tampilkan baris
+            } else {
+                row.style.display = 'none'; // Sembunyikan baris
+            }
+        });
+        
+        // Opsional: Cek jika semua baris tersembunyi (data tidak ditemukan)
+        checkEmptyResult();
+    });
+
+    function checkEmptyResult() {
+        const visibleRows = Array.from(tableRows).filter(row => row.style.display !== 'none');
+        const existingNoDataRow = document.getElementById('noDataRow');
+
+        if (visibleRows.length === 0) {
+            // Jika belum ada pesan "Data tidak ditemukan", buat pesannya
+            if (!existingNoDataRow) {
+                const tbody = document.querySelector('tbody');
+                const noDataRow = document.createElement('tr');
+                noDataRow.id = 'noDataRow';
+                noDataRow.innerHTML = `
+                    <td colspan="8" class="p-6 text-center text-gray-500 bg-gray-50">
+                        <i class="ti ti-search-off text-lg mr-1"></i> Data admin atau OPD tidak ditemukan
+                    </td>
+                `;
+                tbody.appendChild(noDataRow);
+            }
+        } else {
+            // Jika data ditemukan kembali, hapus pesan "Data tidak ditemukan"
+            if (existingNoDataRow) {
+                existingNoDataRow.remove();
+            }
+        }
+    }
+});
 </script>
 
 </html>

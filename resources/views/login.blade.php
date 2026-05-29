@@ -11,7 +11,7 @@
         href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
 </head>
 
-<body class="bg-gray-100 min-h-screen flex flex-col">
+<body class="bg-gray-100 min-h-screen flex flex-col font-sans">
 
     @include('layouts.nav')
 
@@ -19,7 +19,7 @@
 
         <div class="border border-gray-300 rounded-2xl shadow-lg p-8 max-w-md w-full bg-white mb-10 mt-5">
 
-            <div class="text-center -mx-8 -mt-8 mb-8 p-6 bg-[#1a2a6e] rounded-t-2xl">
+            <div class="text-center -mx-8 -mt-8 mb-8 p-6 bg-linear-to-r from-[#1a2a6c] to-[#1B75BC] rounded-t-2xl">
                 <h1 class="text-3xl font-bold text-white gap-2 flex items-center justify-center">
                     <i class="material-symbols-outlined" style="font-size: 35px">admin_panel_settings</i> 
                     Login Administrator
@@ -72,13 +72,6 @@
                     class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-xl transition duration-300 cursor-pointer flex items-center justify-center gap-2">
                     <i class="material-symbols-outlined">login</i> Login
                 </button>
-
-                <p class="text-center text-gray-500 my-4">atau</p>
-
-                <a href="{{ route('superadmin.login') }}"
-                    class=" w-full bg-[#0f5c45] hover:bg-[#0d4a3a] text-white font-semibold py-3 rounded-xl text-center transition duration-300 flex items-center justify-center gap-2">
-                    <i class="material-symbols-outlined">crown</i> Super Admin
-                </a>
 
             </form>
         </div>

@@ -3,42 +3,82 @@
 <nav class="bg-linear-to-r from-[#1a2a6c] via-[#1a2a6c] to-[#1B75BC] shadow-lg">
     <div class="w-full px-2 sm:px-6 lg:px-8">
         <div class="flex flex-col gap-3 py-4 md:flex-row md:items-center md:justify-between">
-            <a href="/" class="flex items-center gap-3 transition-opacity hover:opacity-90">
+            
+            <a href="{{ auth()->check() ? route('tamu.create') : '/login' }}" class="flex items-center gap-3 transition-opacity hover:opacity-90">
                 <img src="{{ asset('images/gresik.png') }}" alt="Logo Gresik" class="h-12 w-auto drop-shadow-md">
             </a>
 
             <div class="flex flex-wrap items-center gap-2 sm:gap-3 justify-end">
-                <a href="/"
-                    class="whitespace-nowrap px-4 py-2 text-sm font-medium flex items-center gap-2 rounded-lg transition-all duration-200 
-                        {{ request()->is('/') 
-                            ? 'text-white bg-white/10 border border-white/20' 
-                            : 'text-white/60 hover:text-white border border-transparent hover:border-white/30' 
-                        }}">
-                    <i class="ti ti-edit text-lg"></i>
-                    <span>Buku Tamu</span>
-                </a>
+                
+                @auth
+                    <a href="{{ route('tamu.create') }}"
+                        class="whitespace-nowrap px-4 py-2 text-sm font-medium flex items-center gap-2 rounded-lg transition-all duration-200 
+                            {{ request()->is('/') 
+                                ? 'text-white bg-white/10 border border-white/20' 
+                                : 'text-white/60 hover:text-white border border-transparent hover:border-white/30' 
+                            }}">
+                        <i class="ti ti-edit text-lg"></i>
+                        <span>Buku Tamu</span>
+                    </a>
 
-                <a href="/pulang"
-                    class="whitespace-nowrap px-4 py-2 text-sm font-medium flex items-center gap-2 rounded-lg transition-all duration-200 
-                        {{ request()->is('pulang') 
-                            ? 'text-white bg-white/10 border border-white/20' 
-                            : 'text-white/60 hover:text-white border border-transparent hover:border-white/30' 
-                        }}">
-                    <i class="ti ti-door-exit text-lg"></i>
-                    <span>Selesai Berkunjung</span>
-                </a>
+                    <a href="/pulang"
+                        class="whitespace-nowrap px-4 py-2 text-sm font-medium flex items-center gap-2 rounded-lg transition-all duration-200 
+                            {{ request()->is('pulang') 
+                                ? 'text-white bg-white/10 border border-white/20' 
+                                : 'text-white/60 hover:text-white border border-transparent hover:border-white/30' 
+                            }}">
+                        <i class="ti ti-door-exit text-lg"></i>
+                        <span>Selesai Berkunjung</span>
+                    </a>
 
-                <div class="hidden sm:block h-6 w-px bg-white/20 mx-2"></div>
+                    <a href="{{ route('rekap.index') }}"
+                        class="whitespace-nowrap px-4 py-2 text-sm font-medium flex items-center gap-2 rounded-lg transition-all duration-200 
+                            {{ request()->is('guest*') || request()->is('rekap*')
+                                ? 'text-white bg-white/10 border border-white/20' 
+                                : 'text-white/60 hover:text-white border border-transparent hover:border-white/30' 
+                            }}">
+                        <i class="ti ti-clipboard-list text-lg"></i>
+                        <span>Rekap</span>
+                    </a>
 
-                <a href="/login"
-                    class="whitespace-nowrap px-4 py-2 text-sm font-medium flex items-center gap-2 rounded-lg transition-all duration-200 
-                        {{ Route::is('login', 'superadmin.login') 
-                            ? 'text-white bg-white/10 border border-white/20' 
-                            : 'text-white/60 hover:text-white border border-transparent hover:border-white/30' 
-                        }}">
-                    <i class="ti ti-lock text-lg"></i>
-                    <span>Login</span>
-                </a>
+                    @if(auth()->user()->role === 'super_admin')
+                        <a href="{{ route('superadmin') }}"
+                            class="whitespace-nowrap px-4 py-2 text-sm font-medium flex items-center gap-2 rounded-lg transition-all duration-200 
+                                {{ request()->is('superadmin*')
+                                    ? 'text-white bg-white/10 border border-white/20' 
+                                    : 'text-white/60 hover:text-white border border-transparent hover:border-white/30' 
+                                }}">
+                            <i class="ti ti-user-shield text-lg"></i>
+                            <span>Super Admin</span>
+                        </a>
+                    @endif
+
+                    <div class="hidden sm:block h-6 w-px bg-white/20 mx-1"></div>
+
+                    @if(request()->is('guest*') || request()->is('rekap*'))
+                        <a href="{{ route('guest.export', request()->all()) }}"
+                            class="whitespace-nowrap px-4 py-2 text-sm font-medium flex items-center gap-2 rounded-lg bg-sky-600 hover:bg-sky-500 text-white shadow-sm transition-all duration-200">
+                            <i class="ti ti-download text-lg"></i>
+                            <span>Export Excel</span>
+                        </a>
+                    @endif
+
+                    <form action="{{ auth()->user()->role === 'super_admin' ? route('superadmin.logout') : route('logout') }}" method="POST" class="inline">
+                        @csrf
+                        <button type="submit"
+                            class="whitespace-nowrap px-4 py-2 text-sm font-medium flex items-center gap-2 rounded-lg bg-red-600 hover:bg-red-500 text-white shadow-sm cursor-pointer transition-all duration-200">
+                            <i class="ti ti-logout text-lg"></i>
+                            <span>Logout</span>
+                        </button>
+                    </form>
+
+                @else
+                    <a href="/login"
+                        class="whitespace-nowrap px-4 py-2 text-sm font-medium flex items-center gap-2 rounded-lg bg-white/10 border border-white/20 text-white">
+                        <i class="ti ti-lock text-lg"></i>
+                        <span>Login Sistem</span>
+                    </a>
+                @endauth
 
             </div>
         </div>
