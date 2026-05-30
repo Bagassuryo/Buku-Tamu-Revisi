@@ -59,7 +59,7 @@ class AuthController extends Controller
                 ])->onlyInput('username');
             }
 
-            // CARA ALTERNATIF: Gunakan DB table langsung
+            // Catat waktu aktif terakhir
             \Illuminate\Support\Facades\DB::table('admins')
                 ->where('username', $admin->username)
                 ->update(['last_active' => now()]);
@@ -67,10 +67,7 @@ class AuthController extends Controller
             RateLimiter::clear($throttleKey);
             $request->session()->regenerate();
 
-            if ($admin->role === 'super_admin') {
-                return redirect()->intended('guest');
-            }
-            return redirect()->intended('guest');
+            return redirect()->intended(route('tamu.create')); // Mengarah ke halaman utama setelah login
         }
 
         // F. JIKA GAGAL: CATAT HIT

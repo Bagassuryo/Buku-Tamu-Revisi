@@ -23,6 +23,7 @@
         #modal-foto.aktif {
             display: flex;
         }
+
     </style>
 </head>
 
@@ -45,8 +46,20 @@
 
     <div class="p-2">
 
-        <div class="mb-6 text-center">
-            <h1 class="text-3xl font-bold text-gray-800 mt-2">Daftar Tamu</h1>
+        <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-4 mx-4">
+            {{-- Judul dan Counter --}}
+            <div>
+                <h1 class="text-lg font-semibold text-gray-800">Daftar Tamu</h1>
+                <p class="text-sm text-gray-600 mt-0.5">{{ $guests->count() }} tamu terdaftar dalam sistem</p>
+            </div>
+
+            {{-- Export Excel (diperbaiki: hapus <button> yang membungkus <a>) --}}
+            <a href="{{ route('guest.export', request()->all()) }}"
+                class="inline-flex items-center gap-2 whitespace-nowrap px-3 h-10 shadow-sm w-full sm:w-auto
+          rounded-xl bg-emerald-700 hover:bg-emerald-600 text-white transition-all duration-200">
+                <i class="ti ti-table-export text-base"></i>
+                Export Excel
+            </a>
         </div>
 
         <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 mb-6">
@@ -74,10 +87,10 @@
                 {{-- ================= FILTER OPD (KHUSUS SUPER ADMIN) ================= --}}
                 @if (auth()->user()->role === 'super_admin')
                     <div class="w-full md:w-56">
-                        <label class="block text-xs font-bold text-gray-600 uppercase mb-1 ml-1">OPD</label>
+                        <label class="block text-xs font-bold text-gray-600 uppercase mb-1 ml-1">Instansi</label>
                         <select name="opd" id="filter-opd" onchange="updateLayananOptions()"
                             class="w-full rounded-xl border border-gray-300 px-4 py-2 focus:ring-2 focus:ring-[#1B75BC] outline-none">
-                            <option value="">Semua OPD</option>
+                            <option value="">Semua Instansi</option>
                             <option value="Dinas Komunikasi dan Informatika"
                                 {{ request('opd') == 'Dinas Komunikasi dan Informatika' ? 'selected' : '' }}>Dinas
                                 Kominfo</option>
@@ -106,11 +119,17 @@
 
                 <div class="flex gap-2">
                     <button type="submit"
-                        class="bg-[#1B75BC] hover:bg-[#2E3192] text-white px-6 py-2 rounded-xl shadow-md transition font-semibold cursor-pointer">
-                        Filter
+                        class="inline-flex items-center gap-2 bg-gray-200 hover:bg-gray-300 
+                        text-gray-700 px-5 py-2.5 rounded-xl shadow-sm hover:shadow-md transition duration-200 font-medium cursor-pointer">
+
+                        <i class="ti ti-filter text-[18px]"></i>
+                        <span>Filter</span>
                     </button>
                     <a href="{{ route('guest') }}"
-                        class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-6 py-2 rounded-xl transition font-semibold">
+                        class="inline-flex items-center gap-2 bg-gray-200 hover:bg-gray-300 
+                        text-gray-700 px-5 py-2.5 rounded-xl shadow-sm hover:shadow-md transition duration-200 font-medium cursor-pointer">
+
+                        <i class="ti ti-refresh text-[18px]"></i>
                         Reset
                     </a>
                 </div>
@@ -120,39 +139,43 @@
         <div class="overflow-x-auto bg-white shadow-md rounded-md">
             <table class="w-full text-center border-collapse">
                 <thead>
-                    <tr class="bg-[#1B75BC] text-white">
-                        <th class="p-3 border">No</th>
-                        <th class="p-3 border">Nama Tamu</th>
-                        <th class="p-3 border">OPD</th>
-                        <th class="p-3 border">Layanan</th>
-                        <th class="p-3 border">No HP</th>
-                        <th class="p-3 border">Instansi</th>
-                        <th class="p-3 border">Keterangan</th>
-                        <th class="p-3 border">Tanggal</th>
-                        <th class="p-3 border">Datang</th>
-                        <th class="p-3 border">Pulang</th>
-                        <th class="p-3 border">Foto</th>
+                    <tr class="bg-slate-200 text-slate-800 border-b border-slate-200">
+                        <th class="p-3 border border-slate-200">No</th>
+                        <th class="p-3 border border-slate-200">Nama Tamu</th>
+                        <th class="p-3 border border-slate-200">OPD</th>
+                        <th class="p-3 border border-slate-200">Layanan</th>
+                        <th class="p-3 border border-slate-200">No HP</th>
+                        <th class="p-3 border border-slate-200">Instansi</th>
+                        <th class="p-3 border border-slate-200">Keterangan</th>
+                        <th class="p-3 border border-slate-200">Tanggal</th>
+                        <th class="p-3 border border-slate-200">Datang</th>
+                        <th class="p-3 border border-slate-200">Pulang</th>
+                        <th class="p-3 border border-slate-200">Foto</th>
                     </tr>
                 </thead>
                 <tbody>
                     @forelse($guests as $guest)
                         <tr class="hover:bg-gray-50 transition border-b text-sm">
-                            <td class="p-3 border text-gray-500 text-sm">{{ $loop->iteration }}</td>
-                            <td class="p-3 border font-semibold text-left">{{ $guest->nama_tamu }}</td>
-                            <td class="p-3 border">{{ $guest->opd }}</td>
-                            <td class="p-3 border">{{ $guest->layanan }}</td>
-                            <td class="p-3 border">{{ $guest->no_hp }}</td>
-                            <td class="p-3 border text-sm">{{ $guest->asal_instansi }}</td>
-                            <td class="p-3 border text-sm text-gray-600">{{ $guest->keterangan }}</td>
-                            <td class="p-3 border text-sm whitespace-nowrap">{{ \Carbon\Carbon::parse($guest->tanggal)->translatedFormat('d F Y') }}</td>
-                            <td class="p-3 border text-sm text-green-600 font-medium">{{ $guest->datang }}</td>
-                            <td class="p-3 border text-sm text-red-600 font-medium">{{ $guest->pulang ?? '-' }}</td>
-                            <td class="p-3 border text-sm">
+                            <td class="p-3 border border-slate-200 text-gray-500 text-sm">{{ $loop->iteration }}</td>
+                            <td class="p-3 border border-slate-200 font-semibold text-left">{{ $guest->nama_tamu }}
+                            </td>
+                            <td class="p-3 border border-slate-200">{{ $guest->opd }}</td>
+                            <td class="p-3 border border-slate-200">{{ $guest->layanan }}</td>
+                            <td class="p-3 border border-slate-200">{{ $guest->no_hp }}</td>
+                            <td class="p-3 border border-slate-200 text-sm">{{ $guest->asal_instansi }}</td>
+                            <td class="p-3 border border-slate-200 text-sm ">{{ $guest->keterangan }}</td>
+                            <td class="p-3 border border-slate-200 text-sm whitespace-nowrap">
+                                {{ \Carbon\Carbon::parse($guest->tanggal)->translatedFormat('d F Y') }}</td>
+                            <td class="p-3 border border-slate-200 text-sm text-green-600 font-medium">
+                                {{ $guest->datang }}</td>
+                            <td class="p-3 border border-slate-200 text-sm text-red-600 font-medium">
+                                {{ $guest->pulang ?? '-' }}</td>
+                            <td class="p-3 border border-slate-200 text-sm">
                                 @if ($guest->foto)
                                     <img src="{{ asset('storage/' . $guest->foto) }}"
                                         alt="Foto {{ $guest->nama_tamu }}"
                                         onclick="bukaModal('{{ asset('storage/' . $guest->foto) }}')"
-                                        class="w-16 h-16 object-cover rounded-lg mx-auto shadow-sm cursor-pointer hover:scale-110 transition">                                    
+                                        class="w-16 h-16 object-cover rounded-lg mx-auto shadow-sm cursor-pointer hover:scale-110 transition">
                                 @else
                                     <span class="text-gray-400 italic text-xs">Tidak ada foto</span>
                                 @endif

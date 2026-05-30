@@ -55,15 +55,7 @@
 
                     <div class="hidden sm:block h-6 w-px bg-white/20 mx-1"></div>
 
-                    @if(request()->is('guest*') || request()->is('rekap*'))
-                        <a href="{{ route('guest.export', request()->all()) }}"
-                            class="whitespace-nowrap px-4 py-2 text-sm font-medium flex items-center gap-2 rounded-lg bg-sky-600 hover:bg-sky-500 text-white shadow-sm transition-all duration-200">
-                            <i class="ti ti-download text-lg"></i>
-                            <span>Export Excel</span>
-                        </a>
-                    @endif
-
-                    <form action="{{ auth()->user()->role === 'super_admin' ? route('superadmin.logout') : route('logout') }}" method="POST" class="inline">
+                    <form action="{{ route('logout') }}" method="POST" class="inline">
                         @csrf
                         <button type="submit"
                             class="whitespace-nowrap px-4 py-2 text-sm font-medium flex items-center gap-2 rounded-lg bg-red-600 hover:bg-red-500 text-white shadow-sm cursor-pointer transition-all duration-200">

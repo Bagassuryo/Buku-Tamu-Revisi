@@ -1,6 +1,5 @@
 <?php
 
-use App\Http\Controllers\SuperAdminAuthController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\GuestController;
@@ -10,13 +9,9 @@ use Illuminate\Support\Facades\Route;
 // 1. ROUTE PUBLIK (HANYA HALAMAN LOGIN YANG BISA DIAKSES TANPA LOGIN)
 // =========================================================================
 Route::middleware('guest')->group(function () {
-    // Login User/Admin Biasa (OPD)
+    // Satu Pintu Login untuk Semua User (Admin & Super Admin)
     Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
     Route::post('/login', [AuthController::class, 'login']);
-
-    // Login Khusus Super Admin
-    Route::get('/superadmin/login', [SuperAdminAuthController::class, 'showLogin'])->name('superadmin.login');
-    Route::post('/superadmin/login', [SuperAdminAuthController::class, 'login'])->name('superadmin.login.process');
 });
 
 
@@ -25,7 +20,7 @@ Route::middleware('guest')->group(function () {
 // =========================================================================
 Route::middleware(['auth'])->group(function () {
     
-    // --- FORM & DAFTAR TAMU (Sekarang sudah di dalam auth / tidak publik lagi) ---
+    // --- FORM & DAFTAR TAMU ---
     Route::get('/', [GuestController::class, 'create'])->name('tamu.create');
     Route::post('/form-tamu', [GuestController::class, 'store'])->name('tamu.store');
     Route::get('/pulang', [GuestController::class, 'showCheckoutForm'])->name('tamu.checkout.form');
@@ -36,14 +31,10 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/guest/export', [GuestController::class, 'export'])->name('guest.export');
     
     // --- REVISI NAVBAR: REKAP ---
-    // Menambahkan rute rekap yang menggantikan fungsi login di dalam navbar
-    Route::get('/rekap', [GuestController::class, 'index'])->name('rekap.index'); // Sesuaikan method/controllernya nanti jika ada controller khusus rekap
+    Route::get('/rekap', [GuestController::class, 'index'])->name('rekap.index');
 
-    // Logout admin
+    // Satu Rute Logout untuk Semua User
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
-
-    // Logout superadmin
-    Route::post('/superadmin/logout',[SuperAdminAuthController::class, 'logout'])->name('superadmin.logout');
 
     // =====================================================================
     // 3. KHUSUS SUPER ADMIN (Kelola Admin)
