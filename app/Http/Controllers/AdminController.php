@@ -64,9 +64,10 @@ class AdminController extends Controller
     // Menghapus admin
     public function destroy($username)
     {
+
         // Mencari data, jika tidak ada langsung error 404
         $admin = Admin::where('username', $username)
-            ->where('role', 'admin') // Memastikan yang dihapus HANYA yang rolenya admin
+            ->whereIn('role', ['admin', 'super_admin']) 
             ->firstOrFail();
 
         // Proteksi: Jangan biarkan menghapus diri sendiri

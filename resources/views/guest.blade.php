@@ -23,7 +23,6 @@
         #modal-foto.aktif {
             display: flex;
         }
-
     </style>
 </head>
 
@@ -62,135 +61,11 @@
             </a>
         </div>
 
-        <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 mb-6">
-            <form action="{{ route('guest') }}" method="GET" class="flex flex-wrap items-end gap-4">
+        {{-- Form Filter --}}
+        @include('guest.filter')
 
-                <div class="flex-1 min-w-50">
-                    <label class="block text-xs font-bold text-gray-600 uppercase mb-1 ml-1">Cari Nama/Instansi</label>
-                    <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari tamu..."
-                        class="w-full rounded-xl border border-gray-300 px-4 py-2 focus:ring-2 focus:ring-[#1B75BC] focus:border-transparent outline-none transition">
-                </div>
-
-                <div class="w-full md:w-44">
-                    <label class="block text-xs font-bold text-gray-600 uppercase mb-1 ml-1">Bulan</label>
-                    <select name="bulan"
-                        class="w-full rounded-xl border border-gray-300 px-4 py-2 focus:ring-2 focus:ring-[#1B75BC] outline-none">
-                        <option value="">Semua Bulan</option>
-                        @foreach (range(1, 12) as $m)
-                            <option value="{{ $m }}" {{ request('bulan') == $m ? 'selected' : '' }}>
-                                {{ \Carbon\Carbon::create()->month($m)->translatedFormat('F') }}
-                            </option>
-                        @endforeach
-                    </select>
-                </div>
-
-                {{-- ================= FILTER OPD (KHUSUS SUPER ADMIN) ================= --}}
-                @if (auth()->user()->role === 'super_admin')
-                    <div class="w-full md:w-56">
-                        <label class="block text-xs font-bold text-gray-600 uppercase mb-1 ml-1">Instansi</label>
-                        <select name="opd" id="filter-opd" onchange="updateLayananOptions()"
-                            class="w-full rounded-xl border border-gray-300 px-4 py-2 focus:ring-2 focus:ring-[#1B75BC] outline-none">
-                            <option value="">Semua Instansi</option>
-                            <option value="Dinas Komunikasi dan Informatika"
-                                {{ request('opd') == 'Dinas Komunikasi dan Informatika' ? 'selected' : '' }}>Dinas
-                                Kominfo</option>
-                            <option value="Dinas Kesehatan" {{ request('opd') == 'Dinas Kesehatan' ? 'selected' : '' }}>
-                                Dinas Kesehatan</option>
-                            <option value="Dinas Pendidikan"
-                                {{ request('opd') == 'Dinas Pendidikan' ? 'selected' : '' }}>Dinas Pendidikan</option>
-                        </select>
-                    </div>
-                @endif
-
-                {{-- ================= FILTER LAYANAN (DINAMIS VIA JS) ================= --}}
-                <div class="w-full md:w-56">
-                    <label class="block text-xs font-bold text-gray-600 uppercase mb-1 ml-1">Layanan</label>
-                    <select name="layanan" id="filter-layanan"
-                        class="w-full rounded-xl border border-gray-300 px-4 py-2 focus:ring-2 focus:ring-[#1B75BC] outline-none">
-                        <option value="">Semua Layanan</option>
-                    </select>
-                </div>
-
-                <div class="w-full md:w-44">
-                    <label class="block text-xs font-bold text-gray-600 uppercase mb-1 ml-1">Tanggal</label>
-                    <input type="date" name="tanggal" value="{{ request('tanggal') }}"
-                        class="w-full rounded-xl border border-gray-300 px-4 py-2 focus:ring-2 focus:ring-[#1B75BC] outline-none">
-                </div>
-
-                <div class="flex gap-2">
-                    <button type="submit"
-                        class="inline-flex items-center gap-2 bg-gray-200 hover:bg-gray-300 
-                        text-gray-700 px-5 py-2.5 rounded-xl shadow-sm hover:shadow-md transition duration-200 font-medium cursor-pointer">
-
-                        <i class="ti ti-filter text-[18px]"></i>
-                        <span>Filter</span>
-                    </button>
-                    <a href="{{ route('guest') }}"
-                        class="inline-flex items-center gap-2 bg-gray-200 hover:bg-gray-300 
-                        text-gray-700 px-5 py-2.5 rounded-xl shadow-sm hover:shadow-md transition duration-200 font-medium cursor-pointer">
-
-                        <i class="ti ti-refresh text-[18px]"></i>
-                        Reset
-                    </a>
-                </div>
-            </form>
-        </div>
-
-        <div class="overflow-x-auto bg-white shadow-md rounded-md">
-            <table class="w-full text-center border-collapse">
-                <thead>
-                    <tr class="bg-slate-200 text-slate-800 border-b border-slate-200">
-                        <th class="p-3 border border-slate-200">No</th>
-                        <th class="p-3 border border-slate-200">Nama Tamu</th>
-                        <th class="p-3 border border-slate-200">OPD</th>
-                        <th class="p-3 border border-slate-200">Layanan</th>
-                        <th class="p-3 border border-slate-200">No HP</th>
-                        <th class="p-3 border border-slate-200">Instansi</th>
-                        <th class="p-3 border border-slate-200">Keterangan</th>
-                        <th class="p-3 border border-slate-200">Tanggal</th>
-                        <th class="p-3 border border-slate-200">Datang</th>
-                        <th class="p-3 border border-slate-200">Pulang</th>
-                        <th class="p-3 border border-slate-200">Foto</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @forelse($guests as $guest)
-                        <tr class="hover:bg-gray-50 transition border-b text-sm">
-                            <td class="p-3 border border-slate-200 text-gray-500 text-sm">{{ $loop->iteration }}</td>
-                            <td class="p-3 border border-slate-200 font-semibold text-left">{{ $guest->nama_tamu }}
-                            </td>
-                            <td class="p-3 border border-slate-200">{{ $guest->opd }}</td>
-                            <td class="p-3 border border-slate-200">{{ $guest->layanan }}</td>
-                            <td class="p-3 border border-slate-200">{{ $guest->no_hp }}</td>
-                            <td class="p-3 border border-slate-200 text-sm">{{ $guest->asal_instansi }}</td>
-                            <td class="p-3 border border-slate-200 text-sm ">{{ $guest->keterangan }}</td>
-                            <td class="p-3 border border-slate-200 text-sm whitespace-nowrap">
-                                {{ \Carbon\Carbon::parse($guest->tanggal)->translatedFormat('d F Y') }}</td>
-                            <td class="p-3 border border-slate-200 text-sm text-green-600 font-medium">
-                                {{ $guest->datang }}</td>
-                            <td class="p-3 border border-slate-200 text-sm text-red-600 font-medium">
-                                {{ $guest->pulang ?? '-' }}</td>
-                            <td class="p-3 border border-slate-200 text-sm">
-                                @if ($guest->foto)
-                                    <img src="{{ asset('storage/' . $guest->foto) }}"
-                                        alt="Foto {{ $guest->nama_tamu }}"
-                                        onclick="bukaModal('{{ asset('storage/' . $guest->foto) }}')"
-                                        class="w-16 h-16 object-cover rounded-lg mx-auto shadow-sm cursor-pointer hover:scale-110 transition">
-                                @else
-                                    <span class="text-gray-400 italic text-xs">Tidak ada foto</span>
-                                @endif
-                            </td>
-                        </tr>
-                    @empty
-                        <tr>
-                            <td colspan="11" class="p-6 text-center text-gray-500">
-                                Belum ada data tamu
-                            </td>
-                        </tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </div>
+        {{-- Tabel Data Tamu --}}
+        @include('guest.table')
     </div>
 
     {{-- ================= SCRIPT JAVASCRIPT MASTER ================= --}}
