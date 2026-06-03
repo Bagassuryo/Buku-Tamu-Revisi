@@ -5,16 +5,21 @@ namespace App\Models;
 use Illuminate\Foundation\Auth\User as Authenticatable; // Penting untuk proses login
 use Illuminate\Notifications\Notifiable;
 
-class admin extends Authenticatable
+class Admin extends Authenticatable
 {
     use Notifiable;
+
+    public function instansi()
+    {
+        return $this->belongsTo(Instansi::class);
+    }
 
     protected $fillable = [
         'username',
         'password',
         'role',
         'status',
-        'opd',
+        'instansi_id',
         'last_active',
     ];
 

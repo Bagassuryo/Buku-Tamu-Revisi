@@ -2,37 +2,35 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Controllers\Controller;
 use App\Models\Guest;
+use App\Models\Instansi;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Http\Request; // Pastikan ini ada untuk menangkap data form
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use App\Exports\GuestExport;
 use Maatwebsite\Excel\Facades\Excel;
 
 class GuestController extends Controller
 {
-    // Ganti fungsi index() lama kamu dengan ini
     public function index(Request $request)
     {
-        $search = $request->input('search');
+        $search  = $request->input('search');
         $tanggal = $request->input('tanggal');
-        $bulan = $request->input('bulan');
-        $layanan = $request->input('layanan');
-        $opd = $request->input('opd'); // tambahkan ini
+        $bulan   = $request->input('bulan');
+        $instansi_id = $request->input('instansi_id');
 
         $user = Auth::user();
 
-        $guests = Guest::query()
+        $guests = Guest::with('instansi', 'layanan')
 
-            // Jika bukan superadmin, tampilkan hanya OPD miliknya
+            // Jika bukan superadmin, tampilkan hanya Instansi miliknya
             ->when($user->role !== 'super_admin', function ($query) use ($user) {
-                return $query->where('opd', $user->opd);
+                return $query->where('instansi_id', $user->instansi_id);
             })
 
-            // Filter OPD (khusus superadmin)
-            ->when($opd, function ($query, $opd) {
-                return $query->where('opd', $opd);
+            // Filter Instansi (khusus superadmin)
+            ->when($instansi_id, function ($query, $instansi_id) {
+                return $query->where('instansi_id', $instansi_id);
             })
 
             // Search
@@ -40,135 +38,120 @@ class GuestController extends Controller
                 return $query->where(function ($q) use ($search) {
                     $q->where('nama_tamu', 'like', '%' . $search . '%')
                         ->orWhere('asal_instansi', 'like', '%' . $search . '%')
-                        ->orWhere('opd', 'like', '%' . $search . '%')
-                        ->orWhere('layanan', 'like', '%' . $search . '%');
+                        ->orWhereHas('instansi', function ($q2) use ($search) {
+                            $q2->where('nama', 'like', '%' . $search . '%');
+                        })
+                        ->orWhereHas('layanan', function ($q2) use ($search) {
+                            $q2->where('nama_layanan', 'like', '%' . $search . '%');
+                        });
                 });
             })
 
             // Filter tanggal
             ->when($tanggal, function ($query, $tanggal) {
-                return $query->whereDate('tanggal', '=', $tanggal);
+                return $query->whereDate('tanggal', $tanggal);
             })
 
             // Filter bulan
             ->when($bulan, function ($query, $bulan) {
-                return $query->whereMonth('tanggal', '=', $bulan, 'and');
-            })
-
-            // Filter layanan
-            ->when($layanan, function ($query, $layanan) {
-                return $query->where('layanan', '=', $layanan);
+                return $query->whereMonth('tanggal', $bulan);
             })
 
             ->orderBy('id', 'desc')
             ->get();
 
-        return view('guest', compact('guests'));
+        $instansiList = Instansi::where('is_active', true)->orderBy('nama')->get();
+
+        return view('guest', compact('guests', 'instansiList'));
     }
 
-    // --- TAMBAHKAN FUNGSI DI BAWAH INI ---
-
-    // 1. Fungsi untuk menampilkan halaman form isi tamu (untuk publik/tamu)
     public function create()
     {
-        return view('form-tamu'); // Pastikan kamu buat file resources/views/form-tamu.blade.php
+        return view('form-tamu');
     }
 
-    // 2. Fungsi untuk menerima data dari form dan menyimpannya ke database
     public function store(Request $request)
     {
-        // Validasi data agar tidak kosong atau salah format
-        $validated = $request->validate([
+        $request->validate([
             'nama_tamu'     => 'required|string|max:255',
-            'opd'           => 'required|string|max:255',
-            'layanan'   => 'nullable|string|max:255',
-            'no_hp'         => 'required|numeric',
-            'asal_instansi' => 'required',
-            'keterangan'    => 'required',
-            'foto'          => 'nullable', // Bisa berupa file upload atau base64 data URL dari camera
+            'instansi_id'   => 'required|exists:instansi,id',
+            'layanan_id'    => 'nullable|exists:layanan,id',
+            'no_hp'         => 'required|string|max:15',
+            'asal_instansi' => 'required|string|max:255',
+            'keterangan'    => 'required|string|max:300',
+            'foto'          => 'nullable',
         ]);
 
-        // Simpan nama OPD ke kolom layanan, dan gunakan layanan jika ada.
+        $data = $request->only([
+            'nama_tamu',
+            'instansi_id',
+            'layanan_id',
+            'no_hp',
+            'asal_instansi',
+            'keterangan'
+        ]);
 
+        $data['tanggal'] = now()->toDateString();
+        $data['datang']  = now()->toTimeString();
 
-        // Menambahkan data waktu secara otomatis sebelum disimpan
-        $validated['tanggal'] = now()->toDateString(); // Hasil: 2026-05-10
-        $validated['datang']  = now()->toTimeString(); // Hasil: 14:00:00
-
-        // Jika ada file upload (multipart), simpan ke disk public
+        // Foto file upload
         if ($request->hasFile('foto') && $request->file('foto')->isValid()) {
-            $validated['foto'] = $request->file('foto')->store('foto', 'public');
+            $data['foto'] = $request->file('foto')->store('foto', 'public');
         }
-
-        // Jika foto dikirim sebagai data URL (base64) dari canvas, decode dan simpan
+        // Foto base64 dari kamera
         elseif ($request->filled('foto') && preg_match('/^data:image\/(\w+);base64,/', $request->foto, $matches)) {
             $extension = strtolower($matches[1]) === 'jpeg' ? 'jpg' : strtolower($matches[1]);
-            $data = substr($request->foto, strpos($request->foto, ',') + 1);
-            $data = base64_decode($data);
-            if ($data !== false) {
+            $decoded   = base64_decode(substr($request->foto, strpos($request->foto, ',') + 1));
+            if ($decoded !== false) {
                 $filename = uniqid('foto_') . '.' . $extension;
-                $path = 'foto/' . $filename;
-                Storage::disk('public')->put($path, $data);
-                $validated['foto'] = $path;
+                Storage::disk('public')->put('foto/' . $filename, $decoded);
+                $data['foto'] = 'foto/' . $filename;
             }
         }
 
-        // Simpan ke database menggunakan Model Guest
-        Guest::create($validated);
+        Guest::create($data);
 
-        // Kembalikan ke halaman form dengan pesan sukses
         return redirect()->back()->with('success', 'Data kunjungan Anda berhasil terkirim!');
     }
 
-        public function showCheckoutForm()
-{
-    $guest = Guest::query()
-        ->whereDate('tanggal', now()->toDateString())
-        ->whereNull('pulang')
-        ->get();
+    public function showCheckoutForm()
+    {
+        $guest = Guest::with('instansi')
+            ->whereDate('tanggal', now()->toDateString())
+            ->whereNull('pulang')
+            ->get();
 
-    return view('pulang', compact('guest'));
-}
-
-public function processCheckout(Request $request)
-{
-    // Perbaikan 1: Validasi 'id', bukan 'nama_tamu'
-    $request->validate([
-        'id' => 'required|exists:guests,id'
-    ]);
-
-    // Perbaikan 2: Cari langsung berdasarkan ID tamu
-    $guest = Guest::find($request->id);
-
-    // Keamanan tambahan: Pastikan tamu memang belum pulang hari ini
-    if ($guest && is_null($guest->pulang) && $guest->tanggal == now()->toDateString()) {
-        $guest->update([
-            'pulang' => now()->toTimeString()
-        ]);
-
-        // Redirect ke halaman survei eksternal setelah berhasil checkout
-        return redirect ('https://sukma.jatimprov.go.id/home/survei?idUser=1186');
+        return view('pulang', compact('guest'));
     }
 
-    return back()->with('error', 'Data tidak ditemukan atau Anda sudah tercatat pulang.');
-}
+    public function processCheckout(Request $request)
+    {
+        $request->validate([
+            'id' => 'required|exists:guests,id'
+        ]);
 
-    // --- TAMBAHKAN FUNGSI EXPORT INI DI PALING BAWAH CONTROLLER ---
+        $guest = Guest::find($request->id);
+
+        if ($guest && is_null($guest->pulang) && $guest->tanggal == now()->toDateString()) {
+            $guest->update(['pulang' => now()->toTimeString()]);
+            return redirect('https://sukma.jatimprov.go.id/home/survei?idUser=1186');
+        }
+
+        return back()->with('error', 'Data tidak ditemukan atau Anda sudah tercatat pulang.');
+    }
 
     public function export(Request $request)
     {
-        $search = $request->input('search');
+        $search  = $request->input('search');
         $tanggal = $request->input('tanggal');
-        $bulan = $request->input('bulan');
-        $layanan = $request->input('layanan');
+        $bulan   = $request->input('bulan');
 
         $user = Auth::user();
 
-        $guests = Guest::query()
+        $guests = Guest::with('instansi', 'layanan')
 
-            // Pembatasan OPD
             ->when($user->role !== 'super_admin', function ($query) use ($user) {
-                return $query->where('opd', $user->opd);
+                return $query->where('instansi_id', $user->instansi_id);
             })
 
             ->when($search, function ($query, $search) {
@@ -179,22 +162,19 @@ public function processCheckout(Request $request)
             })
 
             ->when($tanggal, function ($query, $tanggal) {
-                return $query->whereDate('tanggal', '=', $tanggal, 'and');
+                return $query->whereDate('tanggal', $tanggal);
             })
 
             ->when($bulan, function ($query, $bulan) {
-                return $query->whereMonth('tanggal', '=', $bulan, 'and');
-            })
-
-            ->when($layanan, function ($query, $layanan) {
-                return $query->where('layanan', '=', $layanan);
+                return $query->whereMonth('tanggal', $bulan);
             })
 
             ->orderBy('id', 'desc')
             ->get();
 
-        $fileName = 'data_tamu_' . now()->format('Y-m-d') . '.xlsx';
-
-        return Excel::download(new GuestExport($guests), $fileName);
+        return Excel::download(
+            new GuestExport($guests),
+            'data_tamu_' . now()->format('Y-m-d') . '.xlsx'
+        );
     }
 }

@@ -10,7 +10,7 @@ use PhpOffice\PhpSpreadsheet\Worksheet\Drawing;
 use Maatwebsite\Excel\Concerns\WithStyles;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use Illuminate\Support\Collection;
-use Maatwebsite\Excel\Concerns\ShouldAutoSize; 
+use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\WithColumnWidths;
 
 class GuestExport implements FromCollection, WithHeadings, WithMapping, WithDrawings, WithStyles, ShouldAutoSize, WithColumnWidths
@@ -31,15 +31,15 @@ class GuestExport implements FromCollection, WithHeadings, WithMapping, WithDraw
     // Menentukan Header
     public function headings(): array
     {
-        return ['opd','Layanan', 'Nama', 'No HP', 'Instansi', 'Keterangan', 'Tanggal', 'Datang', 'Pulang', 'Foto'];
+        return ['Instansi', 'Layanan', 'Nama', 'No HP', 'Instansi Asal', 'Keterangan', 'Tanggal', 'Datang', 'Pulang', 'Foto'];
     }
 
     // Memetakan kolom database ke Excel
     public function map($guest): array
     {
         return [
-            $guest->opd,
-            $guest->layanan,
+            $guest->instansi->nama ?? $guest->instansi_id ?? '-',
+            $guest->layanan->nama_layanan ?? $guest->layanan ?? '-',
             $guest->nama_tamu,
             $guest->no_hp,
             $guest->asal_instansi,

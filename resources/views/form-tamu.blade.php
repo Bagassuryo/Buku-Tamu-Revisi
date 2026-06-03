@@ -154,58 +154,57 @@
 
                     {{-- Hidden input foto base64 --}}
                     <input type="hidden" name="foto" id="foto-input">
-                    {{-- OPD Search --}}
+                    {{-- Instansi Search --}}
                     <div>
                         <label class="flex items-center gap-1.5 text-[13px] font-semibold text-slate-700 mb-1.5">
                             <i class="ti ti-search text-[15px] text-[#1B75BC]"></i>
-                            OPD yang Dituju <span class="text-red-500">*</span>
+                            Instansi yang Dituju <span class="text-red-500">*</span>
                         </label>
 
-                        <input type="hidden" name="opd" id="opd-value" value="{{ old('opd') }}">
+                        <input type="hidden" name="instansi_id" id="instansi-value" value="{{ old('instansi_id') }}">
 
                         <div class="relative" id="search-wrap">
                             <div class="relative flex items-center">
-                                <i
-                                    class="ti ti-search absolute left-3 text-slate-400 text-base pointer-events-none z-10"></i>
-                                <input type="text" id="opd-search" autocomplete="off" placeholder="Ketik nama OPD..."
+                                <input type="text" id="instansi-search" autocomplete="off"
+                                    placeholder="Ketik nama Instansi..."
                                     class="w-full pl-9 pr-9 py-2.75 border-[1.5px] rounded-xl text-sm text-slate-800 placeholder-slate-400 outline-none transition
                                         focus:border-[#1B75BC] focus:ring-2 focus:ring-blue-100
-                                        {{ $errors->has('opd') ? 'border-red-400 ring-2 ring-red-100' : 'border-slate-200' }}"
-                                    value="{{ old('opd') }}">
-                                <button type="button" id="opd-clear"
+                                        {{ $errors->has('instansi_id') ? 'border-red-400 ring-2 ring-red-100' : 'border-slate-200' }}"
+                                    value="{{ old('instansi_id') }}">
+                                <button type="button" id="instansi-clear"
                                     class="absolute right-2.5 hidden items-center justify-center w-5 h-5 rounded-full text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition">
                                     <i class="ti ti-x text-xs"></i>
                                 </button>
                             </div>
 
-                            <div id="opd-dropdown"
+                            <div id="instansi-dropdown"
                                 class="hidden absolute top-[calc(100%+4px)] left-0 right-0 bg-white border-[1.5px] border-slate-200 rounded-xl shadow-xl z-50 max-h-60 overflow-y-auto">
                             </div>
 
-                            <div id="selected-opd-display">
-                                @if (old('opd'))
+                            <div id="selected-instansi-display">
+                                @if (old('instansi_id'))
                                     <div
                                         class="inline-flex items-center gap-1.5 bg-blue-50 border border-blue-200 text-[#1a2a6c] text-[13px] font-semibold px-2.5 py-1.5 rounded-lg mt-1.5">
                                         <i class="ti ti-check text-green-500 text-xs"></i>
-                                        {{ old('opd') }}
+                                        {{ old('instansi_id') }}
                                     </div>
                                 @endif
                             </div>
                         </div>
 
-                        <p class="text-[11.5px] text-slate-400 mt-1.5">Cari berdasarkan nama OPD</p>
-                        @error('opd')
+                        <p class="text-[11.5px] text-slate-400 mt-1.5">Cari berdasarkan nama Instansi</p>
+                        @error('instansi_id')
                             <p class="text-xs text-red-500 mt-1">{{ $message }}</p>
                         @enderror
                     </div>
 
-                    {{-- Layanan (muncul setelah OPD dipilih) --}}
+                    {{-- Layanan (muncul setelah Instansi dipilih) --}}
                     <div id="layanan-wrap" class="hidden">
                         <label class="flex items-center gap-1.5 text-[13px] font-semibold text-slate-700 mb-1.5">
                             <i class="ti ti-list-details text-[15px] text-[#1B75BC]"></i>
                             Jenis Layanan <span class="text-red-500">*</span>
                         </label>
-                        <select name="layanan" id="layanan-select"
+                        <select name="layanan_id" id="layanan-select"
                             class="w-full px-3.5 py-2.75 border-[1.5px] border-slate-200 rounded-xl text-sm text-slate-800 outline-none transition
                focus:border-[#1B75BC] focus:ring-2 focus:ring-blue-100 bg-white cursor-pointer appearance-none">
                             <option>Pilih Jenis Layanan</option>
@@ -298,7 +297,6 @@
                         <img id="foto-result" src="" alt="Foto Tamu">
                         <button type="button" id="btn-ulang-foto"
                             class="text-[11.5px] text-[#1B75BC] underline underline-offset-2 hover:opacity-70 transition">
-                            Ambil ulang foto
                         </button>
                     </div>
 

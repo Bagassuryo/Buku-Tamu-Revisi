@@ -53,19 +53,15 @@
                 <div class="mt-3">
                     <label class="block text-sm font-semibold text-gray-700 mb-1">Instansi (OPD)</label>
                     <div class="relative">
+                        {{-- GANTI select OPD yang lama dengan ini --}}
                         <select name="opd"
-                            class="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#1B75BC] focus:border-transparent outline-none transition duration-200 bg-gray-50 focus:bg-white text-gray-800">
+                            class="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#1B75BC] focus:border-transparent outline-none transition bg-gray-50 focus:bg-white text-gray-800">
                             <option value="">-- Pilih Instansi --</option>
-                            <option value="Dinas Komunikasi dan Informatika"
-                                {{ old('opd') == 'Dinas Komunikasi dan Informatika' ? 'selected' : '' }}>Dinas
-                                Komunikasi dan Informatika</option>
-                            <option value="Dinas Pendidikan" {{ old('opd') == 'Dinas Pendidikan' ? 'selected' : '' }}>
-                                Dinas Pendidikan</option>
-                            <option value="Dinas Kesehatan" {{ old('opd') == 'Dinas Kesehatan' ? 'selected' : '' }}>
-                                Dinas Kesehatan</option>
-                            <option value="Badan Kepegawaian Daerah"
-                                {{ old('opd') == 'Badan Kepegawaian Daerah' ? 'selected' : '' }}>Badan Kepegawaian
-                                Daerah</option>
+                            @foreach ($instansi as $item)
+                                <option value="{{ $item->id }}" {{ old('opd') == $item->id ? 'selected' : '' }}>
+                                    {{ $item->nama }}
+                                </option>
+                            @endforeach
                         </select>
                     </div>
                     @error('opd')

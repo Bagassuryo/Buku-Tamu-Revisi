@@ -16,6 +16,8 @@
     @include('layouts.nav')
     @include('superadmin.tambah')
     @include('superadmin.edit')
+    @include('superadmin.tambah-instansi')
+    @include('superadmin.edit-instansi')
 
     <div class="p-6 max-w-7xl mx-auto">
         {{-- Top Bar --}}
@@ -43,6 +45,13 @@
                     <i class="ti ti-user-plus text-lg"></i>
                     <span>Tambah Admin</span>
                 </button>
+
+                <button
+                    onclick="document.getElementById('ModalTambahInstansi').classList.remove('hidden'); document.getElementById('ModalTambahInstansi').classList.add('flex');"
+                    class="flex items-center justify-center gap-2 h-10 px-4 bg-green-700 hover:bg-green-800 text-white text-sm font-medium rounded-xl transition cursor-pointer shadow-sm w-full sm:w-auto">
+                    <i class="ti ti-building-plus text-lg"></i>
+                    <span>Tambah Instansi</span>
+                </button>
             </div>
         </div>
 
@@ -63,8 +72,9 @@
             </div>
         @endif
 
-        
+
         @include('superadmin.tabel')
+        @include('superadmin.tabel-instansi')
     </div>
 </body>
 
@@ -162,56 +172,151 @@
         @endif
     @endif
 
-    document.addEventListener('DOMContentLoaded', function () {
-    const searchInput = document.getElementById('searchInput');
-    const tableRows = document.querySelectorAll('tbody tr');
+    document.addEventListener('DOMContentLoaded', function() {
+        const searchInput = document.getElementById('searchInput');
+        const tableRows = document.querySelectorAll('tbody tr');
 
-    searchInput.addEventListener('input', function () {
-        const filterValue = searchInput.value.toLowerCase().trim();
+        searchInput.addEventListener('input', function() {
+            const filterValue = searchInput.value.toLowerCase().trim();
 
-        tableRows.forEach(row => {
-            // Mengambil teks dari kolom Username (kolom ke-2, indeks 1) 
-            // dan kolom OPD (kolom ke-3, indeks 2)
-            const usernameText = row.cells[1] ? row.cells[1].textContent.toLowerCase() : '';
-            const opdText = row.cells[2] ? row.cells[2].textContent.toLowerCase() : '';
+            tableRows.forEach(row => {
+                // Mengambil teks dari kolom Username (kolom ke-2, indeks 1) 
+                // dan kolom OPD (kolom ke-3, indeks 2)
+                const usernameText = row.cells[1] ? row.cells[1].textContent.toLowerCase() : '';
+                const opdText = row.cells[2] ? row.cells[2].textContent.toLowerCase() : '';
 
-            // Jika kata kunci cocok dengan username ATAU nama OPD
-            if (usernameText.includes(filterValue) || opdText.includes(filterValue)) {
-                row.style.display = ''; // Tampilkan baris
-            } else {
-                row.style.display = 'none'; // Sembunyikan baris
-            }
+                // Jika kata kunci cocok dengan username ATAU nama OPD
+                if (usernameText.includes(filterValue) || opdText.includes(filterValue)) {
+                    row.style.display = ''; // Tampilkan baris
+                } else {
+                    row.style.display = 'none'; // Sembunyikan baris
+                }
+            });
+
+            // Opsional: Cek jika semua baris tersembunyi (data tidak ditemukan)
+            checkEmptyResult();
         });
-        
-        // Opsional: Cek jika semua baris tersembunyi (data tidak ditemukan)
-        checkEmptyResult();
-    });
 
-    function checkEmptyResult() {
-        const visibleRows = Array.from(tableRows).filter(row => row.style.display !== 'none');
-        const existingNoDataRow = document.getElementById('noDataRow');
+        function checkEmptyResult() {
+            const visibleRows = Array.from(tableRows).filter(row => row.style.display !== 'none');
+            const existingNoDataRow = document.getElementById('noDataRow');
 
-        if (visibleRows.length === 0) {
-            // Jika belum ada pesan "Data tidak ditemukan", buat pesannya
-            if (!existingNoDataRow) {
-                const tbody = document.querySelector('tbody');
-                const noDataRow = document.createElement('tr');
-                noDataRow.id = 'noDataRow';
-                noDataRow.innerHTML = `
+            if (visibleRows.length === 0) {
+                // Jika belum ada pesan "Data tidak ditemukan", buat pesannya
+                if (!existingNoDataRow) {
+                    const tbody = document.querySelector('tbody');
+                    const noDataRow = document.createElement('tr');
+                    noDataRow.id = 'noDataRow';
+                    noDataRow.innerHTML = `
                     <td colspan="8" class="p-6 text-center text-gray-500 bg-gray-50">
                         <i class="ti ti-search-off text-lg mr-1"></i> Data admin atau OPD tidak ditemukan
                     </td>
                 `;
-                tbody.appendChild(noDataRow);
-            }
-        } else {
-            // Jika data ditemukan kembali, hapus pesan "Data tidak ditemukan"
-            if (existingNoDataRow) {
-                existingNoDataRow.remove();
+                    tbody.appendChild(noDataRow);
+                }
+            } else {
+                // Jika data ditemukan kembali, hapus pesan "Data tidak ditemukan"
+                if (existingNoDataRow) {
+                    existingNoDataRow.remove();
+                }
             }
         }
+    });
+
+    // ── TAMBAH INSTANSI ──
+    window.tambahLayananBaru = function() {
+        const list = document.getElementById('layananListTambah');
+        const div = document.createElement('div');
+        div.className = 'flex gap-2';
+        div.innerHTML = `
+        <input type="text" name="layanan[]" placeholder="Nama layanan..."
+            class="w-full border border-gray-300 rounded-xl px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-[#1B75BC] bg-gray-50 focus:bg-white">
+        <button type="button" onclick="hapusLayananTambah(this)" class="text-red-400 hover:text-red-600 px-2 transition">
+            <i class="ti ti-x text-lg"></i>
+        </button>`;
+        list.appendChild(div);
     }
-});
+
+    window.hapusLayananTambah = function(btn) {
+        const list = document.getElementById('layananListTambah');
+        if (list.children.length > 1) btn.parentElement.remove();
+    }
+
+    window.closeTambahInstansiModal = function() {
+        const modal = document.getElementById('ModalTambahInstansi');
+        modal.classList.remove('flex');
+        modal.classList.add('hidden');
+        // Reset form
+        modal.querySelector('form').reset();
+        // Reset layanan list ke 1 input kosong
+        const list = document.getElementById('layananListTambah');
+        list.innerHTML = `
+        <div class="flex gap-2">
+            <input type="text" name="layanan[]" placeholder="Nama layanan..."
+                class="w-full border border-gray-300 rounded-xl px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-[#1B75BC] bg-gray-50 focus:bg-white">
+            <button type="button" onclick="hapusLayananTambah(this)" class="text-red-400 hover:text-red-600 px-2 transition">
+                <i class="ti ti-x text-lg"></i>
+            </button>
+        </div>`;
+    }
+
+    // ── EDIT INSTANSI ──
+    window.openEditInstansiModal = function(button) {
+        const modal = document.getElementById('ModalEditInstansi');
+        const form = document.getElementById('formEditInstansi');
+
+        const id = button.dataset.id;
+        const nama = button.dataset.nama || '';
+        const kode = button.dataset.kode || '';
+        const desc = button.dataset.desc || '';
+        const layanan = JSON.parse(button.dataset.layanan || '[]');
+
+        form.action = `/instansi/update/${id}`;
+        document.getElementById('edit_instansi_nama').value = nama;
+        document.getElementById('edit_instansi_kode').value = kode;
+        document.getElementById('edit_instansi_desc').value = desc;
+
+        // Isi list layanan
+        const list = document.getElementById('layananListEdit');
+        list.innerHTML = '';
+        layanan.forEach(item => {
+            list.innerHTML += `
+            <div class="flex gap-2">
+                <input type="text" name="layanan[]" value="${item}"
+                    class="w-full border border-gray-300 rounded-xl px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-yellow-500 bg-gray-50 focus:bg-white">
+                <button type="button" onclick="hapusLayananEdit(this)" class="text-red-400 hover:text-red-600 px-2 transition">
+                    <i class="ti ti-x text-lg"></i>
+                </button>
+            </div>`;
+        });
+
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+    }
+
+    window.tambahLayananEdit = function() {
+        const list = document.getElementById('layananListEdit');
+        const div = document.createElement('div');
+        div.className = 'flex gap-2';
+        div.innerHTML = `
+        <input type="text" name="layanan[]" placeholder="Nama layanan..."
+            class="w-full border border-gray-300 rounded-xl px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-yellow-500 bg-gray-50 focus:bg-white">
+        <button type="button" onclick="hapusLayananEdit(this)" class="text-red-400 hover:text-red-600 px-2 transition">
+            <i class="ti ti-x text-lg"></i>
+        </button>`;
+        list.appendChild(div);
+    }
+
+    window.hapusLayananEdit = function(btn) {
+        const list = document.getElementById('layananListEdit');
+        if (list.children.length > 1) btn.parentElement.remove();
+    }
+
+    window.closeEditInstansiModal = function() {
+        const modal = document.getElementById('ModalEditInstansi');
+        modal.classList.remove('flex');
+        modal.classList.add('hidden');
+    }
 </script>
 
 </html>

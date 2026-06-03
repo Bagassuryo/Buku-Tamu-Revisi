@@ -31,11 +31,9 @@
                     <select name="opd" id="edit_opd"
                         class="w-full border rounded-xl p-2.5 outline-none focus:ring-2 focus:ring-yellow-500 border-gray-300">
                         <option value="">-- Pilih Instansi -- (Kosongkan jika super admin)</option>
-                        <option value="Dinas Komunikasi dan Informatika">Dinas Komunikasi dan Informatika</option>
-                        <option value="Dinas Pendidikan">Dinas Pendidikan</option>
-                        <option value="Dinas Kesehatan">Dinas Kesehatan</option>
-                        <option value="Badan Kepegawaian Daerah">Badan Kepegawaian Daerah</option>
-                        {{-- Sesuai dengan opsi dinas daerah Anda --}}
+                        @foreach ($instansi as $item)
+                            <option value="{{ $item->id }}">{{ $item->nama }}</option>
+                        @endforeach
                     </select>
                     @if (session('openEditModal'))
                         @error('opd')

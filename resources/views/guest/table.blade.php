@@ -22,8 +22,10 @@
                             <td class="p-4 border border-slate-200 text-gray-500 text-sm">{{ $loop->iteration }}</td>
                             <td class="p-4 border border-slate-200 font-semibold text-left">{{ $guest->nama_tamu }}
                             </td>
-                            <td class="p-4 border border-slate-200 text-left">{{ $guest->opd }}</td>
-                            <td class="p-4 border border-slate-200 text-left">{{ $guest->layanan }}</td>
+                            <td class="p-4 border border-slate-200 text-left">
+                                {{ $guest->instansi->nama ?? ($guest->opd ?? '-') }}</td>
+                            <td class="p-4 border border-slate-200 text-left">
+                                {{ $guest->layanan->nama_layanan ?? ($guest->layanan ?? '-') }}</td>
                             <td class="p-4 border border-slate-200 font-mono">{{ $guest->no_hp }}</td>
                             <td class="p-4 border border-slate-200 text-sm text-left">{{ $guest->asal_instansi }}</td>
                             <td class="p-4 border border-slate-200 text-sm text-left">

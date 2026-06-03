@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Admin;
+use App\Models\Instansi;
 use Illuminate\Http\Request; // Tambahkan ini untuk persiapan fitur kedepannya
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -12,15 +13,14 @@ class AdminController extends Controller
     // Menampilkan daftar semua admin
     public function index()
     {
-        // Mengambil semua data admin agar bisa ditampilkan di tabel
-        // Mengurutkan berdasarkan nama OPD secara alfabet (A ke Z)
-        $admins = Admin::orderBy('opd', 'asc')->get();
+        $admins = Admin::orderBy('instansi_id', 'asc')->get();
+        $instansi = Instansi::with('Layanan')->where('is_active', true)->orderBy('nama')->get();
 
-        return view('superadmin', compact('admins'));
+        return view('superadmin', compact('admins', 'instansi'));
     }
 
-    // --- TAMBAHKAN FUNGSI UPDATE DI SINI ---
-    public function update(Request $request, $username)
+    // Update data admin berdasarkan username
+    public function update(Request $request, string $username)
     {
         // 1. Cari admin berdasarkan Username
         $admin = Admin::where('username', $username)->firstOrFail();
@@ -31,22 +31,22 @@ class AdminController extends Controller
                 'username' => 'required|unique:admins,username,' . $admin->id,
                 'status'   => 'required|in:aktif,nonaktif',
                 'role'     => 'required|in:admin,super_admin',
-                // OPD wajib diisi HANYA JIKA role yang dipilih adalah 'admin'
-                'opd'      => 'required_if:role,admin|nullable|string',
+                // Instansi wajib diisi HANYA JIKA role yang dipilih adalah 'admin'
+                'instansi_id'      => 'required_if:role,admin|nullable|string',
             ], [
                 // Pesan kustom diletakkan di parameter kedua validate, bukan di update()
                 'username.unique' => 'Username ini sudah terdaftar, masukkan username lain.',
-                'opd.required_if' => 'Instansi (OPD) wajib diisi jika mendaftar sebagai Admin biasa.',
+                'instansi_id.required_if' => 'Instansi wajib diisi jika mendaftar sebagai Admin biasa.',
             ]);
 
-            // Trik Otomatisasi: Jika superadmin, set OPD jadi 'Semua OPD'
-            $opdValue = $request->role === 'super_admin' ? 'Semua OPD' : $request->opd;
+            // Trik Otomatisasi: Jika superadmin, set Instansi jadi 'Semua Instansi'
+            $instansiValue = $request->role === 'super_admin' ? 'Semua Instansi' : $request->instansi_id;
 
             // 3. Proses Update
             $admin->update([
                 'username' => $request->username,
                 'status'   => $request->status,
-                'opd'      => $opdValue,
+                'instansi_id'      => $instansiValue,
                 'role'      => $request->role,
             ]);
 
@@ -62,12 +62,12 @@ class AdminController extends Controller
     }
 
     // Menghapus admin
-    public function destroy($username)
+    public function destroy(string $username)
     {
 
         // Mencari data, jika tidak ada langsung error 404
         $admin = Admin::where('username', $username)
-            ->whereIn('role', ['admin', 'super_admin']) 
+            ->whereIn('role', ['admin', 'super_admin'])
             ->firstOrFail();
 
         // Proteksi: Jangan biarkan menghapus diri sendiri
@@ -89,23 +89,23 @@ class AdminController extends Controller
             'username' => 'required|unique:admins,username',
             'password' => 'required|min:6',
             'role'     => 'required|in:admin,super_admin',
-            // OPD wajib diisi HANYA JIKA role bernilai 'admin'
-            'opd'      => 'required_if:role,admin|nullable|string',
+            // Instansi wajib diisi HANYA JIKA role bernilai 'admin'
+            'instansi_id'      => 'required_if:role,admin|nullable|string',
         ], [
             'username.unique' => 'Username ini sudah terdaftar, masukkan username lain.',
             'password.min'    => 'Password minimal harus 6 karakter.',
-            'opd.required_if' => 'Instansi (OPD) wajib diisi jika mendaftar sebagai Admin biasa.',
+            'instansi_id.required_if' => 'Instansi wajib diisi jika mendaftar sebagai Admin biasa.',
         ]);
 
-        // Trik Otomatisasi: Jika superadmin, set OPD jadi 'Semua OPD'
-        $opdValue = $request->role === 'super_admin' ? 'Semua OPD' : $request->opd;
+        // Trik Otomatisasi: Jika superadmin, set Instansi jadi 'Semua Instansi'
+        $instansiValue = $request->role === 'super_admin' ? 'Semua Instansi' : $request->instansi_id;
 
         // 2. Simpan data
         Admin::create([
             'username' => $request->username,
             'password' => Hash::make($request->password),
             'role' => $request->role,
-            'opd' => $opdValue,
+            'instansi_id' => $instansiValue,
         ]);
 
         return back()->with('success', 'Admin baru berhasil ditambahkan!');

@@ -11,5 +11,26 @@ class Guest extends Model
 
     public $timestamps = false;
 
-    protected $fillable = ['nama_tamu', 'opd', 'layanan', 'no_hp', 'asal_instansi', 'keterangan', 'tanggal', 'datang', 'pulang', 'foto'];
+    protected $fillable = [
+        'nama_tamu',
+        'instansi_id',  
+        'layanan_id',   
+        'no_hp',
+        'asal_instansi',
+        'keterangan',
+        'tanggal',
+        'datang',
+        'pulang',
+        'foto'
+    ];
+
+    public function instansi()
+    {
+        return $this->belongsTo(Instansi::class);
+    }
+
+    public function layanan()
+    {
+        return $this->belongsTo(Layanan::class);
+    }
 }

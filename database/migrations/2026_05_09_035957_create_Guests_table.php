@@ -14,8 +14,8 @@ return new class extends Migration
         Schema::create('guests', function (Blueprint $table) {
             $table->id();
             $table->string('nama_tamu');
-            $table->string('opd');
-            $table->string('layanan') ->nullable();
+            $table->foreignId('instansi_id')->nullable();
+            $table->foreignId('layanan_id')->nullable();
             $table->string('no_hp');
             $table->string('asal_instansi');
             $table->text('keterangan');
