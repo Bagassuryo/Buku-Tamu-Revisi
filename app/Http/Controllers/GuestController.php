@@ -18,6 +18,7 @@ class GuestController extends Controller
         $tanggal = $request->input('tanggal');
         $bulan   = $request->input('bulan');
         $instansi_id = $request->input('instansi_id');
+        $layanan_id = $request->input('layanan');
 
         $user = Auth::user();
 
@@ -57,12 +58,34 @@ class GuestController extends Controller
                 return $query->whereMonth('tanggal', $bulan);
             })
 
+            // Filter layanan
+            ->when($layanan_id, function ($query, $layanan_id) {
+                return $query->where('layanan_id', $layanan_id);
+            })
+
             ->orderBy('id', 'desc')
             ->get();
 
-        $instansiList = Instansi::where('is_active', true)->orderBy('nama')->get();
+        $instansiList = Instansi::with('layanan')
+            ->where('is_active', true)
+            ->orderBy('nama')
+            ->get();
 
-        return view('guest', compact('guests', 'instansiList'));
+        // Tambahkan di index(), sebelum return view
+        $instansiJson = $instansiList->map(function ($i) {
+            return [
+                'id'      => $i->id,
+                'layanan' => $i->layanan->map(function ($l) {
+                    return [
+                        'id'   => $l->id,
+                        'nama' => $l->nama_layanan,
+                    ];
+                })->values()->toArray(),
+            ];
+        })->values()->toArray();
+
+        return view('guest', compact('guests', 'instansiList', 'instansiJson'));
+
     }
 
     public function create()

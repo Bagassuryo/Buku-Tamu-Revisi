@@ -4,7 +4,7 @@
                     <tr class="bg-[#1B75BC] text-white">
                         <th class="p-3 border">No</th>
                         <th class="p-3 border">Username</th>
-                        <th class="p-3 border">OPD</th>
+                        <th class="p-3 border">Instansi</th>
                         <th class="p-3 border">Status</th>
                         <th class="p-3 border">Role</th>
                         <th class="p-3 border">Last Active</th>
@@ -17,7 +17,7 @@
                         <tr class="hover:bg-gray-50 transition border-b">
                             <td class="p-3 border text-gray-500">{{ $loop->iteration }}</td>
                             <td class="p-3 border font-semibold">{{ $admin->username }}</td>
-                            <td class="p-3 border">{{ $admin->opd ?? '-' }}</td>
+                            <td class="p-3 border">{{ $admin->instansi->nama ?? '-' }}</td>
                             <td class="p-3 border text-center">
                                 @if ($admin->status === 'aktif')
                                     <span
@@ -62,7 +62,7 @@
                             <td class="p-3 border">
                                 <div class="flex justify-center gap-2">
                                     <button type="button"
-                                        onclick="openEditModal('{{ $admin->username }}', '{{ $admin->status }}', '{{ $admin->opd }}', '{{ $admin->role }}')"
+                                        onclick="openEditModal('{{ $admin->username }}', '{{ $admin->status }}', '{{ $admin->instansi_id }}', '{{ $admin->role }}')"
                                         class="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded-lg text-sm cursor-pointer flex items-center gap-1 leading-none">
                                         <i class="material-symbols-outlined text-sm">edit</i> Edit
                                     </button>

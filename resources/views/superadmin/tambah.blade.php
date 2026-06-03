@@ -49,22 +49,23 @@
                     </div>
                 </div>
 
-                {{-- PERUBAHAN 2: Menambahkan Dropdown Pilihan OPD pada Modal Tambah Admin --}}
+                {{-- PERUBAHAN 2: Menambahkan Dropdown Pilihan Instansi pada Modal Tambah Admin --}}
                 <div class="mt-3">
-                    <label class="block text-sm font-semibold text-gray-700 mb-1">Instansi (OPD)</label>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">Instansi</label>
                     <div class="relative">
-                        {{-- GANTI select OPD yang lama dengan ini --}}
-                        <select name="opd"
-                            class="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#1B75BC] focus:border-transparent outline-none transition bg-gray-50 focus:bg-white text-gray-800">
+                        {{-- Ganti select instansi_id yang lama dengan ini --}}
+                        <select name="instansi_id" id="select_instansi_tambah"
+                            class="w-full px-4 py-2.5 border border-gray-300 rounded-xl outline-none bg-gray-50 text-gray-800">
                             <option value="">-- Pilih Instansi --</option>
                             @foreach ($instansi as $item)
-                                <option value="{{ $item->id }}" {{ old('opd') == $item->id ? 'selected' : '' }}>
+                                <option value="{{ $item->id }}"
+                                    {{ old('instansi_id') == $item->id ? 'selected' : '' }}>
                                     {{ $item->nama }}
                                 </option>
                             @endforeach
                         </select>
                     </div>
-                    @error('opd')
+                    @error('instansi_id')
                         <span class="text-red-500 text-sm mt-1">{{ $message }}</span>
                     @enderror
                 </div>

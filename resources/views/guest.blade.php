@@ -9,6 +9,8 @@
     @vite('resources/css/app.css')
     <link rel="stylesheet"
         href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
+    <link href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
     <style>
         #modal-foto {
             display: none;
@@ -22,6 +24,47 @@
 
         #modal-foto.aktif {
             display: flex;
+        }
+
+        /* Override Tom Select agar sesuai tema */
+        .ts-wrapper {
+            padding: 0 !important;
+        }
+
+        .ts-control {
+            border-radius: 0.75rem !important;
+            border: 1px solid #e5e7eb !important;
+            background-color: rgba(249, 250, 251, 0.5) !important;
+            padding: 0.625rem 1rem !important;
+            font-size: 0.875rem !important;
+            color: #374151 !important;
+            box-shadow: none !important;
+            min-height: unset !important;
+            cursor: pointer !important;
+        }
+
+        .ts-control:focus-within {
+            border-color: #1B75BC !important;
+            box-shadow: 0 0 0 2px rgba(27, 117, 188, 0.2) !important;
+            background-color: white !important;
+        }
+
+        .ts-dropdown {
+            border-radius: 0.75rem !important;
+            border: 1px solid #e5e7eb !important;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1) !important;
+            font-size: 0.875rem !important;
+        }
+
+        .ts-dropdown .option {
+            padding: 0.5rem 1rem !important;
+            color: #374151 !important;
+        }
+
+        .ts-dropdown .option:hover,
+        .ts-dropdown .option.active {
+            background-color: #eff6ff !important;
+            color: #1B75BC !important;
         }
     </style>
 </head>
@@ -70,66 +113,6 @@
 
     {{-- ================= SCRIPT JAVASCRIPT MASTER ================= --}}
     <script>
-        // 1. Data relasi OPD dan Layanan
-        const masterLayanan = {
-            "Dinas Komunikasi dan Informatika": [
-                "BIDANG SIP", "BIDANG SPBE", "BIDANG TI", "KEPALA DINAS KOMINFO", "RADIO", "SEKRETARIAT",
-                "SEKRETARIAT DINAS KOMINFO"
-            ],
-            "Dinas Kesehatan": [
-                "PELAYANAN KESEHATAN", "PENCEGAHAN PENYAKIT", "KESEHATAN MASYARAKAT", "SEKRETARIAT DINKES"
-            ],
-            "Dinas Pendidikan": [
-                "BIDANG PAUD", "BIDANG SD", "BIDANG SMP", "KETENAGAAN"
-            ]
-        };
-
-        // 2. Ambil session login Laravel untuk dibaca oleh JavaScript
-        const currentUserRole = "{{ auth()->user()->role }}";
-        const currentUserOpd = "{{ auth()->user()->opd }}";
-        const penyaringLayananAktif = "{{ request('layanan') }}";
-
-        // 3. Fungsi sinkronisasi dropdown Layanan
-        function updateLayananOptions() {
-            const selectLayanan = document.getElementById('filter-layanan');
-            let targetOpd = "";
-
-            if (currentUserRole === 'super_admin') {
-                const filterOpdElem = document.getElementById('filter-opd');
-                targetOpd = filterOpdElem ? filterOpdElem.value : "";
-            } else {
-                targetOpd = currentUserOpd;
-            }
-
-            // Reset isi dropdown layanan terlebih dahulu
-            selectLayanan.innerHTML = '<option value="">Semua Layanan</option>';
-
-            // Jika memilih OPD tertentu
-            if (masterLayanan[targetOpd]) {
-                masterLayanan[targetOpd].forEach(layanan => {
-                    const selected = (penyaringLayananAktif === layanan) ? 'selected' : '';
-                    selectLayanan.innerHTML += `<option value="${layanan}" ${selected}>${layanan}</option>`;
-                });
-            }
-            // Jika Superadmin memilih "Semua OPD" (tampilkan semua dengan Grouping optgroup)
-            else if (currentUserRole === 'super_admin' && targetOpd === "") {
-                for (const [opdName, daftarLayanan] of Object.entries(masterLayanan)) {
-                    let groupHtml = `<optgroup label="${opdName}">`;
-                    daftarLayanan.forEach(layanan => {
-                        const selected = (penyaringLayananAktif === layanan) ? 'selected' : '';
-                        groupHtml += `<option value="${layanan}" ${selected}>${layanan}</option>`;
-                    });
-                    groupHtml += `</optgroup>`;
-                    selectLayanan.innerHTML += groupHtml;
-                }
-            }
-        }
-
-        // 4. Inisialisasi awal saat halaman selesai dimuat
-        document.addEventListener("DOMContentLoaded", () => {
-            updateLayananOptions();
-        });
-
         // 5. Fungsi bawaan Modal Foto Anda
         function bukaModal(src) {
             document.getElementById('modal-img').src = src;
@@ -143,6 +126,60 @@
 
         document.addEventListener('keydown', e => {
             if (e.key === 'Escape') tutupModal();
+        });
+
+        const instansiData = {!! json_encode($instansiJson) !!};
+
+        function updateLayananOptions(selectedOpd = null) {
+            const layananSelect = document.getElementById('filter-layanan');
+            const currentLayanan = "{{ request('layanan') }}";
+
+            // Jika tidak ada parameter, ambil dari select biasa (saat load awal)
+            if (selectedOpd === null) {
+                const opdSelect = document.getElementById('filter-opd');
+                selectedOpd = opdSelect ? opdSelect.value : null;
+            }
+
+            // Kosongkan dropdown layanan
+            layananSelect.innerHTML = '<option value="">Semua Layanan</option>';
+
+            let layananList = [];
+
+            if (!selectedOpd) {
+                instansiData.forEach(i => {
+                    i.layanan.forEach(l => layananList.push(l));
+                });
+            } else {
+                const found = instansiData.find(i => i.id == selectedOpd);
+                if (found) layananList = found.layanan;
+            }
+
+            layananList.forEach(l => {
+                const opt = document.createElement('option');
+                opt.value = l.id;
+                opt.textContent = l.nama;
+                if (l.id == currentLayanan) opt.selected = true;
+                layananSelect.appendChild(opt);
+            });
+        }
+
+        // Jalankan saat halaman load agar filter tetap aktif setelah submit
+        document.addEventListener('DOMContentLoaded', function() {
+            // Inisialisasi layanan saat load
+            updateLayananOptions();
+
+            // Inisialisasi Tom Select
+            const opdSelect = document.getElementById('filter-opd');
+            if (opdSelect) {
+                new TomSelect('#filter-opd', {
+                    placeholder: '-- Cari atau pilih instansi --',
+                    allowEmptyOption: true,
+                    maxOptions: null,
+                    onChange: function(value) {
+                        updateLayananOptions(value);
+                    }
+                });
+            }
         });
     </script>
 

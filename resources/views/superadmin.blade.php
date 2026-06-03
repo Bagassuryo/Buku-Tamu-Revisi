@@ -9,6 +9,8 @@
     @vite('resources/css/app.css')
     <link rel="stylesheet"
         href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
+    <link href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
 </head>
 
 <body class="bg-gray-100 m-0 p-0">
@@ -34,7 +36,7 @@
                 <div
                     class="flex items-center gap-2 bg-white border border-gray-200 rounded-xl px-3 h-10 shadow-sm w-full sm:w-auto">
                     <i class="ti ti-search text-gray-400 text-lg"></i>
-                    <input type="text" id="searchInput" placeholder="Cari username atau OPD..."
+                    <input type="text" id="searchInput" placeholder="Cari username atau Instansi..."
                         class="text-sm outline-none bg-transparent text-gray-700 placeholder-gray-400 w-full sm:w-48">
                 </div>
 
@@ -49,7 +51,7 @@
                 <button
                     onclick="document.getElementById('ModalTambahInstansi').classList.remove('hidden'); document.getElementById('ModalTambahInstansi').classList.add('flex');"
                     class="flex items-center justify-center gap-2 h-10 px-4 bg-green-700 hover:bg-green-800 text-white text-sm font-medium rounded-xl transition cursor-pointer shadow-sm w-full sm:w-auto">
-                    <i class="ti ti-building-plus text-lg"></i>
+                    <i class="ti ti-building text-lg"></i>
                     <span>Tambah Instansi</span>
                 </button>
             </div>
@@ -91,7 +93,7 @@
         }
     });
 
-    function openEditModal(username, status, opd, role) {
+    function openEditModal(username, status, instansi_id, role) {
         const modal = document.getElementById('modalEdit');
         const form = document.getElementById('formEdit');
 
@@ -99,8 +101,10 @@
 
         document.getElementById('edit_username').value = username;
         document.getElementById('edit_status').value = status;
-        document.getElementById('edit_opd').value = opd; // Berfungsi mengisi otomatis dropdown edit
-        document.getElementById('edit_role').value = role; // Berfungsi mengisi otomatis dropdown role
+        document.getElementById('edit_role').value = role;
+
+        // Gunakan setValue dari Tom Select, bukan .value biasa
+        tomSelectEdit.setValue(instansi_id, true);
 
         modal.classList.remove('hidden');
         modal.classList.add('flex');
@@ -148,15 +152,16 @@
 
             const failedUsername = "{{ session('openEditModal') }}";
             const failedStatus = "{{ old('status') }}";
-            const failedOpd =
-                "{{ old('opd') }}"; // PERUBAHAN 3: Mengembalikan input OPD lama saat validasi edit gagal
+            const failedInstansi = "{{ old('instansi_id') }}"; // Mengambil internal input name yang benar
             const failedRole = "{{ old('role') }}";
 
             form.action = `/admin/update/${failedUsername}`;
 
             document.getElementById('edit_username').value = "{{ old('username') }}";
             document.getElementById('edit_status').value = failedStatus;
-            document.getElementById('edit_opd').value = failedOpd; // Set kembali pilihan OPD yang gagal disubmit
+
+            // PERBAIKAN: Target ID diubah dari 'edit_Instansi' menjadi 'edit_instansi_id'
+            document.getElementById('edit_instansi_id').value = failedInstansi;
             document.getElementById('edit_role').value = failedRole;
 
             if (modalUpdate) {
@@ -181,12 +186,12 @@
 
             tableRows.forEach(row => {
                 // Mengambil teks dari kolom Username (kolom ke-2, indeks 1) 
-                // dan kolom OPD (kolom ke-3, indeks 2)
+                // dan kolom Instansi (kolom ke-3, indeks 2)
                 const usernameText = row.cells[1] ? row.cells[1].textContent.toLowerCase() : '';
-                const opdText = row.cells[2] ? row.cells[2].textContent.toLowerCase() : '';
+                const instansiText = row.cells[2] ? row.cells[2].textContent.toLowerCase() : '';
 
-                // Jika kata kunci cocok dengan username ATAU nama OPD
-                if (usernameText.includes(filterValue) || opdText.includes(filterValue)) {
+                // Jika kata kunci cocok dengan username ATAU nama Instansi
+                if (usernameText.includes(filterValue) || instansiText.includes(filterValue)) {
                     row.style.display = ''; // Tampilkan baris
                 } else {
                     row.style.display = 'none'; // Sembunyikan baris
@@ -209,7 +214,7 @@
                     noDataRow.id = 'noDataRow';
                     noDataRow.innerHTML = `
                     <td colspan="8" class="p-6 text-center text-gray-500 bg-gray-50">
-                        <i class="ti ti-search-off text-lg mr-1"></i> Data admin atau OPD tidak ditemukan
+                        <i class="ti ti-search-off text-lg mr-1"></i> Data admin atau Instansi tidak ditemukan
                     </td>
                 `;
                     tbody.appendChild(noDataRow);
@@ -317,6 +322,20 @@
         modal.classList.remove('flex');
         modal.classList.add('hidden');
     }
+
+    // Tom Select - Instansi Tambah Admin
+    new TomSelect('#select_instansi_tambah', {
+        placeholder: '-- Cari atau pilih instansi --',
+        allowEmptyOption: true,
+        maxOptions: null,
+    });
+
+    // Tom Select - Instansi Edit Admin
+    const tomSelectEdit = new TomSelect('#edit_instansi_id', {
+        placeholder: '-- Cari atau pilih instansi --',
+        allowEmptyOption: true,
+        maxOptions: null,
+    });
 </script>
 
 </html>

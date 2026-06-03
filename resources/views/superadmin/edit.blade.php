@@ -25,18 +25,18 @@
                     @endif
                 </div>
 
-                {{-- PERUBAHAN 1: Menambahkan input/dropdown OPD pada Modal Edit --}}
+                {{-- PERUBAHAN 1: Menambahkan input/dropdown Instansi pada Modal Edit --}}
                 <div>
-                    <label class="block text-sm font-semibold text-gray-700 mb-1">Instansi (OPD)</label>
-                    <select name="opd" id="edit_opd"
-                        class="w-full border rounded-xl p-2.5 outline-none focus:ring-2 focus:ring-yellow-500 border-gray-300">
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">Instansi</label>
+                    <select name="instansi_id" id="edit_instansi_id"
+                        class="w-full border rounded-xl p-2.5 outline-none border-gray-300">
                         <option value="">-- Pilih Instansi -- (Kosongkan jika super admin)</option>
                         @foreach ($instansi as $item)
                             <option value="{{ $item->id }}">{{ $item->nama }}</option>
                         @endforeach
                     </select>
                     @if (session('openEditModal'))
-                        @error('opd')
+                        @error('instansi_id')
                             <span class="text-red-500 text-sm mt-1">{{ $message }}</span>
                         @enderror
                     @endif

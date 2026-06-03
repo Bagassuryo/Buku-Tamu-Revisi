@@ -31,17 +31,17 @@
                 {{-- Filter Instansi --}}
                 @if (auth()->user()->role === 'super_admin')
                     <div class="w-full md:w-56">
-                        <label class="block text-xs font-bold text-gray-500 uppercase mb-2 ml-1 tracking-wider">Instansi</label>
-                        <select name="opd" id="filter-opd" onchange="updateLayananOptions()"
+                        <label
+                            class="block text-xs font-bold text-gray-500 uppercase mb-2 ml-1 tracking-wider">Instansi</label>
+                        <select name="instansi_id" id="filter-opd" onchange="updateLayananOptions()"
                             class="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm text-gray-700 focus:ring-2 focus:ring-[#1B75BC] outline-none bg-gray-50/50 focus:bg-white transition cursor-pointer">
                             <option value="">Semua Instansi</option>
-                            <option value="Dinas Komunikasi dan Informatika"
-                                {{ request('opd') == 'Dinas Komunikasi dan Informatika' ? 'selected' : '' }}>Dinas
-                                Kominfo</option>
-                            <option value="Dinas Kesehatan" {{ request('opd') == 'Dinas Kesehatan' ? 'selected' : '' }}>
-                                Dinas Kesehatan</option>
-                            <option value="Dinas Pendidikan"
-                                {{ request('opd') == 'Dinas Pendidikan' ? 'selected' : '' }}>Dinas Pendidikan</option>
+                            @foreach ($instansiList as $item)
+                                <option value="{{ $item->id }}"
+                                    {{ request('instansi_id') == $item->id ? 'selected' : '' }}>
+                                    {{ $item->nama }}
+                                </option>
+                            @endforeach
                         </select>
                     </div>
                 @endif
