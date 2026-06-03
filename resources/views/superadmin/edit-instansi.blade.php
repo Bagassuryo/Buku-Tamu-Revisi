@@ -23,13 +23,6 @@
                         class="w-full border border-gray-300 rounded-xl p-2.5 outline-none focus:ring-2 focus:ring-yellow-500 bg-gray-50 focus:bg-white text-gray-800">
                 </div>
 
-                {{-- Kode --}}
-                <div>
-                    <label class="block text-sm font-semibold text-gray-700 mb-1">Kode</label>
-                    <input type="text" name="kode" id="edit_instansi_kode"
-                        class="w-full border border-gray-300 rounded-xl p-2.5 outline-none focus:ring-2 focus:ring-yellow-500 bg-gray-50 focus:bg-white text-gray-800">
-                </div>
-
                 {{-- Singkatan --}}
                 <div>
                     <label class="block text-sm font-semibold text-gray-700 mb-1">Singkatan / Label</label>

@@ -77,10 +77,8 @@ class InstansiSeeder extends Seeder
 
         foreach ($data as $item) {
             DB::table('instansi')->insert([
-                'kode'      => $item['kode'],
-                'nama'      => $item['nama'],
-                'desc'      => $item['desc'],
-                'is_active' => true,
+                'nama'       => $item['nama'],
+                'desc'       => $item['desc'] ?? null,
                 'created_at' => now(),
                 'updated_at' => now(),
             ]);

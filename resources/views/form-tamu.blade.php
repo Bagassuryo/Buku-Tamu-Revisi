@@ -167,7 +167,7 @@
                             <div class="relative flex items-center">
                                 <input type="text" id="instansi-search" autocomplete="off"
                                     placeholder="Ketik nama Instansi..."
-                                    class="w-full pl-9 pr-9 py-2.75 border-[1.5px] rounded-xl text-sm text-slate-800 placeholder-slate-400 outline-none transition
+                                    class="w-full pl-3 pr-9 py-2.75 border-[1.5px] rounded-xl text-sm text-slate-800 placeholder-slate-400 outline-none transition
                                         focus:border-[#1B75BC] focus:ring-2 focus:ring-blue-100
                                         {{ $errors->has('instansi_id') ? 'border-red-400 ring-2 ring-red-100' : 'border-slate-200' }}"
                                     value="{{ old('instansi_id') }}">

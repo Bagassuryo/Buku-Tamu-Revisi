@@ -8,10 +8,8 @@
             <tr class="bg-[#1B75BC] text-white">
                 <th class="p-3 border">No</th>
                 <th class="p-3 border">Nama Instansi</th>
-                <th class="p-3 border">Kode</th>
                 <th class="p-3 border">Label</th>
                 <th class="p-3 border">Jumlah Layanan</th>
-                <th class="p-3 border">Status</th>
                 <th class="p-3 border">Actions</th>
             </tr>
         </thead>
@@ -21,11 +19,10 @@
                     <td class="p-3 border text-gray-500">{{ $loop->iteration }}</td>
                     <td class="p-3 border font-semibold text-left">
                         <div class="flex items-center gap-2">
-                            <i class="ti {{ $item->icon }} text-[#1B75BC]"></i>
+                            <i class="ti ti-building text-[#1B75BC]"></i>
                             {{ $item->nama }}
                         </div>
                     </td>
-                    <td class="p-3 border text-sm text-gray-500">{{ $item->kode }}</td>
                     <td class="p-3 border text-sm">{{ $item->desc }}</td>
                     <td class="p-3 border text-sm">
                         <span class="bg-blue-100 text-blue-700 px-2 py-1 rounded-full text-xs font-semibold">
@@ -33,23 +30,9 @@
                         </span>
                     </td>
                     <td class="p-3 border">
-                        @if ($item->is_active)
-                            <span
-                                class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-[10px] font-bold flex items-center w-fit mx-auto gap-1 uppercase">
-                                <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span> Aktif
-                            </span>
-                        @else
-                            <span
-                                class="bg-red-100 text-red-700 px-3 py-1 rounded-full text-[10px] font-bold flex items-center w-fit mx-auto gap-1 uppercase">
-                                <span class="w-2 h-2 bg-red-500 rounded-full"></span> Nonaktif
-                            </span>
-                        @endif
-                    </td>
-                    <td class="p-3 border">
                         <div class="flex justify-center gap-2">
                             <button type="button" data-id="{{ $item->id }}" data-nama="{{ $item->nama }}"
-                                data-kode="{{ $item->kode }}" data-desc="{{ $item->desc }}"
-                                data-icon="{{ $item->icon }}" data-layanan='@json($item->layanan->pluck('nama_layanan')->toArray())'
+                                data-desc="{{ $item->desc }}" data-layanan='@json($item->layanan->pluck('nama_layanan')->toArray())'
                                 onclick="openEditInstansiModal(this)"
                                 class="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded-lg text-sm cursor-pointer flex items-center gap-1">
                                 <i class="material-symbols-outlined text-sm">edit</i> Edit
@@ -68,7 +51,7 @@
                 </tr>
             @empty
                 <tr>
-                    <td colspan="7" class="p-6 text-center text-gray-500">Belum ada instansi</td>
+                    <td colspan="5" class="p-6 text-center text-gray-500">Belum ada instansi</td>
                 </tr>
             @endforelse
         </tbody>

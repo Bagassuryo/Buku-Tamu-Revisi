@@ -35,24 +35,6 @@
                     @enderror
                 </div>
 
-                {{-- Kode --}}
-                <div>
-                    <label class="block text-sm font-semibold text-gray-700 mb-1">
-                        Kode <span class="text-gray-400 font-normal text-xs">(unik, tanpa spasi)</span>
-                    </label>
-                    <div class="relative">
-                        <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400">
-                            <span class="material-symbols-outlined text-sm">tag</span>
-                        </span>
-                        <input type="text" name="kode" autocomplete="off" value="{{ old('kode') }}"
-                            placeholder="contoh: dinkes"
-                            class="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#1B75BC] focus:border-transparent outline-none transition bg-gray-50 focus:bg-white text-gray-800">
-                    </div>
-                    @error('kode')
-                        <span class="text-red-500 text-sm mt-1">{{ $message }}</span>
-                    @enderror
-                </div>
-
                 {{-- Singkatan --}}
                 <div>
                     <label class="block text-sm font-semibold text-gray-700 mb-1">Singkatan / Label</label>

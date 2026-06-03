@@ -72,17 +72,90 @@ class LayananSeeder extends Seeder
             'sekda'          => ['Audiensi / Pertemuan', 'Koordinasi Lintas OPD', 'Konsultasi Kebijakan', 'Lainnya'],
         ];
 
+        $legacyLookup = [
+            'bkpsdm' => ['desc' => 'BKPSDM'],
+            'kesbangpol' => ['desc' => 'Kesbangpol'],
+            'bpbd' => ['desc' => 'BPBD'],
+            'bppkad' => ['desc' => 'BPPKAD'],
+            'bappeda' => ['desc' => 'Bappeda'],
+            'ckpkp' => ['desc' => 'CKPKP'],
+            'dkbp3a' => ['desc' => 'DKBP3A'],
+            'dispendukcapil' => ['desc' => 'Dispendukcapil'],
+            'dinkes' => ['desc' => 'Dinkes'],
+            'diskominfo' => ['desc' => 'Diskominfo'],
+            'diskopumdag' => ['desc' => 'Diskopumdag'],
+            'dlh' => ['desc' => 'DLH'],
+            'disparekrafbudpora' => ['desc' => 'Disparekrafbudpora'],
+            'dputr' => ['desc' => 'DPUTR'],
+            'dpkp' => ['nama' => 'Dinas Pemadam Kebakaran dan Penyelamatan'],
+            'dpmd' => ['desc' => 'DPMD'],
+            'dpmptsp' => ['desc' => 'DPMPTSP'],
+            'dindik' => ['desc' => 'Dindik'],
+            'dishub' => ['desc' => 'Dishub'],
+            'dinkan' => ['desc' => 'Dinkan'],
+            'dispusip' => ['desc' => 'Dispusip'],
+            'distan' => ['desc' => 'Distan'],
+            'satpolpp' => ['desc' => 'Satpol PP'],
+            'dinsos' => ['desc' => 'Dinsos'],
+            'disnaker' => ['desc' => 'Disnaker'],
+            'inspektorat' => ['desc' => 'Inspektorat'],
+            'kec-balongpanggang' => ['nama' => 'Kecamatan Balongpanggang'],
+            'kec-benjeng' => ['nama' => 'Kecamatan Benjeng'],
+            'kec-bungah' => ['nama' => 'Kecamatan Bungah'],
+            'kec-cerme' => ['nama' => 'Kecamatan Cerme'],
+            'kec-driyorejo' => ['nama' => 'Kecamatan Driyorejo'],
+            'kec-duduksampeyan' => ['nama' => 'Kecamatan Duduksampeyan'],
+            'kec-dukun' => ['nama' => 'Kecamatan Dukun'],
+            'kec-gresik' => ['nama' => 'Kecamatan Gresik'],
+            'kec-kebomas' => ['nama' => 'Kecamatan Kebomas'],
+            'kec-kedamean' => ['nama' => 'Kecamatan Kedamean'],
+            'kec-manyar' => ['nama' => 'Kecamatan Manyar'],
+            'kec-menganti' => ['nama' => 'Kecamatan Menganti'],
+            'kec-panceng' => ['nama' => 'Kecamatan Panceng'],
+            'kec-sangkapura' => ['nama' => 'Kecamatan Sangkapura'],
+            'kec-sidayu' => ['nama' => 'Kecamatan Sidayu'],
+            'kec-tambak' => ['nama' => 'Kecamatan Tambak'],
+            'kec-ujungpangkah' => ['nama' => 'Kecamatan Ujungpangkah'],
+            'kec-wringinanom' => ['nama' => 'Kecamatan Wringinanom'],
+            'setda-admbang' => ['nama' => 'Sekretariat Daerah Bagian Administrasi Pembangunan'],
+            'setda-hukum' => ['nama' => 'Sekretariat Daerah Bagian Hukum'],
+            'setda-kesra' => ['nama' => 'Sekretariat Daerah Bagian Kesejahteraan Rakyat'],
+            'setda-org' => ['nama' => 'Sekretariat Daerah Bagian Organisasi'],
+            'setda-pbj' => ['nama' => 'Sekretariat Daerah Bagian Pengadaan Barang dan Jasa'],
+            'setda-ekon' => ['nama' => 'Sekretariat Daerah Bagian Perekonomian dan SDA'],
+            'setda-prokopim' => ['nama' => 'Sekretariat Daerah Bagian Protokol dan Komunikasi Pimpinan'],
+            'setda-tapem' => ['nama' => 'Sekretariat Daerah Bagian Tata Pemerintah'],
+            'setda-umum' => ['nama' => 'Sekretariat Daerah Bagian Umum'],
+            'setwan' => ['nama' => 'Sekretariat Dewan'],
+            'sekda' => ['nama' => 'Sekretaris Daerah'],
+        ];
+
         foreach ($allLayanan as $kode => $layananList) {
-            $instansi = DB::table('instansi')->where('kode', $kode)->first();
-            if (!$instansi) continue;
+            if (!isset($legacyLookup[$kode])) {
+                continue;
+            }
+
+            $query = DB::table('instansi');
+            $lookup = $legacyLookup[$kode];
+
+            if (isset($lookup['nama'])) {
+                $query->where('nama', $lookup['nama']);
+            } elseif (isset($lookup['desc'])) {
+                $query->where('desc', $lookup['desc']);
+            }
+
+            $instansi = $query->first();
+            if (!$instansi) {
+                continue;
+            }
 
             foreach ($layananList as $urutan => $nama) {
                 DB::table('layanan')->insert([
-                    'instansi_id'  => $instansi->id,
+                    'instansi_id' => $instansi->id,
                     'nama_layanan' => $nama,
-                    'urutan'       => $urutan,
-                    'created_at'   => now(),
-                    'updated_at'   => now(),
+                    'urutan' => $urutan,
+                    'created_at' => now(),
+                    'updated_at' => now(),
                 ]);
             }
         }

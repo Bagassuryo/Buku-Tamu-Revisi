@@ -272,13 +272,11 @@
 
         const id = button.dataset.id;
         const nama = button.dataset.nama || '';
-        const kode = button.dataset.kode || '';
         const desc = button.dataset.desc || '';
         const layanan = JSON.parse(button.dataset.layanan || '[]');
 
         form.action = `/instansi/update/${id}`;
         document.getElementById('edit_instansi_nama').value = nama;
-        document.getElementById('edit_instansi_kode').value = kode;
         document.getElementById('edit_instansi_desc').value = desc;
 
         // Isi list layanan

@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class Instansi extends Model
 {
     protected $table = 'instansi';
-    protected $fillable = ['kode', 'nama', 'desc', 'is_active'];
+    protected $fillable = ['nama', 'desc'];
 
     public function layanan()
     {

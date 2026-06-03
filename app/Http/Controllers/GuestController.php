@@ -67,7 +67,6 @@ class GuestController extends Controller
             ->get();
 
         $instansiList = Instansi::with('layanan')
-            ->where('is_active', true)
             ->orderBy('nama')
             ->get();
 
@@ -85,7 +84,6 @@ class GuestController extends Controller
         })->values()->toArray();
 
         return view('guest', compact('guests', 'instansiList', 'instansiJson'));
-
     }
 
     public function create()

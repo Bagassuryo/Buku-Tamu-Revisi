@@ -274,7 +274,7 @@ function renderDropdown(query) {
         dropdown.innerHTML = filtered
             .map(
                 (l) => `
-            <div class="dd-item flex items-center gap-2.5 px-9 py-2.5 cursor-pointer hover:bg-blue-50 hover:text-[#1a2a6c] transition border-b border-slate-50 last:border-0"
+            <div class="dd-item flex items-center gap-2.5 px-3 py-2.5 cursor-pointer hover:bg-blue-50 hover:text-[#1a2a6c] transition border-b border-slate-50 last:border-0"
                 data-id="${l.id}" data-nama="${l.nama}">
                 <div>
                     <div class="font-semibold text-[13.5px]">${highlight(l.nama, query)}</div>

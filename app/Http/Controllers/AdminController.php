@@ -14,7 +14,7 @@ class AdminController extends Controller
     public function index()
     {
         $admins = Admin::orderBy('instansi_id', 'asc')->get();
-        $instansi = Instansi::with('Layanan')->where('is_active', true)->orderBy('nama')->get();
+        $instansi = Instansi::with('Layanan')->orderBy('nama')->get();
 
         return view('superadmin', compact('admins', 'instansi'));
     }

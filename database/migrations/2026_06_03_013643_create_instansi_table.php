@@ -13,10 +13,8 @@ return new class extends Migration
     {
         Schema::create('instansi', function (Blueprint $table) {
             $table->id();
-            $table->string('kode')->unique();
             $table->string('nama');
             $table->string('desc')->nullable();
-            $table->boolean('is_active')->default(true);
             $table->timestamps();
         });
     }

@@ -13,17 +13,14 @@ class InstansiController extends Controller
     {
         $request->validate([
             'nama'     => 'required|string|max:255',
-            'kode'     => 'required|string|unique:instansi,kode|max:50',
             'desc'     => 'nullable|string|max:100',
             'layanan'  => 'required|array|min:1',
             'layanan.*' => 'required|string|max:255',
         ]);
 
         $instansi = Instansi::create([
-            'nama'      => $request->nama,
-            'kode'      => $request->kode,
-            'desc'      => $request->desc,
-            'is_active' => true,
+            'nama' => $request->nama,
+            'desc' => $request->desc,
         ]);
 
         foreach ($request->layanan as $urutan => $namaLayanan) {
@@ -43,7 +40,6 @@ class InstansiController extends Controller
 
         $request->validate([
             'nama'     => 'required|string|max:255',
-            'kode'     => 'required|string|unique:instansi,kode,' . $id . '|max:50',
             'desc'     => 'nullable|string|max:100',
             'layanan'  => 'required|array|min:1',
             'layanan.*' => 'required|string|max:255',
@@ -51,7 +47,6 @@ class InstansiController extends Controller
 
         $instansi->update([
             'nama' => $request->nama,
-            'kode' => $request->kode,
             'desc' => $request->desc,
         ]);
 
@@ -77,9 +72,8 @@ class InstansiController extends Controller
 
     public function getAll()
     {
-        $instansi = Instansi::where('is_active', true)
-            ->orderBy('nama')
-            ->get(['id', 'kode', 'nama', 'desc']);
+        $instansi = Instansi::orderBy('nama')
+            ->get(['id', 'nama', 'desc']);
 
         return response()->json($instansi);
     }
