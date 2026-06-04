@@ -137,9 +137,14 @@ class GuestController extends Controller
 
     public function showCheckoutForm()
     {
+        $user = Auth::user();
+
         $guest = Guest::with('instansi')
             ->whereDate('tanggal', now()->toDateString())
             ->whereNull('pulang')
+            ->when($user->role !== 'super_admin', function ($query) use ($user) {
+                return $query->where('instansi_id', $user->instansi_id);
+            })
             ->get();
 
         return view('pulang', compact('guest'));
@@ -151,7 +156,14 @@ class GuestController extends Controller
             'id' => 'required|exists:guests,id'
         ]);
 
-        $guest = Guest::find($request->id);
+        $user = Auth::user();
+
+        $guest = Guest::query()
+            ->where('id', $request->id)
+            ->when($user->role !== 'super_admin', function ($query) use ($user) {
+                return $query->where('instansi_id', $user->instansi_id);
+            })
+            ->first();
 
         if ($guest && is_null($guest->pulang) && $guest->tanggal == now()->toDateString()) {
             $guest->update(['pulang' => now()->toTimeString()]);
