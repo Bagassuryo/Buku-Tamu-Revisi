@@ -18,6 +18,7 @@ class DatabaseSeeder extends Seeder
             InstansiSeeder::class,
             LayananSeeder::class,
             AdminSeeder::class,
+            DatalamaSeeder::class,
         ]);
     }
 }

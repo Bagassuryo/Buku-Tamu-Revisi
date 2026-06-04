@@ -92,7 +92,7 @@
             {{-- Judul dan Counter --}}
             <div>
                 <h1 class="text-lg font-semibold text-gray-800">Daftar Tamu</h1>
-                <p class="text-sm text-gray-600 mt-0.5">{{ $guests->count() }} tamu terdaftar dalam sistem</p>
+                <p class="text-sm text-gray-600 mt-0.5">{{ $guests->total() }} tamu terdaftar dalam sistem</p>
             </div>
 
             {{-- Export Excel (diperbaiki: hapus <button> yang membungkus <a>) --}}
@@ -112,8 +112,9 @@
     </div>
 
     {{-- ================= SCRIPT JAVASCRIPT MASTER ================= --}}
+    {{-- ================= SCRIPT JAVASCRIPT MASTER ================= --}}
     <script>
-        // 5. Fungsi bawaan Modal Foto Anda
+        // 1. Fungsi Modal Foto
         function bukaModal(src) {
             document.getElementById('modal-img').src = src;
             document.getElementById('modal-foto').classList.add('aktif');
@@ -128,14 +129,23 @@
             if (e.key === 'Escape') tutupModal();
         });
 
+        // 2. Data Instansi & Layanan dari Controller
         const instansiData = {!! json_encode($instansiJson) !!};
+        const currentLayanan = "{{ request('layanan') }}";
+        const userRole = "{{ auth()->user()->role }}";
+        const userInstansiId = "{{ auth()->user()->instansi_id }}";
 
+        // 3. Fungsi Filter Layanan Berdasarkan Instansi
         function updateLayananOptions(selectedOpd = null) {
             const layananSelect = document.getElementById('filter-layanan');
-            const currentLayanan = "{{ request('layanan') }}";
+            if (!layananSelect) return;
 
-            // Jika tidak ada parameter, ambil dari select biasa (saat load awal)
-            if (selectedOpd === null) {
+            // Jika user bukan super_admin, langsung kunci ke instansi miliknya
+            if (userRole !== 'super_admin') {
+                selectedOpd = userInstansiId;
+            }
+            // Jika super_admin dan parameter selectedOpd null, coba ambil dari elemen select asli
+            else if (selectedOpd === null) {
                 const opdSelect = document.getElementById('filter-opd');
                 selectedOpd = opdSelect ? opdSelect.value : null;
             }
@@ -145,40 +155,68 @@
 
             let layananList = [];
 
+            // JIKA tidak ada instansi yang dipilih (Hanya berlaku untuk super_admin memilih "Semua Instansi")
             if (!selectedOpd) {
+                // Jangan tampilkan apa-apa atau kosongkan jika ingin ketat. 
+                // Jika ingin menampilkan semua layanan dari semua instansi, biarkan logika di bawah ini berjalan:
                 instansiData.forEach(i => {
-                    i.layanan.forEach(l => layananList.push(l));
+                    if (i.layanan) {
+                        i.layanan.forEach(l => {
+                            // Hindari duplikasi jika id layanan sama
+                            if (!layananList.some(exist => exist.id == l.id)) {
+                                layananList.push(l);
+                            }
+                        });
+                    }
                 });
             } else {
+                // JIKA instansi terpilih, ambil hanya layanan milik instansi tersebut
                 const found = instansiData.find(i => i.id == selectedOpd);
-                if (found) layananList = found.layanan;
+                if (found && found.layanan) {
+                    layananList = found.layanan;
+                }
             }
 
+            // Masukkan data ke element select HTML
             layananList.forEach(l => {
                 const opt = document.createElement('option');
                 opt.value = l.id;
                 opt.textContent = l.nama;
-                if (l.id == currentLayanan) opt.selected = true;
+
+                // Pertahankan status terpilh setelah halaman direfresh/submit filter
+                if (l.id == currentLayanan) {
+                    opt.selected = true;
+                }
                 layananSelect.appendChild(opt);
             });
         }
 
-        // Jalankan saat halaman load agar filter tetap aktif setelah submit
+        // 4. Jalankan saat halaman selesai dimuat (DOM Ready)
         document.addEventListener('DOMContentLoaded', function() {
-            // Inisialisasi layanan saat load
-            updateLayananOptions();
+            // Ambil nilai instansi dari URL saat ini (jika ada data filter lama)
+            const urlParams = new URLSearchParams(window.location.search);
+            const initialOpd = urlParams.get('instansi_id');
 
-            // Inisialisasi Tom Select
+            // Jalankan saringan pertama kali berdasarkan instansi di URL / user instansi
+            updateLayananOptions(initialOpd);
+
+            // Inisialisasi Tom Select (Khusus Super Admin)
             const opdSelect = document.getElementById('filter-opd');
-            if (opdSelect) {
-                new TomSelect('#filter-opd', {
+            if (opdSelect && userRole === 'super_admin') {
+                const ts = new TomSelect('#filter-opd', {
                     placeholder: '-- Cari atau pilih instansi --',
                     allowEmptyOption: true,
                     maxOptions: null,
                     onChange: function(value) {
+                        // Jalankan pembaruan layanan setiap kali Tom Select diubah nilainya
                         updateLayananOptions(value);
                     }
                 });
+
+                // Sinkronisasi ulang nilai Tom Select dengan data filter URL lama jika ada
+                if (initialOpd) {
+                    ts.setValue(initialOpd, true);
+                }
             }
         });
     </script>

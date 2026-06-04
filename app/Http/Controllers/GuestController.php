@@ -63,8 +63,9 @@ class GuestController extends Controller
                 return $query->where('layanan_id', $layanan_id);
             })
 
-            ->orderBy('id', 'desc')
-            ->get();
+            ->orderBy('tanggal', 'desc')
+            ->paginate(10)
+            ->withQueryString();
 
         $instansiList = Instansi::with('layanan')
             ->orderBy('nama')

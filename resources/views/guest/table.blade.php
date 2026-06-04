@@ -19,7 +19,8 @@
                 <tbody>
                     @forelse($guests as $guest)
                         <tr class="hover:bg-gray-50 transition duration-150 border-b text-sm">
-                            <td class="p-4 border border-slate-200 text-gray-500 text-sm">{{ $loop->iteration }}</td>
+                            <td class="p-4 border border-slate-200 text-gray-500 text-sm">
+                                {{ $guests->firstItem() + $loop->index }}</td>
                             <td class="p-4 border border-slate-200 font-semibold text-left">{{ $guest->nama_tamu }}
                             </td>
                             <td class="p-4 border border-slate-200 text-left">
@@ -61,4 +62,8 @@
                     @endforelse
                 </tbody>
             </table>
+
+            <div class="mt-6 flex justify-center">
+                {{ $guests->links() }}
+            </div>
         </div>
