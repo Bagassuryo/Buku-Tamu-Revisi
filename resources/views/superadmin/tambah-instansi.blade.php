@@ -7,7 +7,7 @@
         {{-- Header --}}
         <div class="bg-linear-to-r from-[#2E3192] to-[#1B75BC] p-6 text-white text-center">
             <div class="bg-white/20 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-3 shadow-inner">
-                <span class="material-symbols-outlined text-3xl">person_add</span>
+                <span class="material-symbols-outlined text-3xl">domain_add</span>
             </div>
             <h2 class="text-xl font-bold">Tambah Instansi Baru</h2>
             <p class="text-white/80 text-sm">Tambahkan instansi beserta jenis layanannya</p>

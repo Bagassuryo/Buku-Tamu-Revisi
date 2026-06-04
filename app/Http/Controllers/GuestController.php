@@ -88,7 +88,43 @@ class GuestController extends Controller
 
     public function create()
     {
-        return view('form-tamu');
+        $user = Auth::user();
+        $instansi = null;
+        $instansiJson = '[]'; // Siapkan default string kosong untuk super admin
+
+        if ($user->role !== 'super_admin') {
+            // Ambil instansi beserta layanan di dalamnya menggunakan Eager Loading 'with'
+            $instansi = \App\Models\Instansi::with('layanan')->find($user->instansi_id);
+
+            // Format ke JSON agar bisa dibaca oleh JavaScript dropdown layanan milikmu
+            if ($instansi) {
+                $instansiJson = json_encode([[
+                    'id'      => $instansi->id,
+                    'layanan' => $instansi->layanan->map(function ($l) {
+                        return [
+                            'id'   => $l->id,
+                            'nama' => $l->nama_layanan, // sesuaikan dengan kolom nama layananmu
+                        ];
+                    })->values()->toArray()
+                ]]);
+            }
+        } else {
+            // Jika Super Admin yang login, ambil semua data instansi dan layanannya (seperti di fungsi index)
+            $instansiList = \App\Models\Instansi::with('layanan')->get();
+            $instansiJson = json_encode($instansiList->map(function ($i) {
+                return [
+                    'id'      => $i->id,
+                    'layanan' => $i->layanan->map(function ($l) {
+                        return [
+                            'id'   => $l->id,
+                            'nama' => $l->nama_layanan,
+                        ];
+                    })->values()->toArray(),
+                ];
+            })->values()->toArray());
+        }
+
+        return view('form-tamu', compact('instansi', 'instansiJson'));
     }
 
     public function store(Request $request)

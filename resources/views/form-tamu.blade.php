@@ -154,48 +154,59 @@
 
                     {{-- Hidden input foto base64 --}}
                     <input type="hidden" name="foto" id="foto-input">
-                    {{-- Instansi Search --}}
+                    {{-- Instansi yang Dituju --}}
                     <div>
                         <label class="flex items-center gap-1.5 text-[13px] font-semibold text-slate-700 mb-1.5">
-                            <i class="ti ti-search text-[15px] text-[#1B75BC]"></i>
                             Instansi yang Dituju <span class="text-red-500">*</span>
                         </label>
 
-                        <input type="hidden" name="instansi_id" id="instansi-value" value="{{ old('instansi_id') }}">
-
-                        <div class="relative" id="search-wrap">
-                            <div class="relative flex items-center">
-                                <input type="text" id="instansi-search" autocomplete="off"
-                                    placeholder="Ketik nama Instansi..."
-                                    class="w-full pl-3 pr-9 py-2.75 border-[1.5px] rounded-xl text-sm text-slate-800 placeholder-slate-400 outline-none transition
-                                        focus:border-[#1B75BC] focus:ring-2 focus:ring-blue-100
-                                        {{ $errors->has('instansi_id') ? 'border-red-400 ring-2 ring-red-100' : 'border-slate-200' }}"
-                                    value="{{ old('instansi_id') }}">
-                                <button type="button" id="instansi-clear"
-                                    class="absolute right-2.5 hidden items-center justify-center w-5 h-5 rounded-full text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition">
-                                    <i class="ti ti-x text-xs"></i>
-                                </button>
+                        @if (Auth::user()->role !== 'super_admin')
+                            {{-- Admin biasa: instansi otomatis, tidak bisa diubah --}}
+                            <input type="hidden" name="instansi_id" value="{{ $instansi->id }}">
+                            <div
+                                class="flex items-center gap-2 bg-blue-50 border border-blue-200 text-[#1a2a6c] px-3 py-2.5 rounded-xl">
+                                <span class="text-sm font-semibold">{{ $instansi->nama }}</span>
+                                <i class="ti ti-lock text-xs text-slate-400 ml-auto"></i>
                             </div>
+                            <p class="text-[11.5px] text-slate-400 mt-1.5">Instansi ditentukan otomatis sesuai akun Anda
+                            </p>
+                        @else
+                            {{-- Super admin: bisa search instansi --}}
+                            <input type="hidden" name="instansi_id" id="instansi-value"
+                                value="{{ old('instansi_id') }}">
 
-                            <div id="instansi-dropdown"
-                                class="hidden absolute top-[calc(100%+4px)] left-0 right-0 bg-white border-[1.5px] border-slate-200 rounded-xl shadow-xl z-50 max-h-60 overflow-y-auto">
+                            <div class="relative" id="search-wrap">
+                                <div class="relative flex items-center">
+                                    <input type="text" id="instansi-search" autocomplete="off"
+                                        placeholder="Ketik nama Instansi..."
+                                        class="w-full pl-3 pr-9 py-2.75 border-[1.5px] rounded-xl text-sm text-slate-800 placeholder-slate-400 outline-none transition
+                        focus:border-[#1B75BC] focus:ring-2 focus:ring-blue-100
+                        {{ $errors->has('instansi_id') ? 'border-red-400 ring-2 ring-red-100' : 'border-slate-200' }}">
+                                    <button type="button" id="instansi-clear"
+                                        class="absolute right-2.5 hidden items-center justify-center w-5 h-5 rounded-full text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition">
+                                        <i class="ti ti-x text-xs"></i>
+                                    </button>
+                                </div>
+
+                                <div id="instansi-dropdown"
+                                    class="hidden absolute top-[calc(100%+4px)] left-0 right-0 bg-white border-[1.5px] border-slate-200 rounded-xl shadow-xl z-50 max-h-60 overflow-y-auto">
+                                </div>
+
+                                <div id="selected-instansi-display">
+                                    @if (old('instansi_id'))
+                                        <div
+                                            class="inline-flex items-center gap-1.5 bg-blue-50 border border-blue-200 text-[#1a2a6c] text-[13px] font-semibold px-2.5 py-1.5 rounded-lg mt-1.5">
+                                            <i class="ti ti-check text-green-500 text-xs"></i>
+                                            {{ old('instansi_id') }}
+                                        </div>
+                                    @endif
+                                </div>
                             </div>
-
-                            <div id="selected-instansi-display">
-                                @if (old('instansi_id'))
-                                    <div
-                                        class="inline-flex items-center gap-1.5 bg-blue-50 border border-blue-200 text-[#1a2a6c] text-[13px] font-semibold px-2.5 py-1.5 rounded-lg mt-1.5">
-                                        <i class="ti ti-check text-green-500 text-xs"></i>
-                                        {{ old('instansi_id') }}
-                                    </div>
-                                @endif
-                            </div>
-                        </div>
-
-                        <p class="text-[11.5px] text-slate-400 mt-1.5">Cari berdasarkan nama Instansi</p>
-                        @error('instansi_id')
-                            <p class="text-xs text-red-500 mt-1">{{ $message }}</p>
-                        @enderror
+                            <p class="text-[11.5px] text-slate-400 mt-1.5">Cari berdasarkan nama Instansi</p>
+                            @error('instansi_id')
+                                <p class="text-xs text-red-500 mt-1">{{ $message }}</p>
+                            @enderror
+                        @endif
                     </div>
 
                     {{-- Layanan (muncul setelah Instansi dipilih) --}}
@@ -314,18 +325,134 @@
     </div>
 
     <script>
-        @if (session('success'))
-            document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function() {
+            @if (session('success'))
                 showToast('success', 'Berhasil!', '{{ session('success') }}', 3000);
-            });
-        @endif
+            @endif
 
-        // TOAST error validasi Laravel
-        @if ($errors->any())
-            document.addEventListener('DOMContentLoaded', function() {
+            @if ($errors->any())
                 showToast('error', 'Data Tidak Valid', 'Mohon periksa kembali isian form di bawah ini.', 4000);
-            });
-        @endif
+            @endif
+
+            const instansiData = {!! $instansiJson !!};
+            const layananWrap = document.getElementById('layanan-wrap');
+            const layananSelect = document.getElementById('layanan-select');
+            const selectedLayanan = '{{ old('layanan_id') }}';
+
+            function resetLayanan() {
+                layananSelect.innerHTML = '<option value="">Pilih Jenis Layanan</option>';
+                layananWrap.classList.add('hidden');
+            }
+
+            function renderLayanan(instansiId) {
+                const instansi = instansiData.find(i => i.id == instansiId);
+                resetLayanan();
+
+                if (!instansi || !instansi.layanan || instansi.layanan.length === 0) {
+                    return;
+                }
+
+                instansi.layanan.forEach(function(item) {
+                    const option = document.createElement('option');
+                    option.value = item.id;
+                    option.textContent = item.nama;
+                    if (item.id == selectedLayanan) {
+                        option.selected = true;
+                    }
+                    layananSelect.appendChild(option);
+                });
+
+                layananWrap.classList.remove('hidden');
+            }
+
+            @if (Auth::user()->role !== 'super_admin')
+                const instansiValue = '{{ $instansi->id ?? '' }}';
+                if (instansiValue) {
+                    renderLayanan(instansiValue);
+                }
+            @else
+                const instansiSearch = document.getElementById('instansi-search');
+                const instansiDropdown = document.getElementById('instansi-dropdown');
+                const instansiValueInput = document.getElementById('instansi-value');
+                const instansiClear = document.getElementById('instansi-clear');
+                const selectedInstansiDisplay = document.getElementById('selected-instansi-display');
+
+                function setInstansi(instansi) {
+                    if (!instansi) {
+                        instansiValueInput.value = '';
+                        selectedInstansiDisplay.innerHTML = '';
+                        resetLayanan();
+                        return;
+                    }
+
+                    instansiValueInput.value = instansi.id;
+                    selectedInstansiDisplay.innerHTML = `
+                        <div class="inline-flex items-center gap-1.5 bg-blue-50 border border-blue-200 text-[#1a2a6c] text-[13px] font-semibold px-2.5 py-1.5 rounded-lg mt-1.5">
+                            <i class="ti ti-check text-green-500 text-xs"></i>
+                            ${instansi.nama}
+                        </div>
+                    `;
+                    renderLayanan(instansi.id);
+                }
+
+                function buildDropdown(items) {
+                    instansiDropdown.innerHTML = '';
+                    if (!items.length) {
+                        instansiDropdown.innerHTML =
+                            '<div class="p-3 text-sm text-slate-500">Instansi tidak ditemukan</div>';
+                        instansiDropdown.classList.remove('hidden');
+                        return;
+                    }
+                    items.forEach(function(item) {
+                        const row = document.createElement('button');
+                        row.type = 'button';
+                        row.className = 'w-full px-4 py-3 text-left text-sm hover:bg-slate-100 transition';
+                        row.textContent = item.nama;
+                        row.addEventListener('click', function() {
+                            instansiSearch.value = item.nama;
+                            setInstansi(item);
+                            instansiDropdown.classList.add('hidden');
+                            instansiClear.classList.remove('hidden');
+                        });
+                        instansiDropdown.appendChild(row);
+                    });
+                    instansiDropdown.classList.remove('hidden');
+                }
+
+                instansiSearch.addEventListener('input', function() {
+                    const query = this.value.trim().toLowerCase();
+                    if (!query) {
+                        instansiDropdown.classList.add('hidden');
+                        return;
+                    }
+                    const filtered = instansiData.filter(i => i.nama.toLowerCase().includes(query));
+                    buildDropdown(filtered);
+                });
+
+                instansiClear.addEventListener('click', function() {
+                    instansiSearch.value = '';
+                    instansiClear.classList.add('hidden');
+                    setInstansi(null);
+                    instansiDropdown.classList.add('hidden');
+                });
+
+                document.addEventListener('click', function(event) {
+                    if (!event.target.closest('#search-wrap')) {
+                        instansiDropdown.classList.add('hidden');
+                    }
+                });
+
+                const initialInstansiId = '{{ old('instansi_id') }}';
+                if (initialInstansiId) {
+                    const initialInstansi = instansiData.find(i => i.id == initialInstansiId);
+                    if (initialInstansi) {
+                        instansiSearch.value = initialInstansi.nama;
+                        instansiClear.classList.remove('hidden');
+                        setInstansi(initialInstansi);
+                    }
+                }
+            @endif
+        });
     </script>
 
     @include('layouts.footer')

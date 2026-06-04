@@ -235,6 +235,14 @@ const hiddenInput = document.getElementById("instansi-value");
 const subWrap = document.getElementById("layanan-wrap");
 const subSelect = document.getElementById("layanan-select");
 
+const hasInstansiSearch = !!(
+    searchInput &&
+    dropdown &&
+    clearBtn &&
+    selectedDisp &&
+    hiddenInput
+);
+
 // Fetch semua instansi dari DB saat halaman load
 async function loadInstansi() {
     try {
@@ -373,30 +381,44 @@ function clearInstansi() {
     subSelect.innerHTML = '<option value="">-- Pilih Jenis Layanan --</option>';
 }
 
-searchInput.addEventListener("focus", openDropdown);
-searchInput.addEventListener("input", () => {
-    if (selectedInstansi) {
-        selectedInstansi = null;
-        hiddenInput.value = "";
-        selectedDisp.innerHTML = "";
-        subWrap.classList.add("hidden");
-    }
-    const hasVal = searchInput.value.length > 0;
-    clearBtn.classList.toggle("hidden", !hasVal);
-    clearBtn.classList.toggle("flex", hasVal);
-    renderDropdown(searchInput.value);
-    dropdown.classList.remove("hidden");
-});
-clearBtn.addEventListener("click", clearInstansi);
-document.addEventListener("click", (e) => {
-    if (!document.getElementById("search-wrap").contains(e.target))
-        closeDropdown();
-});
+if (hasInstansiSearch) {
+    searchInput.addEventListener("focus", openDropdown);
+    searchInput.addEventListener("input", () => {
+        if (selectedInstansi) {
+            selectedInstansi = null;
+            hiddenInput.value = "";
+            selectedDisp.innerHTML = "";
+            subWrap.classList.add("hidden");
+        }
+        const hasVal = searchInput.value.length > 0;
+        clearBtn.classList.toggle("hidden", !hasVal);
+        clearBtn.classList.toggle("flex", hasVal);
+        renderDropdown(searchInput.value);
+        dropdown.classList.remove("hidden");
+    });
+    clearBtn.addEventListener("click", clearInstansi);
+    document.addEventListener("click", (e) => {
+        const searchWrap = document.getElementById("search-wrap");
+        if (searchWrap && !searchWrap.contains(e.target)) closeDropdown();
+    });
+}
 
-// Load Instansi saat halaman siap
+// Tambah di bagian DOMContentLoaded
 document.addEventListener("DOMContentLoaded", () => {
-    loadInstansi();
+    // Untuk superadmin, load semua instansi dari API
+    if (hasInstansiSearch) {
+        loadInstansi();
+    }
+
     inisialisasiKamera();
+
+    // Jika instansi sudah fix (admin biasa), langsung load layanan
+    const fixedInstansiId = document.querySelector(
+        'input[name="instansi_id"][type="hidden"]:not(#opd-value)',
+    );
+    if (fixedInstansiId && fixedInstansiId.value) {
+        loadLayanan(fixedInstansiId.value);
+    }
 });
 // CHAR COUNTER
 const keteranganEl = document.getElementById("f-keterangan");
