@@ -16,19 +16,22 @@
 
     <main class="flex-1 flex flex-col items-center justify-center px-4 py-6">
 
-        <div class="border border-gray-300 rounded-2xl shadow-lg max-w-4xl w-full bg-white overflow-hidden grid grid-cols-1 md:grid-cols-2">
-            
-            <div class="bg-linear-to-r from-[#1a2a6c] to-[#1B75BC] p-8 text-white flex flex-col justify-center items-center text-center order-2 md:order-1">
+        <div
+            class="border border-gray-300 rounded-2xl shadow-lg max-w-4xl w-full bg-white overflow-hidden grid grid-cols-1 md:grid-cols-2">
+
+            <div
+                class="bg-linear-to-r from-[#1a2a6c] to-[#1B75BC] p-6 md:p-8 text-white flex flex-col justify-center items-center text-center order-1 md:order-1">
                 <div class="max-w-sm">
-                    <i class="material-symbols-outlined mb-4" style="font-size: 64px;">menu_book</i>
-                    <h2 class="text-2xl font-bold mb-3">Sistem Buku Tamu Digital</h2>
-                    <p class="text-blue-100 text-sm leading-relaxed mb-4">
-                        Selamat datang di Sistem Buku Tamu Digital, Kelola kunjungan tamu dengan lebih efisien melalui sistem yang dirancang untuk mendukung pelaporan yang akurat.
+                    <i class="material-symbols-outlined mb-2 md:mb-4" style="font-size: 48px;">menu_book</i>
+                    <h2 class="text-xl md:text-2xl font-bold mb-2 md:mb-3">Sistem Buku Tamu Digital</h2>
+                    <p class="text-blue-100 text-sm leading-relaxed mb-2 md:mb-4 hidden md:block">
+                        Selamat datang di Sistem Buku Tamu Digital, Kelola kunjungan tamu dengan lebih efisien melalui
+                        sistem yang dirancang untuk mendukung pelaporan yang akurat.
                     </p>
                 </div>
             </div>
 
-            <div class="p-8 flex flex-col justify-center order-1 md:order-2">
+            <div class="p-8 flex flex-col justify-center order-2 md:order-2">
                 <div class="mb-6 flex items-center gap-2 text-blue-900">
                     <i class="material-symbols-outlined" style="font-size: 32px">admin_panel_settings</i>
                     <h1 class="text-2xl font-bold">Login Administrator</h1>

@@ -8,7 +8,7 @@
                         <th class="p-4 border border-slate-200">Instansi</th>
                         <th class="p-4 border border-slate-200">Layanan</th>
                         <th class="p-4 border border-slate-200">No HP</th>
-                        <th class="p-4 border border-slate-200">Dari Instansi</th>
+                        <th class="p-4 border border-slate-200">Asal Instansi</th>
                         <th class="p-4 border border-slate-200">Keterangan</th>
                         <th class="p-4 border border-slate-200">Tanggal</th>
                         <th class="p-4 border border-slate-200">Datang</th>
@@ -23,7 +23,7 @@
                             <td class="p-4 border border-slate-200 font-semibold text-left">{{ $guest->nama_tamu }}
                             </td>
                             <td class="p-4 border border-slate-200 text-left">
-                                {{ $guest->instansi->nama ?? ($guest->opd ?? '-') }}</td>
+                                {{ $guest->instansi->nama ?? ($guest->instansi ?? '-') }}</td>
                             <td class="p-4 border border-slate-200 text-left">
                                 {{ $guest->layanan->nama_layanan ?? ($guest->layanan ?? '-') }}</td>
                             <td class="p-4 border border-slate-200 font-mono">{{ $guest->no_hp }}</td>

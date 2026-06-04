@@ -53,7 +53,7 @@
                     <option value="" disabled selected>-- Pilih Nama Tamu --</option>
                     @foreach ($guest as $tamu)
                         <option value="{{ $tamu->id }}">
-                            {{ $tamu->nama_tamu }} {{ $tamu->opd}}
+                            {{ $tamu->nama_tamu }} {{ $tamu->instansi}}
                         </option>
                     @endforeach
                 </select>
