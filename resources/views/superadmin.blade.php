@@ -152,21 +152,61 @@
 
             const failedUsername = "{{ session('openEditModal') }}";
             const failedStatus = "{{ old('status') }}";
-            const failedInstansi = "{{ old('instansi_id') }}"; // Mengambil internal input name yang benar
+            const failedInstansi = "{{ old('instansi_id') }}";
             const failedRole = "{{ old('role') }}";
 
             form.action = `/admin/update/${failedUsername}`;
 
             document.getElementById('edit_username').value = "{{ old('username') }}";
             document.getElementById('edit_status').value = failedStatus;
-
-            // PERBAIKAN: Target ID diubah dari 'edit_Instansi' menjadi 'edit_instansi_id'
             document.getElementById('edit_instansi_id').value = failedInstansi;
             document.getElementById('edit_role').value = failedRole;
 
             if (modalUpdate) {
                 modalUpdate.classList.remove('hidden');
                 modalUpdate.classList.add('flex');
+            }
+        @elseif (session('openTambahInstansiModal'))
+            const modalTambahInstansi = document.getElementById('ModalTambahInstansi');
+            if (modalTambahInstansi) {
+                modalTambahInstansi.classList.remove('hidden');
+                modalTambahInstansi.classList.add('flex');
+            }
+        @elseif (session('openEditInstansiModal'))
+            const modalEditInstansi = document.getElementById('ModalEditInstansi');
+            const formEditInstansi = document.getElementById('formEditInstansi');
+            const editInstansiId = "{{ session('openEditInstansiModal') }}";
+            const oldLayanan = @json(old('layanan', ['']));
+
+            if (formEditInstansi) {
+                formEditInstansi.action = `/instansi/update/${editInstansiId}`;
+            }
+            document.getElementById('edit_instansi_nama').value = "{{ old('nama') }}";
+            document.getElementById('edit_instansi_desc').value = "{{ old('desc') }}";
+
+            const listEdit = document.getElementById('layananListEdit');
+            if (listEdit) {
+                listEdit.innerHTML = '';
+                if (!Array.isArray(oldLayanan) || oldLayanan.length === 0) {
+                    oldLayanan.push('');
+                }
+                oldLayanan.forEach(item => {
+                    const div = document.createElement('div');
+                    div.className = 'flex gap-2';
+                    div.innerHTML = `
+                        <input type="text" name="layanan[]" value="${item}" placeholder="Nama layanan..."
+                            class="w-full border border-gray-300 rounded-xl px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-yellow-500 bg-gray-50 focus:bg-white">
+                        <button type="button" onclick="hapusLayananEdit(this)"
+                            class="text-red-400 hover:text-red-600 px-2 transition">
+                            <i class="ti ti-x text-lg"></i>
+                        </button>`;
+                    listEdit.appendChild(div);
+                });
+            }
+
+            if (modalEditInstansi) {
+                modalEditInstansi.classList.remove('hidden');
+                modalEditInstansi.classList.add('flex');
             }
         @else
             const modalTambah = document.getElementById('Tambah');
@@ -179,26 +219,22 @@
 
     document.addEventListener('DOMContentLoaded', function() {
         const searchInput = document.getElementById('searchInput');
-        const tableRows = document.querySelectorAll('tbody tr');
+        const tableRows = document.querySelectorAll('#adminTable tbody tr');
 
         searchInput.addEventListener('input', function() {
             const filterValue = searchInput.value.toLowerCase().trim();
 
             tableRows.forEach(row => {
-                // Mengambil teks dari kolom Username (kolom ke-2, indeks 1) 
-                // dan kolom Instansi (kolom ke-3, indeks 2)
                 const usernameText = row.cells[1] ? row.cells[1].textContent.toLowerCase() : '';
                 const instansiText = row.cells[2] ? row.cells[2].textContent.toLowerCase() : '';
 
-                // Jika kata kunci cocok dengan username ATAU nama Instansi
                 if (usernameText.includes(filterValue) || instansiText.includes(filterValue)) {
-                    row.style.display = ''; // Tampilkan baris
+                    row.style.display = '';
                 } else {
-                    row.style.display = 'none'; // Sembunyikan baris
+                    row.style.display = 'none';
                 }
             });
 
-            // Opsional: Cek jika semua baris tersembunyi (data tidak ditemukan)
             checkEmptyResult();
         });
 
@@ -207,9 +243,8 @@
             const existingNoDataRow = document.getElementById('noDataRow');
 
             if (visibleRows.length === 0) {
-                // Jika belum ada pesan "Data tidak ditemukan", buat pesannya
                 if (!existingNoDataRow) {
-                    const tbody = document.querySelector('tbody');
+                    const tbody = document.querySelector('#adminTable tbody');
                     const noDataRow = document.createElement('tr');
                     noDataRow.id = 'noDataRow';
                     noDataRow.innerHTML = `
@@ -285,9 +320,9 @@
         layanan.forEach(item => {
             list.innerHTML += `
             <div class="flex gap-2">
-                <input type="text" name="layanan[]" value="${item}"
+                <input type="text" name="layanan[]" value="${item || ''}"
                     class="w-full border border-gray-300 rounded-xl px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-yellow-500 bg-gray-50 focus:bg-white">
-                <button type="button" onclick="hapusLayananEdit(this)" class="text-red-400 hover:text-red-600 px-2 transition">
+                <button type="button" onclick="hapusLayananEdit(this)" class="text-red-400 hover:text-red-600 px-2 transition cursor-pointer">
                     <i class="ti ti-x text-lg"></i>
                 </button>
             </div>`;
@@ -302,9 +337,9 @@
         const div = document.createElement('div');
         div.className = 'flex gap-2';
         div.innerHTML = `
-        <input type="text" name="layanan[]" placeholder="Nama layanan..."
+        <input type="text" name="layanan[]" placeholder="Nama layanan..." reqired
             class="w-full border border-gray-300 rounded-xl px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-yellow-500 bg-gray-50 focus:bg-white">
-        <button type="button" onclick="hapusLayananEdit(this)" class="text-red-400 hover:text-red-600 px-2 transition">
+        <button type="button" onclick="hapusLayananEdit(this)" class="text-red-400 hover:text-red-600 px-2 transition cursor-pointer">
             <i class="ti ti-x text-lg"></i>
         </button>`;
         list.appendChild(div);
@@ -312,7 +347,22 @@
 
     window.hapusLayananEdit = function(btn) {
         const list = document.getElementById('layananListEdit');
-        if (list.children.length > 1) btn.parentElement.remove();
+
+        if (list.children.length <= 1) {
+            // Tampilkan pesan di dalam modal
+            const existing = document.getElementById('layananMinimalMsg');
+            if (!existing) {
+                const msg = document.createElement('p');
+                msg.id = 'layananMinimalMsg';
+                msg.className = 'text-red-500 text-sm mt-1';
+                msg.textContent = 'Instansi minimal harus punya 1 layanan.';
+                list.parentElement.appendChild(msg);
+                setTimeout(() => msg.remove(), 3000);
+            }
+            return;
+        }
+
+        btn.parentElement.remove();
     }
 
     window.closeEditInstansiModal = function() {
@@ -333,6 +383,34 @@
         placeholder: '-- Cari atau pilih instansi --',
         allowEmptyOption: true,
         maxOptions: null,
+    });
+
+    document.getElementById('formEditInstansi').addEventListener('submit', function(e) {
+        const inputs = document.querySelectorAll('#layananListEdit input[name="layanan[]"]');
+        let adaKosong = false;
+
+        inputs.forEach(input => {
+            if (input.value.trim() === '') {
+                input.classList.add('border-red-400');
+                adaKosong = true;
+            } else {
+                input.classList.remove('border-red-400');
+            }
+        });
+
+        if (adaKosong) {
+            e.preventDefault();
+            const existing = document.getElementById('layananKosongMsg');
+            if (!existing) {
+                const list = document.getElementById('layananListEdit');
+                const msg = document.createElement('p');
+                msg.id = 'layananKosongMsg';
+                msg.className = 'text-red-500 text-sm mt-1';
+                msg.textContent = 'Nama layanan tidak boleh kosong.';
+                list.parentElement.appendChild(msg);
+                setTimeout(() => msg.remove(), 3000);
+            }
+        }
     });
 </script>
 

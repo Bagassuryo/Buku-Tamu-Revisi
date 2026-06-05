@@ -32,13 +32,12 @@
                     <td class="p-3 border">
                         <div class="flex justify-center gap-2">
                             <button type="button" data-id="{{ $item->id }}" data-nama="{{ $item->nama }}"
-                                data-desc="{{ $item->desc }}" data-layanan='@json($item->layanan->pluck('nama_layanan')->toArray())'
+                                data-desc="{{ $item->desc }}" data-layanan='@json($item->layanan->pluck('nama_layanan')->filter()->values()->toArray())'
                                 onclick="openEditInstansiModal(this)"
                                 class="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded-lg text-sm cursor-pointer flex items-center gap-1">
                                 <i class="material-symbols-outlined text-sm">edit</i> Edit
                             </button>
-                            <form action="{{ route('instansi.destroy', $item->id) }}" method="POST"
-                                onsubmit="return confirm('Hapus instansi {{ $item->nama }}? Semua layanannya ikut terhapus.')">
+                            <form action="{{ route('instansi.destroy', $item->id) }}" method="POST">
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit"

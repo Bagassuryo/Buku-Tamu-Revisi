@@ -8,64 +8,89 @@ use Illuminate\Http\Request;
 
 class InstansiController extends Controller
 {
-
     public function store(Request $request)
     {
-        $request->validate([
-            'nama'     => 'required|string|max:255',
-            'desc'     => 'nullable|string|max:100',
-            'layanan'  => 'required|array|min:1',
-            'layanan.*' => 'required|string|max:255',
-        ]);
-
-        $instansi = Instansi::create([
-            'nama' => $request->nama,
-            'desc' => $request->desc,
-        ]);
-
-        foreach ($request->layanan as $urutan => $namaLayanan) {
-            Layanan::create([
-                'instansi_id'  => $instansi->id,
-                'nama_layanan' => $namaLayanan,
-                'urutan'       => $urutan,
+        try {
+            $request->validate([
+                'nama'      => 'required|string|max:255',
+                'desc'      => 'required|string|max:100',
+                'layanan'   => 'required|array|min:1',
+                'layanan.*' => 'required|string|max:255',
+            ], [
+                'nama.required'      => 'Nama instansi wajib diisi.',
+                'desc.required'      => 'Deskripsi instansi wajib diisi.',
+                'layanan.required'   => 'Setidaknya satu layanan harus ditambahkan.',
+                'layanan.*.required' => 'Nama layanan tidak boleh kosong.',
             ]);
+
+            $instansi = Instansi::create([
+                'nama' => $request->nama,
+                'desc' => $request->desc,
+            ]);
+
+            foreach ($request->layanan as $urutan => $namaLayanan) {
+                Layanan::create([
+                    'instansi_id'  => $instansi->id,
+                    'nama_layanan' => $namaLayanan,
+                    'urutan'       => $urutan,
+                ]);
+            }
+
+            return redirect()->route('superadmin')->with('success', 'Instansi berhasil ditambahkan');
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            // FIX: Jika error, kembalikan ke modal instansi agar tidak nyasar ke modal admin
+            return redirect()->back()
+                ->withErrors($e->validator)
+                ->withInput()
+                ->with('openTambahInstansiModal', true);
         }
-
-        return redirect()->route('superadmin')->with('success', 'Instansi berhasil ditambahkan');
     }
-
     public function update(Request $request, int $id)
     {
-        $instansi = Instansi::findOrFail($id);
+        $instansi = Instansi::where('id', $id)->firstOrFail();
 
-        $request->validate([
-            'nama'     => 'required|string|max:255',
-            'desc'     => 'nullable|string|max:100',
-            'layanan'  => 'required|array|min:1',
-            'layanan.*' => 'required|string|max:255',
-        ]);
-
-        $instansi->update([
-            'nama' => $request->nama,
-            'desc' => $request->desc,
-        ]);
-
-        // Hapus layanan lama, insert baru
-        $instansi->layanan()->delete();
-        foreach ($request->layanan as $urutan => $namaLayanan) {
-            Layanan::create([
-                'instansi_id'  => $instansi->id,
-                'nama_layanan' => $namaLayanan,
-                'urutan'       => $urutan,
+        try {
+            $request->validate([
+                'nama'      => 'required|string|max:255',
+                'desc'      => 'required|string|max:100',
+                'layanan'   => 'required|array|min:1',
+                'layanan.*' => 'required|string|max:255',
+            ], [
+                'nama.required'      => 'Nama instansi wajib diisi.',
+                'desc.required'      => 'Deskripsi instansi wajib diisi.',
+                'layanan.required'   => 'Setidaknya satu layanan harus ditambahkan.',
+                'layanan.*.required' => 'Nama layanan tidak boleh kosong.',
             ]);
+
+            $instansi->update([
+                'nama' => $request->nama,
+                'desc' => $request->desc,
+            ]);
+
+            // FIX: Proses hapus dan input ulang layanan dipindah ke dalam blok try sebelum return
+            $instansi->layanan()->delete();
+
+            foreach ($request->layanan as $urutan => $namaLayanan) {
+                Layanan::create([
+                    'instansi_id'  => $instansi->id,
+                    'nama_layanan' => $namaLayanan,
+                    'urutan'       => $urutan,
+                ]);
+            }
+
+            return redirect()->route('superadmin')->with('success', 'Instansi berhasil diupdate');
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return redirect()->back()
+                ->withErrors($e->validator)
+                ->withInput()
+                ->with('openEditInstansiModal', $id);
         }
-        return redirect()->route('superadmin')->with('success', 'Instansi berhasil diupdate');
-    }
+    } // FIX: Kurung penutup fungsi update sekarang berada di posisi yang benar
 
     public function destroy(int $id)
     {
         $instansi = Instansi::findOrFail($id);
-        $instansi->delete(); // layanan otomatis terhapus karena cascade
+        $instansi->delete(); // Layanan otomatis terhapus jika di database dipasang onDelete('cascade')
 
         return redirect()->route('superadmin')->with('success', 'Instansi berhasil dihapus');
     }
