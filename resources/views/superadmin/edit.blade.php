@@ -15,7 +15,7 @@
                     <label class="block text-sm font-semibold text-gray-700 mb-1">Username</label>
                     <input type="text" name="username" id="edit_username"
                         class="w-full border rounded-xl p-2.5 outline-none focus:ring-2 focus:ring-yellow-500 border-gray-300"
-                        required>
+                        required autocomplete="off">
 
                     {{-- Pesan Error khusus Update --}}
                     @if (session('openEditModal'))
