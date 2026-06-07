@@ -83,7 +83,9 @@ class GuestController extends Controller
                 })->values()->toArray(),
             ];
         })->values()->toArray();
-
+        if (Auth::user()->role === 'super_admin') {
+            return view('rekap', compact('guests', 'instansiList', 'instansiJson'));
+        }
         return view('guest', compact('guests', 'instansiList', 'instansiJson'));
     }
 
