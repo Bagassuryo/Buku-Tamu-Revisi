@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\RateLimiter;
-use Illuminate\Support\Facades\Http; // Tambahkan ini untuk validasi Google yang lebih aman
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
 
 class AuthController extends Controller
@@ -13,7 +13,6 @@ class AuthController extends Controller
     // 1. Menampilkan halaman login
     public function showLogin()
     {
-        // Captcha matematika dihapus karena sudah pakai Google reCAPTCHA
         return view('login');
     }
 
@@ -37,7 +36,7 @@ class AuthController extends Controller
             ])->withInput();
         }
 
-        // D. VALIDASI GOOGLE RECAPTCHA (Menggunakan HTTP Client Laravel)
+        // D. VALIDASI GOOGLE RECAPTCHA
         $response = Http::asForm()->post('https://www.google.com/recaptcha/api/siteverify', [
             'secret' => env('RECAPTCHA_SECRET_KEY'),
             'response' => $request->input('g-recaptcha-response'),
@@ -67,7 +66,12 @@ class AuthController extends Controller
             RateLimiter::clear($throttleKey);
             $request->session()->regenerate();
 
-            return redirect()->intended(route('tamu.create')); // Mengarah ke halaman utama setelah login
+            // Redirect berdasarkan role
+            if ($admin->role === 'super_admin') {
+                return redirect()->route('superadmin');
+            }
+
+            return redirect()->intended(route('tamu.create'));
         }
 
         // F. JIKA GAGAL: CATAT HIT
