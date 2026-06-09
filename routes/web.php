@@ -33,7 +33,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/guest/export', [GuestController::class, 'export'])->name('guest.export');
 
     // --- REVISI NAVBAR: REKAP ---
-    Route::get('/rekap', [GuestController::class, 'index'])->name('rekap.index');
+    Route::get('/guest', [GuestController::class, 'index'])->name('rekap.index');
 
     // Satu Rute Logout untuk Semua User
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');

@@ -98,7 +98,7 @@ class AdminController extends Controller
         ]);
 
         // Trik Otomatisasi: Jika superadmin, set Instansi jadi 'Semua Instansi'
-        $instansiValue = $request->role === 'super_admin' ? 'Semua Instansi' : $request->instansi_id;
+        $instansiValue = $request->role === 'super_admin' ? null : $request->instansi_id;
 
         // 2. Simpan data
         Admin::create([

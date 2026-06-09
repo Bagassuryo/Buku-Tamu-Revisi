@@ -1,5 +1,5 @@
         <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 mb-6">
-            <form action="{{ route('guest') }}" method="GET" class="flex flex-wrap items-end gap-4">
+            <form action="{{ route('rekap.index') }}" method="GET" class="flex flex-wrap items-end gap-4">
 
                 <div class="flex-1 min-w-55">
                     <label class="block text-xs font-bold text-gray-500 uppercase mb-2 ml-1 tracking-wider">Cari
@@ -72,7 +72,7 @@
                         <i class="ti ti-filter text-[18px]"></i>
                         <span>Filter</span>
                     </button>
-                    <a href="{{ route('guest') }}"
+                    <a href="{{ route('rekap.index') }}"
                         class="inline-flex items-center gap-2 bg-gray-200 hover:bg-gray-300 
                         text-gray-700 px-5 py-2.5 rounded-xl shadow-sm hover:shadow-md transition duration-200 font-medium text-sm cursor-pointer">
 

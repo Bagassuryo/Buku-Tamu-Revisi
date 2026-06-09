@@ -254,7 +254,7 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Restore tab aktif setelah reload
+
         const savedTab = localStorage.getItem('activeTab');
         if (savedTab === 'instansi') {
             switchTab('instansi');
@@ -264,10 +264,49 @@
         if (alert) {
             setTimeout(() => {
                 alert.style.opacity = '0';
-                setTimeout(() => {
-                    alert.remove();
-                }, 500);
+                setTimeout(() => alert.remove(), 500);
             }, 3000);
+        }
+
+        const searchInput = document.getElementById('searchInput');
+
+        searchInput.addEventListener('input', function() {
+            const filterValue = searchInput.value.toLowerCase().trim();
+
+            const activePanel = document.getElementById('panelAdmin').classList.contains('hidden') ?
+                document.getElementById('panelInstansi') :
+                document.getElementById('panelAdmin');
+
+            const tableRows = activePanel.querySelectorAll('tbody tr');
+
+            tableRows.forEach(row => {
+                const col1 = row.cells[1] ? row.cells[1].textContent.toLowerCase() : '';
+                const col2 = row.cells[2] ? row.cells[2].textContent.toLowerCase() : '';
+                row.style.display = (col1.includes(filterValue) || col2.includes(filterValue)) ?
+                    '' : 'none';
+            });
+
+            checkEmptyResult(activePanel, tableRows);
+        });
+
+        function checkEmptyResult(panel, tableRows) {
+            const visibleRows = Array.from(tableRows).filter(row => row.style.display !== 'none');
+            const existingNoDataRow = panel.querySelector('#noDataRow');
+
+            if (visibleRows.length === 0) {
+                if (!existingNoDataRow) {
+                    const tbody = panel.querySelector('tbody');
+                    const noDataRow = document.createElement('tr');
+                    noDataRow.id = 'noDataRow';
+                    noDataRow.innerHTML = `
+                    <td colspan="8" class="p-6 text-center text-gray-500 bg-gray-50">
+                        <i class="ti ti-search-off text-lg mr-1"></i> Data tidak ditemukan
+                    </td>`;
+                    tbody.appendChild(noDataRow);
+                }
+            } else {
+                if (existingNoDataRow) existingNoDataRow.remove();
+            }
         }
     });
 
@@ -394,52 +433,6 @@
             }
         @endif
     @endif
-
-    document.addEventListener('DOMContentLoaded', function() {
-        const searchInput = document.getElementById('searchInput');
-        const tableRows = document.querySelectorAll('#adminTable tbody tr');
-
-        searchInput.addEventListener('input', function() {
-            const filterValue = searchInput.value.toLowerCase().trim();
-
-            tableRows.forEach(row => {
-                const usernameText = row.cells[1] ? row.cells[1].textContent.toLowerCase() : '';
-                const instansiText = row.cells[2] ? row.cells[2].textContent.toLowerCase() : '';
-
-                if (usernameText.includes(filterValue) || instansiText.includes(filterValue)) {
-                    row.style.display = '';
-                } else {
-                    row.style.display = 'none';
-                }
-            });
-
-            checkEmptyResult();
-        });
-
-        function checkEmptyResult() {
-            const visibleRows = Array.from(tableRows).filter(row => row.style.display !== 'none');
-            const existingNoDataRow = document.getElementById('noDataRow');
-
-            if (visibleRows.length === 0) {
-                if (!existingNoDataRow) {
-                    const tbody = document.querySelector('#adminTable tbody');
-                    const noDataRow = document.createElement('tr');
-                    noDataRow.id = 'noDataRow';
-                    noDataRow.innerHTML = `
-                    <td colspan="8" class="p-6 text-center text-gray-500 bg-gray-50">
-                        <i class="ti ti-search-off text-lg mr-1"></i> Data admin atau Instansi tidak ditemukan
-                    </td>
-                `;
-                    tbody.appendChild(noDataRow);
-                }
-            } else {
-                // Jika data ditemukan kembali, hapus pesan "Data tidak ditemukan"
-                if (existingNoDataRow) {
-                    existingNoDataRow.remove();
-                }
-            }
-        }
-    });
 
     // ── TAMBAH INSTANSI ──
     window.tambahLayananBaru = function() {
@@ -601,6 +594,12 @@
     }
 
     function switchTab(tab) {
+
+        const searchInput = document.getElementById('searchInput');
+        if (searchInput) searchInput.value = '';
+        document.querySelectorAll('#panelAdmin tbody tr, #panelInstansi tbody tr').forEach(row => row.style.display ='');
+        document.querySelectorAll('#noDataRow').forEach(el => el.remove());
+
         const isAdmin = tab === 'admin';
 
         // Simpan tab aktif
