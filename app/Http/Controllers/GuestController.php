@@ -186,28 +186,38 @@ class GuestController extends Controller
         return view('pulang', compact('guest'));
     }
 
-    public function processCheckout(Request $request)
-    {
-        $request->validate([
-            'id' => 'required|exists:guests,id'
+public function processCheckout(Request $request)
+{
+    $request->validate([
+        'id' => 'required|exists:guests,id'
+    ]);
+
+    $user = Auth::user();
+
+    $guest = Guest::query()
+        ->where('id', $request->id)
+        ->when($user->role !== 'super_admin', function ($query) use ($user) {
+            return $query->where('instansi_id', $user->instansi_id);
+        })
+        ->first();
+
+    if ($guest && is_null($guest->pulang) && $guest->tanggal == now()->toDateString()) {
+
+        $guest->update([
+            'pulang' => now()->toTimeString()
         ]);
 
-        $user = Auth::user();
-
-        $guest = Guest::query()
-            ->where('id', $request->id)
-            ->when($user->role !== 'super_admin', function ($query) use ($user) {
-                return $query->where('instansi_id', $user->instansi_id);
-            })
-            ->first();
-
-        if ($guest && is_null($guest->pulang) && $guest->tanggal == now()->toDateString()) {
-            $guest->update(['pulang' => now()->toTimeString()]);
-            return redirect('https://sukma.jatimprov.go.id/home/survei?idUser=1186');
-        }
-
-        return back()->with('error', 'Data tidak ditemukan atau Anda sudah tercatat pulang.');
+        return response()->json([
+            'success' => true,
+            'url' => 'https://sukma.jatimprov.go.id/home/survei?idUser=1186'
+        ]);
     }
+
+    return response()->json([
+        'success' => false,
+        'message' => 'Data tidak ditemukan atau Anda sudah tercatat pulang.'
+    ], 422);
+}
 
     public function export(Request $request)
     {

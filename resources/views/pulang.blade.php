@@ -8,6 +8,7 @@
     <title>Checkout Tamu</title>
 
     @vite('resources/css/app.css')
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 
 <body class="bg-gray-100 min-h-screen flex flex-col">
@@ -41,21 +42,35 @@
             <!-- ... bagian atas HTML tetap sama ... -->
 
             <!-- FORM -->
-            <form action="{{ route('tamu.checkout.process') }}" method="POST">
+            <form id="checkoutForm" action="{{ route('tamu.checkout.process') }}" method="POST">
                 @csrf
 
                 <!-- HAPUS INPUT TEKS NAMA_TAMU KARENA SUDAH DIWAKILI DROPDOWN DI BAWAH -->
 
                 <!-- DROPDOWN (Satu-satunya input yang divalidasi Controller) -->
-                <label class="block text-gray-700 text-sm font-semibold mb-2">Pilih Nama Anda:</label>
-                <select name="id" required
-                    class="w-full px-5 py-4 rounded-xl border-2 border-gray-200 focus:border-[#1B75BC] outline-none mb-4 text-lg bg-white">
-                    <option value="" disabled selected>-- Pilih Nama Tamu --</option>
-                    @foreach ($guest as $tamu)
-                        <option value="{{ $tamu->id }}">
-                            {{ $tamu->nama_tamu }} - {{ $tamu->asal_instansi }}
+                <label class="block text-gray-700 text-sm font-semibold mb-2">
+                    Pilih Nama Anda:
+                </label>
+
+                <select name="id" {{ $guest->isEmpty() ? 'disabled' : 'required' }}
+                    class="w-full px-5 py-4 rounded-xl border-2 border-gray-200 disabled:bg-gray-100 disabled:text-gray-500 focus:border-[#1B75BC] outline-none mb-4 text-lg bg-white">
+
+                    @if ($guest->isEmpty())
+                        <option value="" selected>
+                            Tidak ada tamu yang berkunjung
                         </option>
-                    @endforeach
+                    @else
+                        <option value="" selected hidden>
+                            -- Pilih Nama Tamu --
+                        </option>
+
+                        @foreach ($guest as $tamu)
+                            <option value="{{ $tamu->id }}">
+                                {{ $tamu->nama_tamu }} - {{ $tamu->asal_instansi }}
+                            </option>
+                        @endforeach
+                    @endif
+
                 </select>
 
                 <!-- BUTTON -->
@@ -71,5 +86,71 @@
     @include('layouts.footer')
 
 </body>
+
+<script>
+    document.getElementById('checkoutForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+
+        const form = this;
+        const formData = new FormData(form);
+
+        const guestId = form.querySelector('select[name="id"]').value;
+
+        if (!guestId) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Pilih Tamu',
+                text: 'Silakan pilih nama tamu terlebih dahulu.'
+            });
+            return;
+        }
+
+        try {
+            const response = await fetch(form.action, {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector(
+                        'input[name="_token"]').value,
+                    'Accept': 'application/json'
+                },
+                body: formData
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Checkout Berhasil',
+                    text: 'Terima kasih atas kunjungannya.',
+                    confirmButtonText: 'Isi Survei'
+                }).then(() => {
+                    window.open(data.url, '_blank');
+                    location.reload();
+                });
+
+            } else {
+
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Gagal',
+                    text: data.message
+                });
+
+            }
+
+        } catch (error) {
+
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'Terjadi kesalahan saat checkout.'
+            });
+
+            console.error(error);
+        }
+    });
+</script>
 
 </html>

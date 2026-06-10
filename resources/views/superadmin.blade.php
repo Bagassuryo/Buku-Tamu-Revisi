@@ -220,11 +220,11 @@
         <div class="flex items-end gap-1 mb-0 select-none">
             {{-- Tab Admin (aktif default) --}}
             <button id="tabAdmin" onclick="switchTab('admin')"
-                class="relative flex items-center gap-2 px-6 py-2.5 text-sm font-semibold rounded-t-xl border border-b-0 border-gray-200 bg-white text-[#1e3a8a] shadow-sm z-20 transition-all duration-200 cursor-pointer">
+                class="relative flex items-center gap-2 px-6 py-2.5 text-sm font-semibold rounded-t-xl border border-b-0 border-gray-200 bg-white text-[#1e3a8a] shadow-sm z-20 transition-all duration-200 cursor-pointer hover:text-gray-600">
                 <i class="ti ti-users text-base"></i>
                 Admin
                 <span
-                    class="ml-1 bg-[#1e3a8a] text-white text-xs rounded-full px-2 py-0.5">{{ $admins->count() }}</span>
+                    class="ml-1 bg-[#1e3a8a] text-white text-xs rounded-full px-2 py-0.5 ">{{ $admins->count() }}</span>
             </button>
 
             {{-- Tab Instansi --}}
@@ -233,7 +233,7 @@
                 <i class="ti ti-building text-base"></i>
                 Instansi
                 <span
-                    class="ml-1 bg-gray-300 text-gray-600 text-xs rounded-full px-2 py-0.5">{{ $instansi->count() }}</span>
+                    class="ml-1 bg-green-500 text-white text-xs rounded-full px-2 py-0.5">{{ $instansi->count() }}</span>
             </button>
         </div>
 

@@ -1,8 +1,4 @@
-<div class="overflow-x-auto bg-white shadow-md rounded-md mt-8">
-    <div class="p-4 border-b flex items-center justify-between">
-        <h2 class="text-base font-semibold text-gray-800">Daftar Instansi</h2>
-        <p class="text-sm text-gray-400">{{ $instansi->count() }} instansi terdaftar</p>
-    </div>
+<div class="overflow-x-auto bg-white shadow-md rounded-md ">
     <table class="w-full text-center border-collapse">
         <thead>
             <tr class="bg-[#1B75BC] text-white">
