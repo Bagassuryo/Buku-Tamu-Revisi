@@ -6,7 +6,6 @@ use App\Models\Guest;
 use App\Models\Instansi;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
 use App\Exports\GuestExport;
 use Maatwebsite\Excel\Facades\Excel;
 
@@ -23,17 +22,14 @@ class GuestController extends Controller
         $user = Auth::user();
 
         $guests = Guest::with('instansi', 'layanan')
-
             // Jika bukan superadmin, tampilkan hanya Instansi miliknya
             ->when($user->role !== 'super_admin', function ($query) use ($user) {
                 return $query->where('instansi_id', $user->instansi_id);
             })
-
             // Filter Instansi (khusus superadmin)
             ->when($instansi_id, function ($query, $instansi_id) {
                 return $query->where('instansi_id', $instansi_id);
             })
-
             // Search
             ->when($search, function ($query, $search) {
                 return $query->where(function ($q) use ($search) {
@@ -47,22 +43,18 @@ class GuestController extends Controller
                         });
                 });
             })
-
             // Filter tanggal
             ->when($tanggal, function ($query, $tanggal) {
                 return $query->whereDate('tanggal', $tanggal);
             })
-
             // Filter bulan
             ->when($bulan, function ($query, $bulan) {
                 return $query->whereMonth('tanggal', $bulan);
             })
-
             // Filter layanan
             ->when($layanan_id, function ($query, $layanan_id) {
                 return $query->where('layanan_id', $layanan_id);
             })
-
             ->orderBy('tanggal', 'desc')
             ->paginate(10)
             ->withQueryString();
@@ -71,7 +63,6 @@ class GuestController extends Controller
             ->orderBy('nama')
             ->get();
 
-        // Tambahkan di index(), sebelum return view
         $instansiJson = $instansiList->map(function ($i) {
             return [
                 'id'      => $i->id,
@@ -83,6 +74,7 @@ class GuestController extends Controller
                 })->values()->toArray(),
             ];
         })->values()->toArray();
+
         return view('guest', compact('guests', 'instansiList', 'instansiJson'));
     }
 
@@ -90,26 +82,23 @@ class GuestController extends Controller
     {
         $user = Auth::user();
         $instansi = null;
-        $instansiJson = '[]'; // Siapkan default string kosong untuk super admin
+        $instansiJson = '[]';
 
         if ($user->role !== 'super_admin') {
-            // Ambil instansi beserta layanan di dalamnya menggunakan Eager Loading 'with'
             $instansi = \App\Models\Instansi::with('layanan')->find($user->instansi_id);
 
-            // Format ke JSON agar bisa dibaca oleh JavaScript dropdown layanan milikmu
             if ($instansi) {
                 $instansiJson = json_encode([[
                     'id'      => $instansi->id,
                     'layanan' => $instansi->layanan->map(function ($l) {
                         return [
                             'id'   => $l->id,
-                            'nama' => $l->nama_layanan, // sesuaikan dengan kolom nama layananmu
+                            'nama' => $l->nama_layanan,
                         ];
                     })->values()->toArray()
                 ]]);
             }
         } else {
-            // Jika Super Admin yang login, ambil semua data instansi dan layanannya (seperti di fungsi index)
             $instansiList = \App\Models\Instansi::with('layanan')->get();
             $instansiJson = json_encode($instansiList->map(function ($i) {
                 return [
@@ -129,11 +118,29 @@ class GuestController extends Controller
 
     public function store(Request $request)
     {
+        // ── 1. NORMALISASI NOMOR HP (Ubah 62 ke 0, bersihkan karakter aneh) ──
+        $noHpMentah = $request->input('no_hp', '');
+
+        if (!empty($noHpMentah)) {
+            $noHpBersih = preg_replace('/\D/', '', $noHpMentah);
+
+            if (str_starts_with($noHpBersih, '62')) {
+                $noHpBersih = '0' . substr($noHpBersih, 2);
+            }
+
+            if (!str_starts_with($noHpBersih, '0') && !empty($noHpBersih)) {
+                $noHpBersih = '0' . $noHpBersih;
+            }
+
+            $request->merge(['no_hp' => $noHpBersih]);
+        }
+
+        // ── 2. VALIDASI DATA BACKEND ──
         $request->validate([
             'nama_tamu'     => 'required|string|max:255',
             'instansi_id'   => 'required|exists:instansi,id',
             'layanan_id'    => 'nullable|exists:layanan,id',
-            'no_hp'         => 'required|string|max:15',
+            'no_hp'         => 'required|string|between:10,15',
             'asal_instansi' => 'required|string|max:255',
             'keterangan'    => 'required|string|max:300',
             'foto'          => 'nullable',
@@ -151,18 +158,34 @@ class GuestController extends Controller
         $data['tanggal'] = now()->toDateString();
         $data['datang']  = now()->toTimeString();
 
-        // Foto file upload
-        if ($request->hasFile('foto') && $request->file('foto')->isValid()) {
-            $data['foto'] = $request->file('foto')->store('foto', 'public');
-        }
-        // Foto base64 dari kamera
-        elseif ($request->filled('foto') && preg_match('/^data:image\/(\w+);base64,/', $request->foto, $matches)) {
-            $extension = strtolower($matches[1]) === 'jpeg' ? 'jpg' : strtolower($matches[1]);
-            $decoded   = base64_decode(substr($request->foto, strpos($request->foto, ',') + 1));
-            if ($decoded !== false) {
-                $filename = uniqid('foto_') . '.' . $extension;
-                Storage::disk('public')->put('foto/' . $filename, $decoded);
-                $data['foto'] = 'foto/' . $filename;
+        if ($request->filled('foto') && preg_match('/^data:image\/(\w+);base64,/', $request->foto, $matches)) {
+            $decodedData = base64_decode(substr($request->foto, strpos($request->foto, ',') + 1));
+
+            if ($decodedData !== false) {
+                $filename = uniqid('foto_') . '.webp';
+                $image = imagecreatefromstring($decodedData);
+
+                if ($image !== false) {
+                    $targetFolder = storage_path('app/public/foto');
+                    if (!file_exists($targetFolder)) {
+                        mkdir($targetFolder, 0755, true);
+                    }
+
+                    $w = imagesx($image);
+                    $h = imagesy($image);
+
+                    if ($w > 800) {
+                        $newH = intval($h * 800 / $w);
+                        $resized = imagescale($image, 800, $newH);
+                        imagewebp($resized, $targetFolder . '/' . $filename, 75);
+                        imagedestroy($resized);
+                    } else {
+                        imagewebp($image, $targetFolder . '/' . $filename, 75);
+                    }
+
+                    imagedestroy($image);
+                    $data['foto'] = 'foto/' . $filename;
+                }
             }
         }
 
@@ -202,7 +225,6 @@ class GuestController extends Controller
             ->first();
 
         if ($guest && is_null($guest->pulang) && $guest->tanggal == now()->toDateString()) {
-
             $guest->update([
                 'pulang' => now()->toTimeString()
             ]);
@@ -230,34 +252,27 @@ class GuestController extends Controller
         $user = Auth::user();
 
         $guests = Guest::with('instansi', 'layanan')
-
             ->when($user->role !== 'super_admin', function ($query) use ($user) {
                 return $query->where('instansi_id', $user->instansi_id);
             })
-
             ->when($search, function ($query, $search) {
                 return $query->where(function ($q) use ($search) {
                     $q->where('nama_tamu', 'like', '%' . $search . '%')
                         ->orWhere('asal_instansi', 'like', '%' . $search . '%');
                 });
             })
-
             ->when($tanggal, function ($query, $tanggal) {
                 return $query->whereDate('tanggal', $tanggal);
             })
-
             ->when($bulan, function ($query, $bulan) {
                 return $query->whereMonth('tanggal', $bulan);
             })
-
             ->when($instansi_id, function ($query, $instansi_id) {
                 return $query->where('instansi_id', $instansi_id);
             })
-
             ->when($layanan, function ($query, $layanan) {
                 return $query->where('layanan_id', $layanan);
             })
-
             ->orderBy('id', 'desc')
             ->get();
 

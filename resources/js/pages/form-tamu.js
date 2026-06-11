@@ -48,7 +48,6 @@ const fotoInput = document.getElementById("foto-input");
 const countdown = document.getElementById("countdown-ring");
 const previewWrap = document.getElementById("foto-preview-wrap");
 const fotoResult = document.getElementById("foto-result");
-const btnUlang = document.getElementById("btn-ulang-foto");
 const formTamu = document.getElementById("formTamu");
 
 let toastSedangTampil = false;
@@ -121,6 +120,7 @@ function ambilFotoCountdown() {
 
 formTamu.addEventListener("submit", async function (e) {
     e.preventDefault();
+
     const nama = document.querySelector('[name="nama_tamu"]').value.trim();
     const instansi = document
         .querySelector('[name="asal_instansi"]')
@@ -134,35 +134,119 @@ formTamu.addEventListener("submit", async function (e) {
         .querySelector('[name="keterangan"]')
         .value.trim();
 
-    if (
-        !nama ||
-        !instansi ||
-        !nohp ||
-        !instansi_id ||
-        !layanan ||
-        !keterangan
-    ) {
+    // ── 1. VALIDASI NAMA TAMU ─────────────────────────────────────────
+    if (!nama) {
         showToast(
             "error",
-            "Form Belum Lengkap",
-            "Mohon isi semua data terlebih dahulu.",
+            "Nama Belum Diisi",
+            "Mohon isi nama lengkap Anda terlebih dahulu.",
+            3500,
+        );
+        return;
+    }
+    if (nama.length < 3) {
+        showToast(
+            "error",
+            "Nama Terlalu Pendek",
+            "Nama minimal harus terdiri dari 3 karakter.",
+            3500,
+        );
+        return;
+    }
+    if (!/^[a-zA-Z\s\.''\-]+$/.test(nama)) {
+        showToast(
+            "error",
+            "Nama Tidak Valid",
+            "Nama hanya boleh berisi huruf dan karakter umum nama.",
             3500,
         );
         return;
     }
 
-    // Validasi layanan hanya jika wrap-nya tampil
+    // ── 2. VALIDASI ASAL INSTANSI TAMU ────────────────────────────────
+    if (!instansi) {
+        showToast(
+            "error",
+            "Asal Instansi Belum Diisi",
+            "Mohon isi asal instansi/perusahaan Anda.",
+            3500,
+        );
+        return;
+    }
+    if (instansi.length < 3) {
+        showToast(
+            "error",
+            "Asal Instansi Terlalu Pendek",
+            "Nama instansi minimal harus terdiri dari 3 karakter.",
+            3500,
+        );
+        return;
+    }
+
+    // ── 3. VALIDASI NOMOR HP ──────────────────────────────────────────
+    if (!nohp) {
+        showToast(
+            "error",
+            "No. HP Belum Diisi",
+            "Mohon isi nomor HP aktif Anda.",
+            3500,
+        );
+        return;
+    }
+    if (!validasiPanjangNoHp(nohp)) {
+        showToast(
+            "error",
+            "No. HP Tidak Valid",
+            "Nomor HP harus terdiri dari 10 hingga 15 digit angka.",
+            4000,
+        );
+        return;
+    }
+
+    // ── 4. VALIDASI INSTANSI TUJUAN (DROPDOWN) ────────────────────────
+    if (!instansi_id) {
+        showToast(
+            "error",
+            "Instansi Tujuan Belum Dipilih",
+            "Mohon pilih instansi yang ingin Anda tuju.",
+            3500,
+        );
+        return;
+    }
+
+    // ── 5. VALIDASI LAYANAN TUJUAN (JIKA DITAMPILKAN) ──────────────────
     const subWrap = document.getElementById("layanan-wrap");
     if (!subWrap.classList.contains("hidden") && !layanan) {
         showToast(
             "error",
             "Jenis Layanan Belum Dipilih",
-            "Mohon pilih jenis layanan yang dituju.",
+            "Mohon pilih jenis layanan kunjungan Anda.",
             3500,
         );
         return;
     }
 
+    // ── 6. VALIDASI KETERANGAN KEPERLUAN ─────────────────────────────
+    if (!keterangan) {
+        showToast(
+            "error",
+            "Keterangan Belum Diisi",
+            "Mohon isi maksud atau keperluan kunjungan Anda.",
+            3500,
+        );
+        return;
+    }
+    if (keterangan.length > 300) {
+        showToast(
+            "error",
+            "Keterangan Terlalu Panjang",
+            "Keterangan keperluan maksimal 300 karakter.",
+            3500,
+        );
+        return;
+    }
+
+    // ── SEMUA VALIDASI AMAN, PROSES JEPRET KAMERA ────────────────────
     if (fotoSudahDiambil) {
         this.submit();
         return;
@@ -184,242 +268,6 @@ formTamu.addEventListener("submit", async function (e) {
     }
 });
 
-btnUlang.addEventListener("click", async function () {
-    fotoSudahDiambil = false;
-    fotoInput.value = "";
-    previewWrap.style.display = "none";
-    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-        showToast(
-            "error",
-            "Tidak Didukung",
-            "Kamera tidak dapat diakses di koneksi ini.",
-            4000,
-        );
-        return;
-    }
-    try {
-        stream = await navigator.mediaDevices.getUserMedia({
-            video: {
-                facingMode: "user",
-            },
-        });
-        videoEl.srcObject = stream;
-        showToast(
-            "success",
-            "Kamera Aktif",
-            "Klik kirim ulang untuk ambil foto baru.",
-            2500,
-        );
-    } catch {
-        showToast(
-            "error",
-            "Kamera Gagal",
-            "Tidak dapat mengakses kamera.",
-            3000,
-        );
-    }
-});
-
-// ═══════════════════════════════════════════════════
-// SEARCH LAYANAN + SUB LAYANAN (fetch dari DB)
-// ═══════════════════════════════════════════════════
-let selectedInstansi = null;
-let INSTANSI_DATA = []; // akan diisi dari API
-
-const searchInput = document.getElementById("instansi-search");
-const dropdown = document.getElementById("instansi-dropdown");
-const clearBtn = document.getElementById("instansi-clear");
-const selectedDisp = document.getElementById("selected-instansi-display");
-const hiddenInput = document.getElementById("instansi-value");
-
-const subWrap = document.getElementById("layanan-wrap");
-const subSelect = document.getElementById("layanan-select");
-
-const hasInstansiSearch = !!(
-    searchInput &&
-    dropdown &&
-    clearBtn &&
-    selectedDisp &&
-    hiddenInput
-);
-
-// Fetch semua instansi dari DB saat halaman load
-async function loadInstansi() {
-    try {
-        const res = await fetch("/api/instansi");
-        INSTANSI_DATA = await res.json();
-    } catch (e) {
-        console.error("Gagal load data instansi", e);
-    }
-}
-
-function highlight(text, query) {
-    if (!query) return text;
-    const idx = text.toLowerCase().indexOf(query.toLowerCase());
-    if (idx === -1) return text;
-    return (
-        text.slice(0, idx) +
-        "<mark>" +
-        text.slice(idx, idx + query.length) +
-        "</mark>" +
-        text.slice(idx + query.length)
-    );
-}
-
-function renderDropdown(query) {
-    const filtered = INSTANSI_DATA.filter(
-        (l) =>
-            l.nama.toLowerCase().includes(query.toLowerCase()) ||
-            l.desc.toLowerCase().includes(query.toLowerCase()),
-    );
-    if (filtered.length === 0) {
-        dropdown.innerHTML = `
-            <div class="py-5 text-center text-slate-400 text-sm">
-                <i class="ti ti-search-off block text-2xl mb-1.5 opacity-40"></i>
-                Instansi tidak ditemukan
-            </div>`;
-    } else {
-        dropdown.innerHTML = filtered
-            .map(
-                (l) => `
-            <div class="dd-item flex items-center gap-2.5 px-3 py-2.5 cursor-pointer hover:bg-blue-50 hover:text-[#1a2a6c] transition border-b border-slate-50 last:border-0"
-                data-id="${l.id}" data-nama="${l.nama}">
-                <div>
-                    <div class="font-semibold text-[13.5px]">${highlight(l.nama, query)}</div>
-                    <div class="text-[11.5px] text-slate-400 mt-0.5">${l.desc}</div>
-                </div>
-            </div>
-        `,
-            )
-            .join("");
-
-        dropdown.querySelectorAll(".dd-item").forEach((item) => {
-            item.addEventListener("mousedown", (e) => {
-                e.preventDefault();
-                const found = INSTANSI_DATA.find(
-                    (l) => l.id == item.dataset.id,
-                );
-                selectInstansi(found);
-            });
-        });
-    }
-}
-
-// Fetch layanan berdasarkan instansi_id
-async function loadLayanan(instansiId) {
-    try {
-        const res = await fetch(`/api/layanan/${instansiId}`);
-        const list = await res.json();
-
-        subSelect.innerHTML =
-            '<option value="">-- Pilih Jenis Layanan --</option>';
-        if (list.length > 0) {
-            list.forEach((item) => {
-                const opt = document.createElement("option");
-                opt.value = item.id; // kirim id, bukan nama
-                opt.textContent = item.nama_layanan;
-                subSelect.appendChild(opt);
-            });
-            subWrap.classList.remove("hidden");
-            subWrap.style.opacity = "0";
-            subWrap.style.transform = "translateY(-6px)";
-            subWrap.style.transition =
-                "opacity 0.25s ease, transform 0.25s ease";
-            requestAnimationFrame(() =>
-                requestAnimationFrame(() => {
-                    subWrap.style.opacity = "1";
-                    subWrap.style.transform = "translateY(0)";
-                }),
-            );
-        } else {
-            subWrap.classList.add("hidden");
-        }
-    } catch (e) {
-        console.error("Gagal load layanan", e);
-    }
-}
-
-function openDropdown() {
-    renderDropdown(searchInput.value);
-    dropdown.classList.remove("hidden");
-}
-
-function closeDropdown() {
-    dropdown.classList.add("hidden");
-}
-
-function selectInstansi(item) {
-    selectedInstansi = item;
-    hiddenInput.value = item.id; // kirim id instansi
-    searchInput.value = "";
-    searchInput.placeholder = item.nama;
-    searchInput.classList.remove("border-red-400", "ring-red-100");
-    searchInput.classList.add("border-slate-200");
-    clearBtn.classList.remove("hidden");
-    clearBtn.classList.add("flex");
-    closeDropdown();
-    selectedDisp.innerHTML = `
-        <div class="inline-flex items-center gap-1.5 bg-blue-50 border border-blue-200 text-[#1a2a6c] text-[13px] font-semibold px-2.5 py-1.5 rounded-lg mt-1.5">
-            <i class="ti ${item.icon} text-xs"></i>
-            ${item.nama}
-            <i class="ti ti-check text-green-500 text-xs"></i>
-        </div>`;
-
-    loadLayanan(item.id);
-}
-
-function clearInstansi() {
-    selectedInstansi = null;
-    hiddenInput.value = "";
-    searchInput.value = "";
-    searchInput.placeholder = "Ketik nama Instansi...";
-    clearBtn.classList.add("hidden");
-    clearBtn.classList.remove("flex");
-    selectedDisp.innerHTML = "";
-    closeDropdown();
-    subWrap.classList.add("hidden");
-    subSelect.innerHTML = '<option value="">-- Pilih Jenis Layanan --</option>';
-}
-
-if (hasInstansiSearch) {
-    searchInput.addEventListener("focus", openDropdown);
-    searchInput.addEventListener("input", () => {
-        if (selectedInstansi) {
-            selectedInstansi = null;
-            hiddenInput.value = "";
-            selectedDisp.innerHTML = "";
-            subWrap.classList.add("hidden");
-        }
-        const hasVal = searchInput.value.length > 0;
-        clearBtn.classList.toggle("hidden", !hasVal);
-        clearBtn.classList.toggle("flex", hasVal);
-        renderDropdown(searchInput.value);
-        dropdown.classList.remove("hidden");
-    });
-    clearBtn.addEventListener("click", clearInstansi);
-    document.addEventListener("click", (e) => {
-        const searchWrap = document.getElementById("search-wrap");
-        if (searchWrap && !searchWrap.contains(e.target)) closeDropdown();
-    });
-}
-
-// Tambah di bagian DOMContentLoaded
-document.addEventListener("DOMContentLoaded", () => {
-    // Untuk superadmin, load semua instansi dari API
-    if (hasInstansiSearch) {
-        loadInstansi();
-    }
-
-    inisialisasiKamera();
-
-    // Jika instansi sudah fix (admin biasa), langsung load layanan
-    const fixedInstansiId = document.querySelector(
-        'input[name="instansi_id"][type="hidden"]:not(#opd-value)',
-    );
-    if (fixedInstansiId && fixedInstansiId.value) {
-        loadLayanan(fixedInstansiId.value);
-    }
-});
 // CHAR COUNTER
 const keteranganEl = document.getElementById("f-keterangan");
 const charEl = document.getElementById("char-count");
@@ -435,7 +283,20 @@ keteranganEl.addEventListener("input", () => {
               : "text-slate-400");
 });
 
-// NO HP
+// NO HP - Input masker agar hanya menerima angka, +, -, dan spasi secara langsung
 document.getElementById("f-nohp").addEventListener("input", function () {
     this.value = this.value.replace(/[^0-9+\-\s]/g, "");
+});
+
+// Fungsi khusus mengecek panjang digit nomor HP (Sisa dari dead code yang dibersihkan)
+function validasiPanjangNoHp(nohp) {
+    const digits = nohp.replace(/\D/g, "");
+    return digits.length >= 10 && digits.length <= 15;
+}
+
+// ═══════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════
+document.addEventListener("DOMContentLoaded", () => {
+    inisialisasiKamera();
 });

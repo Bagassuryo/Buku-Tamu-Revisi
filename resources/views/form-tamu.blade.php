@@ -159,166 +159,126 @@
                         <label class="flex items-center gap-1.5 text-[13px] font-semibold text-slate-700 mb-1.5">
                             Instansi yang Dituju <span class="text-red-500">*</span>
                         </label>
-
-                        @if (Auth::user()->role !== 'super_admin')
-                            {{-- Admin biasa: instansi otomatis, tidak bisa diubah --}}
-                            <input type="hidden" name="instansi_id" value="{{ $instansi->id }}">
-                            <div
-                                class="flex items-center gap-2 bg-blue-50 border border-blue-200 text-[#1a2a6c] px-3 py-2.5 rounded-xl">
-                                <span class="text-sm font-semibold">{{ $instansi->nama }}</span>
-                                <i class="ti ti-lock text-xs text-slate-400 ml-auto"></i>
-                            </div>
-                            <p class="text-[11.5px] text-slate-400 mt-1.5">Instansi ditentukan otomatis sesuai akun Anda
-                            </p>
-                        @else
-                            {{-- Super admin: bisa search instansi --}}
-                            <input type="hidden" name="instansi_id" id="instansi-value"
-                                value="{{ old('instansi_id') }}">
-
-                            <div class="relative" id="search-wrap">
-                                <div class="relative flex items-center">
-                                    <input type="text" id="instansi-search" autocomplete="off"
-                                        placeholder="Ketik nama Instansi..."
-                                        class="w-full pl-3 pr-9 py-2.75 border-[1.5px] rounded-xl text-sm text-slate-800 placeholder-slate-400 outline-none transition
-                        focus:border-[#1B75BC] focus:ring-2 focus:ring-blue-100
-                        {{ $errors->has('instansi_id') ? 'border-red-400 ring-2 ring-red-100' : 'border-slate-200' }}">
-                                    <button type="button" id="instansi-clear"
-                                        class="absolute right-2.5 hidden items-center justify-center w-5 h-5 rounded-full text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition">
-                                        <i class="ti ti-x text-xs"></i>
-                                    </button>
-                                </div>
-
-                                <div id="instansi-dropdown"
-                                    class="hidden absolute top-[calc(100%+4px)] left-0 right-0 bg-white border-[1.5px] border-slate-200 rounded-xl shadow-xl z-50 max-h-60 overflow-y-auto">
-                                </div>
-
-                                <div id="selected-instansi-display">
-                                    @if (old('instansi_id'))
-                                        <div
-                                            class="inline-flex items-center gap-1.5 bg-blue-50 border border-blue-200 text-[#1a2a6c] text-[13px] font-semibold px-2.5 py-1.5 rounded-lg mt-1.5">
-                                            <i class="ti ti-check text-green-500 text-xs"></i>
-                                            {{ old('instansi_id') }}
-                                        </div>
-                                    @endif
-                                </div>
-                            </div>
-                            <p class="text-[11.5px] text-slate-400 mt-1.5">Cari berdasarkan nama Instansi</p>
-                            @error('instansi_id')
-                                <p class="text-xs text-red-500 mt-1">{{ $message }}</p>
-                            @enderror
-                        @endif
                     </div>
-
-                    {{-- Layanan (muncul setelah Instansi dipilih) --}}
-                    <div id="layanan-wrap" class="hidden">
-                        <label class="flex items-center gap-1.5 text-[13px] font-semibold text-slate-700 mb-1.5">
-                            <i class="ti ti-list-details text-[15px] text-[#1B75BC]"></i>
-                            Jenis Layanan <span class="text-red-500">*</span>
-                        </label>
-                        <select name="layanan_id" id="layanan-select"
-                            class="w-full px-3.5 py-2.75 border-[1.5px] border-slate-200 rounded-xl text-sm text-slate-800 outline-none transition
+                    @if (Auth::user()->role !== 'super_admin')
+                        {{-- Admin biasa: instansi otomatis, tidak bisa diubah --}}
+                        <input type="hidden" name="instansi_id" value="{{ $instansi->id }}">
+                        <div
+                            class="flex items-center gap-2 bg-blue-50 border border-blue-200 text-[#1a2a6c] px-3 py-2.5 rounded-xl">
+                            <span class="text-sm font-semibold">{{ $instansi->nama }}</span>
+                            <i class="ti ti-lock text-xs text-slate-400 ml-auto"></i>
+                        </div>
+                        <p class="text-[11.5px] text-slate-400 mt-1.5">Instansi ditentukan otomatis sesuai akun Anda
+                        </p>
+                        {{-- Layanan (muncul setelah Instansi dipilih) --}}
+                        <div id="layanan-wrap" class="hidden">
+                            <label class="flex items-center gap-1.5 text-[13px] font-semibold text-slate-700 mb-1.5">
+                                <i class="ti ti-list-details text-[15px] text-[#1B75BC]"></i>
+                                Jenis Layanan <span class="text-red-500">*</span>
+                            </label>
+                            <select name="layanan_id" id="layanan-select"
+                                class="w-full px-3.5 py-2.75 border-[1.5px] border-slate-200 rounded-xl text-sm text-slate-800 outline-none transition
                focus:border-[#1B75BC] focus:ring-2 focus:ring-blue-100 bg-white cursor-pointer appearance-none">
-                            <option>Pilih Jenis Layanan</option>
-                        </select>
-                        <p class="text-[11.5px] text-slate-400 mt-1.5">Pilih layanan spesifik yang Anda tuju</p>
-                    </div>
+                                <option>Pilih Jenis Layanan</option>
+                            </select>
+                            <p class="text-[11.5px] text-slate-400 mt-1.5">Pilih layanan spesifik yang Anda tuju</p>
+                        </div>
 
-                    <hr class="border-slate-300">
+                        <hr class="border-slate-300">
 
-                    {{-- Nama --}}
-                    <div>
-                        <label class="flex items-center gap-1.5 text-[13px] font-semibold text-slate-700 mb-1.5">
-                            <i class="ti ti-user text-[15px] text-[#1B75BC]"></i>
-                            Nama Lengkap <span class="text-red-500">*</span>
-                        </label>
-                        <input type="text" name="nama_tamu" autocomplete="off" value="{{ old('nama_tamu') }}"
-                            placeholder="Masukkan nama lengkap sesuai identitas"
-                            class="w-full px-3.5 py-2.75 border-[1.5px] rounded-xl text-sm text-slate-800 placeholder-slate-400 outline-none transition
+                        {{-- Nama --}}
+                        <div>
+                            <label class="flex items-center gap-1.5 text-[13px] font-semibold text-slate-700 mb-1.5">
+                                <i class="ti ti-user text-[15px] text-[#1B75BC]"></i>
+                                Nama Lengkap <span class="text-red-500">*</span>
+                            </label>
+                            <input type="text" name="nama_tamu" autocomplete="off" value="{{ old('nama_tamu') }}"
+                                placeholder="Masukkan nama lengkap sesuai identitas"
+                                class="w-full px-3.5 py-2.75 border-[1.5px] rounded-xl text-sm text-slate-800 placeholder-slate-400 outline-none transition
                                 focus:border-[#1B75BC] focus:ring-2 focus:ring-blue-100
                                 {{ $errors->has('nama_tamu') ? 'border-red-400 ring-2 ring-red-100' : 'border-slate-200' }}">
-                        @error('nama_tamu')
-                            <p class="text-xs text-red-500 mt-1">{{ $message }}</p>
-                        @enderror
-                    </div>
+                            @error('nama_tamu')
+                                <p class="text-xs text-red-500 mt-1">{{ $message }}</p>
+                            @enderror
+                        </div>
 
-                    {{-- Row: Instansi + No HP --}}
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        {{-- Row: Instansi + No HP --}}
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
 
-                        {{-- Instansi --}}
-                        <div>
-                            <label class="flex items-center gap-1.5 text-[13px] font-semibold text-slate-700 mb-1.5">
-                                <i class="ti ti-building text-[15px] text-[#1B75BC]"></i>
-                                Asal Instansi <span class="text-red-500">*</span>
-                            </label>
-                            <input type="text" name="asal_instansi" autocomplete="off"
-                                value="{{ old('asal_instansi') }}" placeholder="Contoh: Dinas Pendidikan"
-                                class="w-full px-3.5 py-2.75 border-[1.5px] rounded-xl text-sm text-slate-800 placeholder-slate-400 outline-none transition
+                            {{-- Instansi --}}
+                            <div>
+                                <label
+                                    class="flex items-center gap-1.5 text-[13px] font-semibold text-slate-700 mb-1.5">
+                                    <i class="ti ti-building text-[15px] text-[#1B75BC]"></i>
+                                    Asal Instansi <span class="text-red-500">*</span>
+                                </label>
+                                <input type="text" name="asal_instansi" autocomplete="off"
+                                    value="{{ old('asal_instansi') }}" placeholder="Contoh: Dinas Pendidikan"
+                                    class="w-full px-3.5 py-2.75 border-[1.5px] rounded-xl text-sm text-slate-800 placeholder-slate-400 outline-none transition
                                     focus:border-[#1B75BC] focus:ring-2 focus:ring-blue-100
                                     {{ $errors->has('asal_instansi') ? 'border-red-400 ring-2 ring-red-100' : 'border-slate-200' }}">
-                            @error('asal_instansi')
-                                <p class="text-xs text-red-500 mt-1">{{ $message }}</p>
-                            @enderror
-                        </div>
+                                @error('asal_instansi')
+                                    <p class="text-xs text-red-500 mt-1">{{ $message }}</p>
+                                @enderror
+                            </div>
 
-                        {{-- No HP --}}
-                        <div>
-                            <label class="flex items-center gap-1.5 text-[13px] font-semibold text-slate-700 mb-1.5">
-                                <i class="ti ti-phone text-[15px] text-[#1B75BC]"></i>
-                                Nomor HP / WA <span class="text-red-500">*</span>
-                            </label>
-                            <input type="tel" name="no_hp" id="f-nohp" autocomplete="off"
-                                value="{{ old('no_hp') }}" placeholder="08xxxxxxxxxx" maxlength="15"
-                                class="w-full px-3.5 py-2.75 border-[1.5px] rounded-xl text-sm text-slate-800 placeholder-slate-400 outline-none transition
+                            {{-- No HP --}}
+                            <div>
+                                <label
+                                    class="flex items-center gap-1.5 text-[13px] font-semibold text-slate-700 mb-1.5">
+                                    <i class="ti ti-phone text-[15px] text-[#1B75BC]"></i>
+                                    Nomor HP / WA <span class="text-red-500">*</span>
+                                </label>
+                                <input type="tel" name="no_hp" id="f-nohp" autocomplete="off"
+                                    value="{{ old('no_hp') }}" placeholder="08xxxxxxxxxx" maxlength="15"
+                                    class="w-full px-3.5 py-2.75 border-[1.5px] rounded-xl text-sm text-slate-800 placeholder-slate-400 outline-none transition
                                     focus:border-[#1B75BC] focus:ring-2 focus:ring-blue-100
                                     {{ $errors->has('no_hp') ? 'border-red-400 ring-2 ring-red-100' : 'border-slate-200' }}">
-                            @error('no_hp')
+                                @error('no_hp')
+                                    <p class="text-xs text-red-500 mt-1">{{ $message }}</p>
+                                @enderror
+                            </div>
+                        </div>
+
+
+                        {{-- Keterangan --}}
+                        <div>
+                            <label class="flex items-center gap-1.5 text-[13px] font-semibold text-slate-700 mb-1.5">
+                                <i class="ti ti-notes text-[15px] text-[#1B75BC]"></i>
+                                Keperluan Kunjungan <span class="text-red-500">*</span>
+                            </label>
+                            <textarea name="keterangan" id="f-keterangan" autocomplete="off" rows="4" maxlength="300"
+                                placeholder="Tuliskan keperluan atau maksud kunjungan Anda secara singkat..."
+                                class="w-full px-3.5 py-2.75 border-[1.5px] rounded-xl text-sm text-slate-800 placeholder-slate-400 outline-none transition resize-none
+                                focus:border-[#1B75BC] focus:ring-2 focus:ring-blue-100
+                                {{ $errors->has('keterangan') ? 'border-red-400 ring-2 ring-red-100' : 'border-slate-200' }}">{{ old('keterangan') }}</textarea>
+                            <div class="flex justify-end mt-1">
+                                <span id="char-count" class="text-[11px] text-slate-400">
+                                    {{ strlen(old('keterangan', '')) }} / 300
+                                </span>
+                            </div>
+                            @error('keterangan')
                                 <p class="text-xs text-red-500 mt-1">{{ $message }}</p>
                             @enderror
                         </div>
-                    </div>
 
-
-                    {{-- Keterangan --}}
-                    <div>
-                        <label class="flex items-center gap-1.5 text-[13px] font-semibold text-slate-700 mb-1.5">
-                            <i class="ti ti-notes text-[15px] text-[#1B75BC]"></i>
-                            Keperluan Kunjungan <span class="text-red-500">*</span>
-                        </label>
-                        <textarea name="keterangan" id="f-keterangan" autocomplete="off" rows="4" maxlength="300"
-                            placeholder="Tuliskan keperluan atau maksud kunjungan Anda secara singkat..."
-                            class="w-full px-3.5 py-2.75 border-[1.5px] rounded-xl text-sm text-slate-800 placeholder-slate-400 outline-none transition resize-none
-                                focus:border-[#1B75BC] focus:ring-2 focus:ring-blue-100
-                                {{ $errors->has('keterangan') ? 'border-red-400 ring-2 ring-red-100' : 'border-slate-200' }}">{{ old('keterangan') }}</textarea>
-                        <div class="flex justify-end mt-1">
-                            <span id="char-count" class="text-[11px] text-slate-400">
-                                {{ strlen(old('keterangan', '')) }} / 300
-                            </span>
+                        {{-- Foto preview (muncul setelah foto diambil) --}}
+                        <div id="foto-preview-wrap" class="flex flex-col items-center gap-2">
+                            <p class="text-[12px] text-slate-500 font-semibold flex items-center gap-1">
+                                <i class="ti ti-camera-check text-green-500"></i>
+                                Foto tamu berhasil diambil
+                            </p>
+                            <img src="" alt="Foto Preview" id="foto-result">
                         </div>
-                        @error('keterangan')
-                            <p class="text-xs text-red-500 mt-1">{{ $message }}</p>
-                        @enderror
-                    </div>
 
-                    {{-- Foto preview (muncul setelah foto diambil) --}}
-                    <div id="foto-preview-wrap" class="flex flex-col items-center gap-2">
-                        <p class="text-[12px] text-slate-500 font-semibold flex items-center gap-1">
-                            <i class="ti ti-camera-check text-green-500"></i>
-                            Foto tamu berhasil diambil
-                        </p>
-                        <img id="foto-result" src="" alt="Foto Tamu">
-                        <button type="button" id="btn-ulang-foto"
-                            class="text-[11.5px] text-[#1B75BC] underline underline-offset-2 hover:opacity-70 transition">
-                        </button>
-                    </div>
-
-                    {{-- Submit --}}
-                    <button type="submit" id="btn-submit"
-                        class="w-full mt-2 py-3.5 bg-linear-to-r from-[#1a2a6c] to-[#1B75BC] text-white font-bold text-[15px] rounded-xl
+                        {{-- Submit --}}
+                        <button type="submit" id="btn-submit"
+                            class="w-full mt-2 py-3.5 bg-linear-to-r from-[#1a2a6c] to-[#1B75BC] text-white font-bold text-[15px] rounded-xl
                             flex items-center justify-center gap-2 hover:opacity-90 active:scale-[0.99] transition cursor-pointer tracking-wide">
-                        <i class="ti ti-send text-[17px]"></i>
-                        Kirim Data Kunjungan
-                    </button>
-
+                            <i class="ti ti-send text-[17px]"></i>
+                            Kirim Data Kunjungan
+                        </button>
+                    @endif
                 </form>
             </div>
         </div>
@@ -369,87 +329,6 @@
                 const instansiValue = '{{ $instansi->id ?? '' }}';
                 if (instansiValue) {
                     renderLayanan(instansiValue);
-                }
-            @else
-                const instansiSearch = document.getElementById('instansi-search');
-                const instansiDropdown = document.getElementById('instansi-dropdown');
-                const instansiValueInput = document.getElementById('instansi-value');
-                const instansiClear = document.getElementById('instansi-clear');
-                const selectedInstansiDisplay = document.getElementById('selected-instansi-display');
-
-                function setInstansi(instansi) {
-                    if (!instansi) {
-                        instansiValueInput.value = '';
-                        selectedInstansiDisplay.innerHTML = '';
-                        resetLayanan();
-                        return;
-                    }
-
-                    instansiValueInput.value = instansi.id;
-                    selectedInstansiDisplay.innerHTML = `
-                        <div class="inline-flex items-center gap-1.5 bg-blue-50 border border-blue-200 text-[#1a2a6c] text-[13px] font-semibold px-2.5 py-1.5 rounded-lg mt-1.5">
-                            <i class="ti ti-check text-green-500 text-xs"></i>
-                            ${instansi.nama}
-                        </div>
-                    `;
-                    renderLayanan(instansi.id);
-                }
-
-                function buildDropdown(items) {
-                    instansiDropdown.innerHTML = '';
-                    if (!items.length) {
-                        instansiDropdown.innerHTML =
-                            '<div class="p-3 text-sm text-slate-500">Instansi tidak ditemukan</div>';
-                        instansiDropdown.classList.remove('hidden');
-                        return;
-                    }
-                    items.forEach(function(item) {
-                        const row = document.createElement('button');
-                        row.type = 'button';
-                        row.className = 'w-full px-4 py-3 text-left text-sm hover:bg-slate-100 transition';
-                        row.textContent = item.nama;
-                        row.addEventListener('click', function() {
-                            instansiSearch.value = item.nama;
-                            setInstansi(item);
-                            instansiDropdown.classList.add('hidden');
-                            instansiClear.classList.remove('hidden');
-                        });
-                        instansiDropdown.appendChild(row);
-                    });
-                    instansiDropdown.classList.remove('hidden');
-                }
-
-                instansiSearch.addEventListener('input', function() {
-                    const query = this.value.trim().toLowerCase();
-                    if (!query) {
-                        instansiDropdown.classList.add('hidden');
-                        return;
-                    }
-                    const filtered = instansiData.filter(i => i.nama.toLowerCase().includes(query));
-                    buildDropdown(filtered);
-                });
-
-                instansiClear.addEventListener('click', function() {
-                    instansiSearch.value = '';
-                    instansiClear.classList.add('hidden');
-                    setInstansi(null);
-                    instansiDropdown.classList.add('hidden');
-                });
-
-                document.addEventListener('click', function(event) {
-                    if (!event.target.closest('#search-wrap')) {
-                        instansiDropdown.classList.add('hidden');
-                    }
-                });
-
-                const initialInstansiId = '{{ old('instansi_id') }}';
-                if (initialInstansiId) {
-                    const initialInstansi = instansiData.find(i => i.id == initialInstansiId);
-                    if (initialInstansi) {
-                        instansiSearch.value = initialInstansi.nama;
-                        instansiClear.classList.remove('hidden');
-                        setInstansi(initialInstansi);
-                    }
                 }
             @endif
         });
