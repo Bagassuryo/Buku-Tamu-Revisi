@@ -186,44 +186,46 @@ class GuestController extends Controller
         return view('pulang', compact('guest'));
     }
 
-public function processCheckout(Request $request)
-{
-    $request->validate([
-        'id' => 'required|exists:guests,id'
-    ]);
-
-    $user = Auth::user();
-
-    $guest = Guest::query()
-        ->where('id', $request->id)
-        ->when($user->role !== 'super_admin', function ($query) use ($user) {
-            return $query->where('instansi_id', $user->instansi_id);
-        })
-        ->first();
-
-    if ($guest && is_null($guest->pulang) && $guest->tanggal == now()->toDateString()) {
-
-        $guest->update([
-            'pulang' => now()->toTimeString()
+    public function processCheckout(Request $request)
+    {
+        $request->validate([
+            'id' => 'required|exists:guests,id'
         ]);
+
+        $user = Auth::user();
+
+        $guest = Guest::query()
+            ->where('id', $request->id)
+            ->when($user->role !== 'super_admin', function ($query) use ($user) {
+                return $query->where('instansi_id', $user->instansi_id);
+            })
+            ->first();
+
+        if ($guest && is_null($guest->pulang) && $guest->tanggal == now()->toDateString()) {
+
+            $guest->update([
+                'pulang' => now()->toTimeString()
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'url' => 'https://sukma.jatimprov.go.id/home/survei?idUser=1186'
+            ]);
+        }
 
         return response()->json([
-            'success' => true,
-            'url' => 'https://sukma.jatimprov.go.id/home/survei?idUser=1186'
-        ]);
+            'success' => false,
+            'message' => 'Data tidak ditemukan atau Anda sudah tercatat pulang.'
+        ], 422);
     }
-
-    return response()->json([
-        'success' => false,
-        'message' => 'Data tidak ditemukan atau Anda sudah tercatat pulang.'
-    ], 422);
-}
 
     public function export(Request $request)
     {
         $search  = $request->input('search');
         $tanggal = $request->input('tanggal');
         $bulan   = $request->input('bulan');
+        $instansi_id = $request->input('instansi_id');
+        $layanan     = $request->input('layanan');
 
         $user = Auth::user();
 
@@ -246,6 +248,14 @@ public function processCheckout(Request $request)
 
             ->when($bulan, function ($query, $bulan) {
                 return $query->whereMonth('tanggal', $bulan);
+            })
+
+            ->when($instansi_id, function ($query, $instansi_id) {
+                return $query->where('instansi_id', $instansi_id);
+            })
+
+            ->when($layanan, function ($query, $layanan) {
+                return $query->where('layanan_id', $layanan);
             })
 
             ->orderBy('id', 'desc')

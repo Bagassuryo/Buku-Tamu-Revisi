@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
+use App\Models\Instansi;
 
 class AuthController extends Controller
 {
@@ -58,6 +59,14 @@ class AuthController extends Controller
                 ])->onlyInput('username');
             }
 
+            if ($admin->role !== 'super_admin' && empty($admin->instansi_id)) {
+                Auth::logout();
+
+                return back()->withErrors([
+                    'login_error' => 'Akun Anda belum terhubung dengan Instansi. Silakan hubungi Super Admin.'
+                ])->onlyInput('username');
+            }
+
             // Catat waktu aktif terakhir
             \Illuminate\Support\Facades\DB::table('admins')
                 ->where('username', $admin->username)
@@ -67,8 +76,15 @@ class AuthController extends Controller
             $request->session()->regenerate();
 
             // Redirect berdasarkan role
-            if ($admin->role === 'super_admin') {
-                return redirect()->route('superadmin');
+            if (
+                $admin->role !== 'super_admin' &&
+                !Instansi::where('id', $admin->instansi_id)->exists()
+            ) {
+                Auth::logout();
+
+                return back()->withErrors([
+                    'login_error' => 'Instansi yang terhubung dengan akun Anda tidak ditemukan. Silakan hubungi Super Admin.'
+                ])->onlyInput('username');
             }
 
             return redirect()->intended(route('tamu.create'));
