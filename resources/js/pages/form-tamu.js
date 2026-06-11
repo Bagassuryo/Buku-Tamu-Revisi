@@ -173,6 +173,7 @@ formTamu.addEventListener("submit", async function (e) {
         );
         return;
     }
+
     if (instansi.length < 3) {
         showToast(
             "error",
@@ -183,6 +184,15 @@ formTamu.addEventListener("submit", async function (e) {
         return;
     }
 
+    if (!/^[a-zA-Z0-9\s\.\-]+$/.test(instansi)) {
+        showToast(
+            "error",
+            "Asal Instansi Tidak Valid",
+            "Nama instansi hanya boleh berisi huruf, angka, dan karakter umum nama.",
+            3500,
+        );
+        return;
+    }
     // ── 3. VALIDASI NOMOR HP ──────────────────────────────────────────
     if (!nohp) {
         showToast(
@@ -241,6 +251,16 @@ formTamu.addEventListener("submit", async function (e) {
             "error",
             "Keterangan Terlalu Panjang",
             "Keterangan keperluan maksimal 300 karakter.",
+            3500,
+        );
+        return;
+    }
+
+    if (!/^[a-zA-Z\s\.\-\,\'0-9]+$/.test(keterangan)) {
+        showToast(
+            "error",
+            "Keterangan Tidak Valid",
+            "Keterangan hanya boleh berisi huruf dan karakter umum.",
             3500,
         );
         return;

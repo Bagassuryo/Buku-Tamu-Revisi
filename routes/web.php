@@ -47,9 +47,14 @@ Route::middleware(['auth'])->group(function () {
         Route::put('/admin/update/{username}', [AdminController::class, 'update'])->name('superadmin.update');
         Route::delete('/destroy/{username}', [AdminController::class, 'destroy'])->name('destroy');
 
+        Route::get('/instansi/arsip', [InstansiController::class, 'arsip'])->name('instansi.arsip');
+        Route::post('/instansi/restore/{id}', [InstansiController::class, 'restore'])->name('instansi.restore');
+        Route::delete('/instansi/force-delete/{id}', [InstansiController::class, 'forceDelete'])->name('instansi.forceDelete');
+
         Route::post('/instansi/store', [InstansiController::class, 'store'])->name('instansi.store');
         Route::put('/instansi/update/{id}', [InstansiController::class, 'update'])->name('instansi.update');
         Route::delete('/instansi/destroy/{id}', [InstansiController::class, 'destroy'])->name('instansi.destroy');
+
 
         // Layanan (untuk edit/hapus per layanan)
         Route::delete('/layanan/destroy/{id}', [LayananController::class, 'destroy'])->name('layanan.destroy');

@@ -44,7 +44,7 @@
                         @if (auth()->user()->role !== 'super_admin')
                             <a href="{{ route('tamu.create') }}"
                                 class="whitespace-nowrap px-4 py-2 text-sm font-medium flex items-center gap-2 rounded-lg transition-all duration-200
-                                {{ request()->is('/')
+                                {{ request()->path() === '/'
                                     ? 'text-white bg-white/10 border border-white/20'
                                     : 'text-white/60 hover:text-white border border-transparent hover:border-white/30' }}">
                                 <i class="ti ti-edit text-lg"></i>
@@ -250,6 +250,9 @@
             </div>
         </div>
     </div>
+    <div id="old-layanan-data" data-layanan="{{ addslashes(json_encode(old('layanan', ['']))) }}"
+        style="display:none">
+    </div>
 </body>
 
 <script>
@@ -270,24 +273,29 @@
 
         const searchInput = document.getElementById('searchInput');
 
-        searchInput.addEventListener('input', function() {
-            const filterValue = searchInput.value.toLowerCase().trim();
+        if (searchInput) {
+            searchInput.addEventListener('input', function() {
+                const filterValue = searchInput.value.toLowerCase().trim();
 
-            const activePanel = document.getElementById('panelAdmin').classList.contains('hidden') ?
-                document.getElementById('panelInstansi') :
-                document.getElementById('panelAdmin');
+                const activePanel = document.getElementById('panelAdmin').classList.contains('hidden') ?
+                    document.getElementById('panelInstansi') :
+                    document.getElementById('panelAdmin');
 
-            const tableRows = activePanel.querySelectorAll('tbody tr');
+                const tableRows = activePanel.querySelectorAll('tbody tr');
 
-            tableRows.forEach(row => {
-                const col1 = row.cells[1] ? row.cells[1].textContent.toLowerCase() : '';
-                const col2 = row.cells[2] ? row.cells[2].textContent.toLowerCase() : '';
-                row.style.display = (col1.includes(filterValue) || col2.includes(filterValue)) ?
-                    '' : 'none';
+                tableRows.forEach(row => {
+                    const col1 = row.cells[1] ? row.cells[1].textContent.toLowerCase() : '';
+                    const col2 = row.cells[2] ? row.cells[2].textContent.toLowerCase() : '';
+
+                    row.style.display =
+                        (col1.includes(filterValue) || col2.includes(filterValue)) ?
+                        '' :
+                        'none';
+                });
+
+                checkEmptyResult(activePanel, tableRows);
             });
-
-            checkEmptyResult(activePanel, tableRows);
-        });
+        }
 
         function checkEmptyResult(panel, tableRows) {
             const visibleRows = Array.from(tableRows).filter(row => row.style.display !== 'none');
@@ -321,7 +329,9 @@
         document.getElementById('edit_role').value = role;
 
         // Gunakan setValue dari Tom Select, bukan .value biasa
-        tomSelectEdit.setValue(instansi_id, true);
+        if (tomSelectEdit) {
+            tomSelectEdit.setValue(instansi_id, true);
+        }
 
         modal.classList.remove('hidden');
         modal.classList.add('flex');
@@ -393,7 +403,8 @@
             const modalEditInstansi = document.getElementById('ModalEditInstansi');
             const formEditInstansi = document.getElementById('formEditInstansi');
             const editInstansiId = "{{ session('openEditInstansiModal') }}";
-            const oldLayanan = @json(old('layanan', ['']));
+            const el = document.getElementById('old-layanan-data');
+            const oldLayanan = el ? JSON.parse(el.dataset.layanan) : [''];
 
             if (formEditInstansi) {
                 formEditInstansi.action = `/instansi/update/${editInstansiId}`;
@@ -411,12 +422,13 @@
                     const div = document.createElement('div');
                     div.className = 'flex gap-2';
                     div.innerHTML = `
-                        <input type="text" name="layanan[]" value="${item}" placeholder="Nama layanan..."
-                            class="w-full border border-gray-300 rounded-xl px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-yellow-500 bg-gray-50 focus:bg-white">
-                        <button type="button" onclick="hapusLayananEdit(this)"
-                            class="text-red-400 hover:text-red-600 px-2 transition">
-                            <i class="ti ti-x text-lg"></i>
-                        </button>`;
+                    <input type="text" name="layanan[]" value="${item}" placeholder="Nama layanan..."
+                        class="w-full border border-gray-300 rounded-xl px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-yellow-500 bg-gray-50 focus:bg-white">
+                    <button type="button" onclick="hapusLayananEdit(this)"
+                        class="text-red-400 hover:text-red-600 px-2 transition">
+                        <i class="ti ti-x text-lg"></i>
+                    </button>
+                `;
                     listEdit.appendChild(div);
                 });
             }
@@ -457,9 +469,31 @@
         const modal = document.getElementById('ModalTambahInstansi');
         modal.classList.remove('flex');
         modal.classList.add('hidden');
-        // Reset form
+
+        // 1. Reset form bawaan
         modal.querySelector('form').reset();
-        // Reset layanan list ke 1 input kosong
+
+        // 2. Paksa kosongkan value input dari old() Laravel
+        const inputNama = modal.querySelector('input[name="nama"]');
+        const inputDesc = modal.querySelector('input[name="desc"]');
+        if (inputNama) inputNama.value = '';
+        if (inputDesc) inputDesc.value = '';
+
+        // 3. HAPUS PESAN ERROR MERAH (Bawaan error Laravel)
+        // Kita cari elemen text error di dalam modal ini lalu hapus kodenya
+        const errorMessages = modal.querySelectorAll('.text-red-500, [id$="error"], .text-danger');
+        errorMessages.forEach(msg => msg.remove());
+
+        // 4. RESET BORDER INPUT YANG MERAH KE NORMAL
+        const inputs = modal.querySelectorAll('input, textarea');
+        inputs.forEach(input => {
+            // Hapus class border merah (sesuaikan dengan class border error yang kamu pakai, misal border-red-500)
+            input.classList.remove('border-red-500', 'border-red-400', 'focus:ring-red-500');
+            // Kembalikan ke border abu-abu bawaan
+            input.classList.add('border-gray-300');
+        });
+
+        // 5. Reset layanan list ke 1 input kosong
         const list = document.getElementById('layananListTambah');
         list.innerHTML = `
         <div class="flex gap-2">
@@ -479,7 +513,14 @@
         const id = button.dataset.id;
         const nama = button.dataset.nama || '';
         const desc = button.dataset.desc || '';
-        const layanan = JSON.parse(button.dataset.layanan || '[]');
+        let layanan = [];
+
+        try {
+            layanan = JSON.parse(button.dataset.layanan || '[]');
+        } catch (e) {
+            layanan = [];
+            console.error('Data layanan tidak valid', e);
+        }
 
         form.action = `/instansi/update/${id}`;
         document.getElementById('edit_instansi_nama').value = nama;
@@ -508,7 +549,7 @@
         const div = document.createElement('div');
         div.className = 'flex gap-2';
         div.innerHTML = `
-        <input type="text" name="layanan[]" placeholder="Nama layanan..." reqired
+        <input type="text" name="layanan[]" placeholder="Nama layanan..." required
             class="w-full border border-gray-300 rounded-xl px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-yellow-500 bg-gray-50 focus:bg-white">
         <button type="button" onclick="hapusLayananEdit(this)" class="text-red-400 hover:text-red-600 px-2 transition cursor-pointer">
             <i class="ti ti-x text-lg"></i>
@@ -543,46 +584,64 @@
     }
 
     // Tom Select - Instansi Tambah Admin
-    new TomSelect('#select_instansi_tambah', {
-        placeholder: '-- Cari atau pilih instansi --',
-        allowEmptyOption: true,
-        maxOptions: null,
-    });
+    if (document.querySelector('#select_instansi_tambah')) {
+        new TomSelect('#select_instansi_tambah', {
+            placeholder: '-- Cari atau pilih instansi --',
+            allowEmptyOption: true,
+            maxOptions: null,
+        });
+    }
 
     // Tom Select - Instansi Edit Admin
-    const tomSelectEdit = new TomSelect('#edit_instansi_id', {
-        placeholder: '-- Cari atau pilih instansi --',
-        allowEmptyOption: true,
-        maxOptions: null,
-    });
+    let tomSelectEdit = null;
 
-    document.getElementById('formEditInstansi').addEventListener('submit', function(e) {
-        const inputs = document.querySelectorAll('#layananListEdit input[name="layanan[]"]');
-        let adaKosong = false;
+    if (document.querySelector('#edit_instansi_id')) {
+        tomSelectEdit = new TomSelect('#edit_instansi_id', {
+            placeholder: '-- Cari atau pilih instansi --',
+            allowEmptyOption: true,
+            maxOptions: null,
+        });
+    }
 
-        inputs.forEach(input => {
-            if (input.value.trim() === '') {
-                input.classList.add('border-red-400');
-                adaKosong = true;
-            } else {
-                input.classList.remove('border-red-400');
+    const formEditInstansi = document.getElementById('formEditInstansi');
+
+    if (formEditInstansi) {
+        formEditInstansi.addEventListener('submit', function(e) {
+            const inputs = document.querySelectorAll(
+                '#layananListEdit input[name="layanan[]"]'
+            );
+
+            let adaKosong = false;
+
+            inputs.forEach(input => {
+                if (input.value.trim() === '') {
+                    input.classList.add('border-red-400');
+                    adaKosong = true;
+                } else {
+                    input.classList.remove('border-red-400');
+                }
+            });
+
+            if (adaKosong) {
+                e.preventDefault();
+
+                const existing = document.getElementById('layananKosongMsg');
+
+                if (!existing) {
+                    const list = document.getElementById('layananListEdit');
+
+                    const msg = document.createElement('p');
+                    msg.id = 'layananKosongMsg';
+                    msg.className = 'text-red-500 text-sm mt-1';
+                    msg.textContent = 'Nama layanan tidak boleh kosong.';
+
+                    list.parentElement.appendChild(msg);
+
+                    setTimeout(() => msg.remove(), 3000);
+                }
             }
         });
-
-        if (adaKosong) {
-            e.preventDefault();
-            const existing = document.getElementById('layananKosongMsg');
-            if (!existing) {
-                const list = document.getElementById('layananListEdit');
-                const msg = document.createElement('p');
-                msg.id = 'layananKosongMsg';
-                msg.className = 'text-red-500 text-sm mt-1';
-                msg.textContent = 'Nama layanan tidak boleh kosong.';
-                list.parentElement.appendChild(msg);
-                setTimeout(() => msg.remove(), 3000);
-            }
-        }
-    });
+    }
 
     function toggleMobileMenu() {
         const menu = document.getElementById('mobile-menu');
@@ -597,7 +656,8 @@
 
         const searchInput = document.getElementById('searchInput');
         if (searchInput) searchInput.value = '';
-        document.querySelectorAll('#panelAdmin tbody tr, #panelInstansi tbody tr').forEach(row => row.style.display ='');
+        document.querySelectorAll('#panelAdmin tbody tr, #panelInstansi tbody tr').forEach(row => row.style.display =
+            '');
         document.querySelectorAll('#noDataRow').forEach(el => el.remove());
 
         const isAdmin = tab === 'admin';

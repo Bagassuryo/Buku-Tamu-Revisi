@@ -86,7 +86,12 @@ class AuthController extends Controller
                     'login_error' => 'Instansi yang terhubung dengan akun Anda tidak ditemukan. Silakan hubungi Super Admin.'
                 ])->onlyInput('username');
             }
+            // JIKA SUPER ADMIN, LEMPAR KE REKAP / CRUD
+            if ($admin->role === 'super_admin') {
+                return redirect()->intended(route('superadmin')); // Sesuaikan dengan nama route halaman rekap/index kamu
+            }
 
+            // JIKA ADMIN INSTANSI BISA, BARU KE FORM TAMU
             return redirect()->intended(route('tamu.create'));
         }
 

@@ -22,6 +22,7 @@ class GuestController extends Controller
         $user = Auth::user();
 
         $guests = Guest::with('instansi', 'layanan')
+            ->whereHas('instansi')
             // Jika bukan superadmin, tampilkan hanya Instansi miliknya
             ->when($user->role !== 'super_admin', function ($query) use ($user) {
                 return $query->where('instansi_id', $user->instansi_id);
@@ -81,9 +82,16 @@ class GuestController extends Controller
     public function create()
     {
         $user = Auth::user();
+
+        // ── 1. PROTEKSI: JIKA YANG MASUK ADALAH SUPER ADMIN, TENDANG KE REKAP ──
+        if ($user && $user->role === 'super_admin') {
+            return redirect()->route('superadmin')->with('error', 'Super Admin tidak diizinkan mengisi form tamu.');
+        }
+
         $instansi = null;
         $instansiJson = '[]';
 
+        // ── 2. JIKA ADMIN INSTANSI BIASA (BUKAN SUPER ADMIN) ──
         if ($user->role !== 'super_admin') {
             $instansi = \App\Models\Instansi::with('layanan')->find($user->instansi_id);
 
@@ -98,7 +106,9 @@ class GuestController extends Controller
                     })->values()->toArray()
                 ]]);
             }
-        } else {
+        }
+        // ── 3. CADANGAN JIKA ADA ROLE LAIN (OPTIONAL) ──
+        else {
             $instansiList = \App\Models\Instansi::with('layanan')->get();
             $instansiJson = json_encode($instansiList->map(function ($i) {
                 return [
@@ -115,7 +125,6 @@ class GuestController extends Controller
 
         return view('form-tamu', compact('instansi', 'instansiJson'));
     }
-
     public function store(Request $request)
     {
         // ── 1. NORMALISASI NOMOR HP (Ubah 62 ke 0, bersihkan karakter aneh) ──
@@ -252,6 +261,7 @@ class GuestController extends Controller
         $user = Auth::user();
 
         $guests = Guest::with('instansi', 'layanan')
+            ->whereHas('instansi')
             ->when($user->role !== 'super_admin', function ($query) use ($user) {
                 return $query->where('instansi_id', $user->instansi_id);
             })

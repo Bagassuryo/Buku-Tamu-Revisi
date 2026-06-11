@@ -12,7 +12,7 @@ class InstansiController extends Controller
     {
         try {
             $request->validate([
-                'nama'      => 'required|string|max:255',
+                'nama' => 'required|string|max:255|unique:instansi,nama',
                 'desc'      => 'required|string|max:100',
                 'layanan'   => 'required|array|min:1',
                 'layanan.*' => 'required|string|max:255',
@@ -39,7 +39,7 @@ class InstansiController extends Controller
             return redirect()->route('superadmin')->with('success', 'Instansi berhasil ditambahkan');
         } catch (\Illuminate\Validation\ValidationException $e) {
             // FIX: Jika error, kembalikan ke modal instansi agar tidak nyasar ke modal admin
-            return redirect()->back()
+            return redirect()->route('superadmin')
                 ->withErrors($e->validator)
                 ->withInput()
                 ->with('openTambahInstansiModal', true);
@@ -51,7 +51,7 @@ class InstansiController extends Controller
 
         try {
             $request->validate([
-                'nama'      => 'required|string|max:255',
+                'nama' => 'required|string|max:255|unique:instansi,nama',
                 'desc'      => 'required|string|max:100',
                 'layanan'   => 'required|array|min:1',
                 'layanan.*' => 'required|string|max:255',
@@ -90,9 +90,14 @@ class InstansiController extends Controller
     public function destroy(int $id)
     {
         $instansi = Instansi::findOrFail($id);
-        $instansi->delete(); // Layanan otomatis terhapus jika di database dipasang onDelete('cascade')
 
-        return redirect()->route('superadmin')->with('success', 'Instansi berhasil dihapus');
+        // Cek jumlah data tamu terdampak
+        $jumlahTamu = $instansi->tamu()->count(); // sesuaikan nama relasi
+
+        $instansi->delete(); // soft delete, bukan hapus beneran
+
+        return redirect()->route('superadmin')
+            ->with('success', "Instansi berhasil diarsipkan. {$jumlahTamu} data tamu tetap aman.");
     }
 
     public function getAll()
@@ -110,5 +115,32 @@ class InstansiController extends Controller
             ->get(['id', 'nama_layanan']);
 
         return response()->json($layanan);
+    }
+
+    // Halaman arsip
+    public function arsip()
+    {
+        $instansi = Instansi::onlyTrashed()->orderBy('deleted_at', 'desc')->get();
+        return view('superadmin.arsip-instansi', compact('instansi'));
+    }
+
+    // Restore
+    public function restore(int $id)
+    {
+        $instansi = Instansi::onlyTrashed()->findOrFail($id);
+        $instansi->restore();
+
+        return redirect()->route('instansi.arsip')
+            ->with('success', 'Instansi berhasil dipulihkan.');
+    }
+
+    // Hapus permanen
+    public function forceDelete(int $id)
+    {
+        $instansi = Instansi::onlyTrashed()->findOrFail($id);
+        $instansi->forceDelete();
+
+        return redirect()->route('instansi.arsip')
+            ->with('success', 'Instansi berhasil dihapus permanen.');
     }
 }
