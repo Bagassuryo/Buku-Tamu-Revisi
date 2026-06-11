@@ -146,11 +146,11 @@ class GuestController extends Controller
 
         // ── 2. VALIDASI DATA BACKEND ──
         $request->validate([
-            'nama_tamu'     => 'required|string|max:255',
+            'nama_tamu'     => 'required|string|max:50',
             'instansi_id'   => 'required|exists:instansi,id',
             'layanan_id'    => 'nullable|exists:layanan,id',
             'no_hp'         => 'required|string|between:10,15',
-            'asal_instansi' => 'required|string|max:255',
+            'asal_instansi' => 'required|string|max:50',
             'keterangan'    => 'required|string|max:300',
             'foto'          => 'nullable',
         ]);

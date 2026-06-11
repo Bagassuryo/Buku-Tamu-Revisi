@@ -18,6 +18,7 @@ class InstansiController extends Controller
                 'layanan.*' => 'required|string|max:255',
             ], [
                 'nama.required'      => 'Nama instansi wajib diisi.',
+                'nama.unique'        => 'Nama instansi sudah digunakan.',
                 'desc.required'      => 'Deskripsi instansi wajib diisi.',
                 'layanan.required'   => 'Setidaknya satu layanan harus ditambahkan.',
                 'layanan.*.required' => 'Nama layanan tidak boleh kosong.',
@@ -51,12 +52,13 @@ class InstansiController extends Controller
 
         try {
             $request->validate([
-                'nama' => 'required|string|max:255|unique:instansi,nama',
+                'nama' => 'required|string|max:255|unique:instansi,nama,' . $id,
                 'desc'      => 'required|string|max:100',
                 'layanan'   => 'required|array|min:1',
                 'layanan.*' => 'required|string|max:255',
             ], [
                 'nama.required'      => 'Nama instansi wajib diisi.',
+                'nama.unique'        => 'Nama instansi sudah digunakan.',
                 'desc.required'      => 'Deskripsi instansi wajib diisi.',
                 'layanan.required'   => 'Setidaknya satu layanan harus ditambahkan.',
                 'layanan.*.required' => 'Nama layanan tidak boleh kosong.',
@@ -80,12 +82,13 @@ class InstansiController extends Controller
 
             return redirect()->route('superadmin')->with('success', 'Instansi berhasil diupdate');
         } catch (\Illuminate\Validation\ValidationException $e) {
-            return redirect()->back()
+            // FIX: Jika error, kembalikan ke modal instansi agar tidak nyasar ke modal admin
+            return redirect()->route('superadmin')
                 ->withErrors($e->validator)
                 ->withInput()
                 ->with('openEditInstansiModal', $id);
         }
-    } // FIX: Kurung penutup fungsi update sekarang berada di posisi yang benar
+    }
 
     public function destroy(int $id)
     {
