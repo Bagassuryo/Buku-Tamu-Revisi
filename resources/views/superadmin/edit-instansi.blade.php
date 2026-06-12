@@ -17,7 +17,7 @@
             @method('PUT')
 
             {{-- FIX 2: Bungkus konten input ke dalam DIV scroll tersendiri --}}
-            <div class="p-6 max-h-[50vh] overflow-y-auto space-y-4 border-b border-gray-100">
+            <div class="p-6 max-h-[70vh] overflow-y-auto space-y-4 border-b border-gray-100">
 
                 {{-- Nama --}}
                 <div>

@@ -250,8 +250,7 @@
             </div>
         </div>
     </div>
-    <div id="old-layanan-data" data-layanan="{{ addslashes(json_encode(old('layanan', ['']))) }}"
-        style="display:none">
+    <div id="old-layanan-data" data-layanan='@json(old('layanan', ['']))' style="display:none">
     </div>
 </body>
 
@@ -505,10 +504,13 @@
         </div>`;
     }
 
+
+
     // ── EDIT INSTANSI ──
     window.openEditInstansiModal = function(button) {
         const modal = document.getElementById('ModalEditInstansi');
         const form = document.getElementById('formEditInstansi');
+
 
         const id = button.dataset.id;
         const nama = button.dataset.nama || '';
@@ -544,6 +546,7 @@
         modal.classList.add('flex');
     }
 
+
     window.tambahLayananEdit = function() {
         const list = document.getElementById('layananListEdit');
         const div = document.createElement('div');
@@ -578,10 +581,9 @@
     }
 
     window.closeEditInstansiModal = function() {
-        const modal = document.getElementById('ModalEditInstansi');
-        modal.classList.remove('flex');
-        modal.classList.add('hidden');
-    }
+        // Refresh halaman untuk menghapus old input dan validation error
+        window.location.href = window.location.pathname;
+    };
 
     // Tom Select - Instansi Tambah Admin
     if (document.querySelector('#select_instansi_tambah')) {
@@ -602,8 +604,6 @@
             maxOptions: null,
         });
     }
-
-    const formEditInstansi = document.getElementById('formEditInstansi');
 
     if (formEditInstansi) {
         formEditInstansi.addEventListener('submit', function(e) {

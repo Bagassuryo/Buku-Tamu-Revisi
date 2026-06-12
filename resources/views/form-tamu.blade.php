@@ -214,6 +214,7 @@
                                 </label>
                                 <input type="text" name="asal_instansi" autocomplete="off"
                                     value="{{ old('asal_instansi') }}" placeholder="Contoh: Dinas Pendidikan"
+                                    maxlength="50"
                                     class="w-full px-3.5 py-2.75 border-[1.5px] rounded-xl text-sm text-slate-800 placeholder-slate-400 outline-none transition
                                     focus:border-[#1B75BC] focus:ring-2 focus:ring-blue-100
                                     {{ $errors->has('asal_instansi') ? 'border-red-400 ring-2 ring-red-100' : 'border-slate-200' }}">
