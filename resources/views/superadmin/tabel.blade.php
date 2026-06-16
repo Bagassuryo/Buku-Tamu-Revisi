@@ -7,7 +7,7 @@
                         <th class="p-3 border">Instansi</th>
                         <th class="p-3 border">Status</th>
                         <th class="p-3 border">Role</th>
-                        <th class="p-3 border">Last Active</th>
+                        <th class="p-3 border">Terakhir Aktif</th>
                         <th class="p-3 border">Dibuat Pada</th>
                         <th class="p-3 border">Actions</th>
                     </tr>

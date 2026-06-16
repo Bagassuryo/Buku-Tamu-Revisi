@@ -122,9 +122,9 @@
 
                 Swal.fire({
                     icon: 'success',
-                    title: 'Checkout Berhasil',
+                    title: 'Kepulangan anda sudah tercatat',
                     text: 'Terima kasih atas kunjungannya.',
-                    confirmButtonText: 'Isi Survei'
+                    confirmButtonText: 'Isi Survei Berikut'
                 }).then(() => {
                     window.open(data.url, '_blank');
                     location.reload();
@@ -145,7 +145,7 @@
             Swal.fire({
                 icon: 'error',
                 title: 'Error',
-                text: 'Terjadi kesalahan saat checkout.'
+                text: 'Terjadi kesalahan.'
             });
 
             console.error(error);
