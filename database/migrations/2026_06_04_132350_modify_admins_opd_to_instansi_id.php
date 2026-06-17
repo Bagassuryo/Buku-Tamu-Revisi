@@ -6,23 +6,17 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
-        Schema::table('instansi_id', function (Blueprint $table) {
-            //
-        });
+        if (Schema::hasTable('admins') && Schema::hasColumn('admins', 'instansi_id')) {
+            Schema::table('admins', function (Blueprint $table) {
+                // Kolom instansi_id sudah ada dari migration sebelumnya.
+            });
+        }
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
-        Schema::table('instansi_id', function (Blueprint $table) {
-            //
-        });
+        //
     }
 };

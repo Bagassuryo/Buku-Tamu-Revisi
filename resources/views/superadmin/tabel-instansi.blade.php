@@ -43,7 +43,10 @@
                                 <i class="material-symbols-outlined text-sm">edit</i> Edit
                             </button>
                             <button type="button"
-                                onclick="konfirmasiHapus({{ $item->id }}, '{{ $item->nama }}', {{ $item->tamu()->count() }})"
+                                data-id="{{ $item->id }}"
+                                data-nama="{{ $item->nama }}"
+                                data-jumlah="{{ $item->tamu()->count() }}"
+                                onclick="konfirmasiHapus(this)"
                                 class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg text-sm cursor-pointer flex items-center gap-1">
                                 <i class="material-symbols-outlined">delete</i> Hapus
                             </button>
@@ -102,7 +105,11 @@
 </div>
 
 <script>
-    function konfirmasiHapus(id, nama, jumlahTamu) {
+    function konfirmasiHapus(button) {
+        const id = button.dataset.id;
+        const nama = button.dataset.nama;
+        const jumlahTamu = parseInt(button.dataset.jumlah, 10) || 0;
+
         document.getElementById('namaInstansiHapus').textContent = nama;
         document.getElementById('formHapusInstansi').action = `/instansi/destroy/${id}`;
 

@@ -112,7 +112,6 @@
     </div>
 
     {{-- ================= SCRIPT JAVASCRIPT MASTER ================= --}}
-    {{-- ================= SCRIPT JAVASCRIPT MASTER ================= --}}
     <script>
         // 1. Fungsi Modal Foto
         function bukaModal(src) {

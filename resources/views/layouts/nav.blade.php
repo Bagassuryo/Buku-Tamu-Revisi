@@ -6,12 +6,12 @@
         {{-- Bar utama: logo + hamburger (sm) / logo + nav items (md+) --}}
         <div class="flex items-center justify-between py-4">
 
-            {{-- KODE BARU (Ganti baris 9-14 dengan ini) --}}
+            {{-- Logo --}}
             <a href="{{ auth()->check()
                 ? (auth()->user()->role === 'super_admin'
                     ? route('superadmin')
                     : route('rekap.index'))
-                : '/login' }}"
+                : route('login') }}"
                 class="flex items-center gap-3 transition-opacity hover:opacity-90">
                 <img src="{{ asset('images/gresik.png') }}" alt="Logo Gresik" class="h-12 w-auto drop-shadow-md">
             </a>
@@ -29,18 +29,14 @@
                     @if (auth()->user()->role !== 'super_admin')
                         <a href="{{ route('tamu.create') }}"
                             class="whitespace-nowrap px-4 py-2 text-sm font-medium flex items-center gap-2 rounded-lg transition-all duration-200
-                                {{ request()->is('/')
-                                    ? 'text-white bg-white/10 border border-white/20'
-                                    : 'text-white/60 hover:text-white border border-transparent hover:border-white/30' }}">
+                                {{ request()->is('/') ? 'text-white bg-white/10 border border-white/20' : 'text-white/60 hover:text-white border border-transparent hover:border-white/30' }}">
                             <i class="ti ti-edit text-lg"></i>
                             <span>Buku Tamu</span>
                         </a>
 
-                        <a href="/pulang"
+                        <a href="{{ route('tamu.checkout.form') }}"
                             class="whitespace-nowrap px-4 py-2 text-sm font-medium flex items-center gap-2 rounded-lg transition-all duration-200
-                                {{ request()->is('pulang')
-                                    ? 'text-white bg-white/10 border border-white/20'
-                                    : 'text-white/60 hover:text-white border border-transparent hover:border-white/30' }}">
+                                {{ request()->is('pulang') ? 'text-white bg-white/10 border border-white/20' : 'text-white/60 hover:text-white border border-transparent hover:border-white/30' }}">
                             <i class="ti ti-door-exit text-lg"></i>
                             <span>Selesai Berkunjung</span>
                         </a>
@@ -48,9 +44,7 @@
 
                     <a href="{{ route('rekap.index') }}"
                         class="whitespace-nowrap px-4 py-2 text-sm font-medium flex items-center gap-2 rounded-lg transition-all duration-200
-                            {{ request()->is('guest*') || request()->is('rekap*')
-                                ? 'text-white bg-white/10 border border-white/20'
-                                : 'text-white/60 hover:text-white border border-transparent hover:border-white/30' }}">
+                            {{ request()->is('guest*') || request()->is('rekap*') ? 'text-white bg-white/10 border border-white/20' : 'text-white/60 hover:text-white border border-transparent hover:border-white/30' }}">
                         <i class="ti ti-clipboard-list text-lg"></i>
                         <span>Rekap</span>
                     </a>
@@ -58,9 +52,7 @@
                     @if (auth()->user()->role === 'super_admin')
                         <a href="{{ route('superadmin') }}"
                             class="whitespace-nowrap px-4 py-2 text-sm font-medium flex items-center gap-2 rounded-lg transition-all duration-200
-                                {{ request()->is('superadmin*')
-                                    ? 'text-white bg-white/10 border border-white/20'
-                                    : 'text-white/60 hover:text-white border border-transparent hover:border-white/30' }}">
+                                {{ request()->is('superadmin*') ? 'text-white bg-white/10 border border-white/20' : 'text-white/60 hover:text-white border border-transparent hover:border-white/30' }}">
                             <i class="ti ti-user-shield text-lg"></i>
                             <span>Super Admin</span>
                         </a>
@@ -77,7 +69,7 @@
                         </button>
                     </form>
                 @else
-                    <a href="/login"
+                    <a href="{{ route('login') }}"
                         class="whitespace-nowrap px-4 py-2 text-sm font-medium flex items-center gap-2 rounded-lg bg-white/10 border border-white/20 text-white">
                         <i class="ti ti-lock text-lg"></i>
                         <span>Login Sistem</span>
@@ -93,35 +85,27 @@
                 @if (auth()->user()->role !== 'super_admin')
                     <a href="{{ route('tamu.create') }}"
                         class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200
-                            {{ request()->is('/')
-                                ? 'text-white bg-white/10 border border-white/20'
-                                : 'text-white/65 hover:text-white hover:bg-white/8 border border-transparent' }}">
+                            {{ request()->is('/') ? 'text-white bg-white/10 border border-white/20' : 'text-white/65 hover:text-white hover:bg-white/8 border border-transparent' }}">
                         <i class="ti ti-edit text-lg"></i> Buku Tamu
                     </a>
 
-                    <a href="/pulang"
+                    <a href="{{ route('tamu.checkout.form') }}"
                         class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200
-                            {{ request()->is('pulang')
-                                ? 'text-white bg-white/10 border border-white/20'
-                                : 'text-white/65 hover:text-white hover:bg-white/8 border border-transparent' }}">
+                            {{ request()->is('pulang') ? 'text-white bg-white/10 border border-white/20' : 'text-white/65 hover:text-white hover:bg-white/8 border border-transparent' }}">
                         <i class="ti ti-door-exit text-lg"></i> Selesai Berkunjung
                     </a>
                 @endif
 
                 <a href="{{ route('rekap.index') }}"
                     class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200
-                        {{ request()->is('guest*') || request()->is('rekap*')
-                            ? 'text-white bg-white/10 border border-white/20'
-                            : 'text-white/65 hover:text-white hover:bg-white/8 border border-transparent' }}">
+                        {{ request()->is('guest*') || request()->is('rekap*') ? 'text-white bg-white/10 border border-white/20' : 'text-white/65 hover:text-white hover:bg-white/8 border border-transparent' }}">
                     <i class="ti ti-clipboard-list text-lg"></i> Rekap
                 </a>
 
                 @if (auth()->user()->role === 'super_admin')
                     <a href="{{ route('superadmin') }}"
                         class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200
-                            {{ request()->is('superadmin*')
-                                ? 'text-white bg-white/10 border border-white/20'
-                                : 'text-white/65 hover:text-white hover:bg-white/8 border border-transparent' }}">
+                            {{ request()->is('superadmin*') ? 'text-white bg-white/10 border border-white/20' : 'text-white/65 hover:text-white hover:bg-white/8 border border-transparent' }}">
                         <i class="ti ti-user-shield text-lg"></i> Super Admin
                     </a>
                 @endif
@@ -136,7 +120,7 @@
                     </button>
                 </form>
             @else
-                <a href="/login"
+                <a href="{{ route('login') }}"
                     class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-white bg-white/10 border border-white/20">
                     <i class="ti ti-lock text-lg"></i> Login Sistem
                 </a>
@@ -146,7 +130,32 @@
     </div>
 </nav>
 
+{{-- CONTAINER STRUKTUR TOAST UTAMA --}}
+<div id="bt-toast-container" class="fixed top-5 right-5 z-9999 flex flex-col gap-3 pointer-events-none"></div>
+
+{{-- TRIGGER SESSION DARI LARAVEL KE TOAST JS --}}
 <script>
+    document.addEventListener("DOMContentLoaded", function() {
+        @if (session('success'))
+            if (typeof window.showToast === "function") {
+                window.showToast("success", "Berhasil!", "{{ session('success') }}", 4000);
+            }
+        @endif
+
+        @if (session('error'))
+            if (typeof window.showToast === "function") {
+                window.showToast("error", "Terjadi Kesalahan", "{{ session('error') }}", 5000);
+            }
+        @endif
+
+        {{-- Tangkap error validation bawaan dari $request->validate() Laravel --}}
+        @if ($errors->any())
+            if (typeof window.showToast === "function") {
+                window.showToast("error", "Gagal Validasi", "{{ $errors->first() }}", 5000);
+            }
+        @endif
+    });
+
     function toggleMobileMenu() {
         const menu = document.getElementById('mobile-menu');
         const icon = document.getElementById('hamburger-icon');

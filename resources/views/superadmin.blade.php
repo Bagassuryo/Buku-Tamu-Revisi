@@ -371,6 +371,30 @@
         });
     }
 
+    const formEditInstansiEl = document.getElementById('formEditInstansi');
+
+    function appendLayananEditRow(list, value = '') {
+        const div = document.createElement('div');
+        div.className = 'flex gap-2';
+
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.name = 'layanan[]';
+        input.value = value;
+        input.placeholder = 'Nama layanan...';
+        input.className = 'w-full border border-gray-300 rounded-xl px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-yellow-500 bg-gray-50 focus:bg-white';
+
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'text-red-400 hover:text-red-600 px-2 transition cursor-pointer';
+        btn.onclick = function() { hapusLayananEdit(this); };
+        btn.innerHTML = '<i class="ti ti-x text-lg"></i>';
+
+        div.appendChild(input);
+        div.appendChild(btn);
+        list.appendChild(div);
+    }
+
     @if ($errors->any())
         @if (session('openEditModal'))
             const modalUpdate = document.getElementById('modalEdit');
@@ -400,36 +424,21 @@
             }
         @elseif (session('openEditInstansiModal'))
             const modalEditInstansi = document.getElementById('ModalEditInstansi');
-            const formEditInstansi = document.getElementById('formEditInstansi');
             const editInstansiId = "{{ session('openEditInstansiModal') }}";
             const el = document.getElementById('old-layanan-data');
             const oldLayanan = el ? JSON.parse(el.dataset.layanan) : [''];
 
-            if (formEditInstansi) {
-                formEditInstansi.action = `/instansi/update/${editInstansiId}`;
+            if (formEditInstansiEl) {
+                formEditInstansiEl.action = `/instansi/update/${editInstansiId}`;
             }
-            document.getElementById('edit_instansi_nama').value = "{{ old('nama') }}";
-            document.getElementById('edit_instansi_desc').value = "{{ old('desc') }}";
+            document.getElementById('edit_instansi_nama').value = @json(old('nama'));
+            document.getElementById('edit_instansi_desc').value = @json(old('desc'));
 
             const listEdit = document.getElementById('layananListEdit');
             if (listEdit) {
                 listEdit.innerHTML = '';
-                if (!Array.isArray(oldLayanan) || oldLayanan.length === 0) {
-                    oldLayanan.push('');
-                }
-                oldLayanan.forEach(item => {
-                    const div = document.createElement('div');
-                    div.className = 'flex gap-2';
-                    div.innerHTML = `
-                    <input type="text" name="layanan[]" value="${item}" placeholder="Nama layanan..."
-                        class="w-full border border-gray-300 rounded-xl px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-yellow-500 bg-gray-50 focus:bg-white">
-                    <button type="button" onclick="hapusLayananEdit(this)"
-                        class="text-red-400 hover:text-red-600 px-2 transition">
-                        <i class="ti ti-x text-lg"></i>
-                    </button>
-                `;
-                    listEdit.appendChild(div);
-                });
+                const layananItems = (!Array.isArray(oldLayanan) || oldLayanan.length === 0) ? [''] : oldLayanan;
+                layananItems.forEach(item => appendLayananEditRow(listEdit, item));
             }
 
             if (modalEditInstansi) {
@@ -531,16 +540,7 @@
         // Isi list layanan
         const list = document.getElementById('layananListEdit');
         list.innerHTML = '';
-        layanan.forEach(item => {
-            list.innerHTML += `
-            <div class="flex gap-2">
-                <input type="text" name="layanan[]" value="${item || ''}"
-                    class="w-full border border-gray-300 rounded-xl px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-yellow-500 bg-gray-50 focus:bg-white">
-                <button type="button" onclick="hapusLayananEdit(this)" class="text-red-400 hover:text-red-600 px-2 transition cursor-pointer">
-                    <i class="ti ti-x text-lg"></i>
-                </button>
-            </div>`;
-        });
+        layanan.forEach(item => appendLayananEditRow(list, item || ''));
 
         modal.classList.remove('hidden');
         modal.classList.add('flex');
@@ -605,8 +605,8 @@
         });
     }
 
-    if (formEditInstansi) {
-        formEditInstansi.addEventListener('submit', function(e) {
+    if (formEditInstansiEl) {
+        formEditInstansiEl.addEventListener('submit', function(e) {
             const inputs = document.querySelectorAll(
                 '#layananListEdit input[name="layanan[]"]'
             );

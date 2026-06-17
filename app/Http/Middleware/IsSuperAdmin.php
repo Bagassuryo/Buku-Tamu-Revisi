@@ -22,7 +22,7 @@ class IsSuperAdmin
             return $next($request);
         }
 
-        return redirect('/guest')
+        return redirect()->route('rekap.index')
             ->with('error', 'Anda tidak memiliki hak akses Super Admin.');
     }
 }

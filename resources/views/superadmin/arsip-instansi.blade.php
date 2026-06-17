@@ -12,12 +12,26 @@
 </head>
 
 <body class="bg-gray-100 m-0 p-0">
+
+    {{-- FIX: Tambah navbar agar konsisten dengan halaman lain --}}
+    @include('layouts.nav')
+
     <div class="p-6 max-w-7xl mx-auto">
 
+        {{-- FIX: Pisah ID agar auto-hide JavaScript tidak bentrok --}}
         @if (session('success'))
-            <div id="notification-alert" class="fixed top-5 right-5 z-50 transition-opacity duration-500">
+            <div id="alert-success" class="fixed top-5 right-5 z-50 transition-opacity duration-500">
                 <div class="bg-green-500 text-white p-4 rounded-lg shadow-lg flex items-center gap-3">
+                    <i class="ti ti-circle-check text-lg"></i>
                     {{ session('success') }}
+                </div>
+            </div>
+        @endif
+        @if (session('error'))
+            <div id="alert-error" class="fixed top-5 right-5 z-50 transition-opacity duration-500">
+                <div class="bg-red-500 text-white p-4 rounded-lg shadow-lg flex items-center gap-3">
+                    <i class="ti ti-circle-x text-lg"></i>
+                    {{ session('error') }}
                 </div>
             </div>
         @endif
@@ -90,13 +104,16 @@
 </body>
 
 <script>
-    const alert = document.getElementById('notification-alert');
-    if (alert) {
-        setTimeout(() => {
-            alert.style.opacity = '0';
-            setTimeout(() => alert.remove(), 500);
-        }, 3000);
-    }
+    // FIX: Auto-hide keduanya secara independen, tidak bentrok
+    ['alert-success', 'alert-error'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+            setTimeout(() => {
+                el.style.opacity = '0';
+                setTimeout(() => el.remove(), 500);
+            }, 3000);
+        }
+    });
 </script>
 
 </html>

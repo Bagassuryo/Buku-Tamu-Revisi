@@ -16,6 +16,21 @@
 
                 <div class="w-full md:w-44">
                     <label
+                        class="block text-xs font-bold text-gray-500 uppercase mb-2 ml-1 tracking-wider">Tahun</label>
+                    <select name="tahun"
+                        class="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm text-gray-700 focus:ring-2 focus:ring-[#1B75BC] outline-none bg-gray-50/50 focus:bg-white transition cursor-pointer">
+                        <option value="">Semua Tahun</option>
+                        @foreach (range(now()->year, now()->year - 5) as $y)
+                            <option value="{{ $y }}"
+                                {{ request('tahun', request('bulan') ? now()->year : '') == $y ? 'selected' : '' }}>
+                                {{ $y }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <div class="w-full md:w-44">
+                    <label
                         class="block text-xs font-bold text-gray-500 uppercase mb-2 ml-1 tracking-wider">Bulan</label>
                     <select name="bulan"
                         class="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm text-gray-700 focus:ring-2 focus:ring-[#1B75BC] outline-none bg-gray-50/50 focus:bg-white transition cursor-pointer">

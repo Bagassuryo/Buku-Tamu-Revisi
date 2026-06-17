@@ -179,7 +179,7 @@
                         </label>
                         <select name="layanan_id" id="layanan-select"
                             class="w-full px-3.5 py-2.75 border-[1.5px] border-slate-200 rounded-xl text-sm text-slate-800 outline-none transition focus:border-[#1B75BC] focus:ring-2 focus:ring-blue-100 bg-white cursor-pointer appearance-none">
-                            <option>Pilih Jenis Layanan</option>
+                            <option value="">Pilih Jenis Layanan</option>
                         </select>
                         <p class="text-[11.5px] text-slate-400 mt-1.5">Pilih layanan spesifik yang Anda tuju</p>
                     </div>

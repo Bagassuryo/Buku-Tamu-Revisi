@@ -39,7 +39,7 @@ class AuthController extends Controller
 
         // D. VALIDASI GOOGLE RECAPTCHA
         $response = Http::asForm()->post('https://www.google.com/recaptcha/api/siteverify', [
-            'secret' => env('RECAPTCHA_SECRET_KEY'),
+            'secret'   => config('services.recaptcha.secret_key'),
             'response' => $request->input('g-recaptcha-response'),
             'remoteip' => $request->ip(),
         ]);
@@ -95,7 +95,7 @@ class AuthController extends Controller
             }
 
             // Jika yang login Admin Instansi, arahkan ke halaman utama monitoring (Rekap)
-            return redirect()->route('rekap.index');
+            return redirect()->route('tamu.create');
         }
 
         // F. JIKA GAGAL: CATAT HIT

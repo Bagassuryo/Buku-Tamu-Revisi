@@ -73,7 +73,7 @@
                     </div>
 
                     <script src="https://www.google.com/recaptcha/api.js" async defer></script>
-                    <div class="g-recaptcha mb-4" data-sitekey="{{ env('RECAPTCHA_SITE_KEY') }}"></div>
+                    <div class="g-recaptcha mb-4" data-sitekey="{{ config('services.recaptcha.site_key') }}"></div>
 
                     <button type="submit"
                         class="w-full bg-linear-to-r from-[#1a2a6c] to-[#1B75BC] hover:opacity-90 text-white font-semibold py-3 rounded-xl transition duration-300 cursor-pointer flex items-center justify-center gap-2">
