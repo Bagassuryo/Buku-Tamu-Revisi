@@ -125,6 +125,7 @@ class GuestController extends Controller
 
         return view('form-tamu', compact('instansi', 'instansiJson'));
     }
+
     public function store(Request $request)
     {
         // ── 1. NORMALISASI NOMOR HP (Ubah 62 ke 0, bersihkan karakter aneh) ──
@@ -152,7 +153,11 @@ class GuestController extends Controller
             'no_hp'         => 'required|string|between:10,15',
             'asal_instansi' => 'required|string|max:50',
             'keterangan'    => 'required|string|max:300',
-            'foto'          => 'nullable',
+            'foto'          => 'required|string', // WAJIB ADA STRING BASE64 DARI JAVASCRIPT
+        ], [
+            'nama_tamu.max'     => 'Nama tamu maksimal 50 karakter.',
+            'asal_instansi.max' => 'Asal instansi maksimal 50 karakter.',
+            'foto.required'     => 'Foto wajib diambil melalui kamera sebelum submit.',
         ]);
 
         $data = $request->only([
@@ -166,7 +171,9 @@ class GuestController extends Controller
 
         $data['tanggal'] = now()->toDateString();
         $data['datang']  = now()->toTimeString();
+        $data['foto']    = null; // Set default kosong untuk berjaga-jaga
 
+        // ── 3. PROSES DEKODE BASE64 MENJADI FILE WEBP ──
         if ($request->filled('foto') && preg_match('/^data:image\/(\w+);base64,/', $request->foto, $matches)) {
             $decodedData = base64_decode(substr($request->foto, strpos($request->foto, ',') + 1));
 
@@ -196,6 +203,11 @@ class GuestController extends Controller
                     $data['foto'] = 'foto/' . $filename;
                 }
             }
+        }
+
+        // ── 4. PROTEKSI TAMBAHAN: JIKA PROSES DEKODE GAGAL / INPUTAN PALSU ──
+        if (is_null($data['foto'])) {
+            return redirect()->back()->withInput()->withErrors(['foto' => 'Gagal memproses kamera. Silakan coba foto ulang.']);
         }
 
         Guest::create($data);

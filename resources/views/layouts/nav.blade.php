@@ -6,10 +6,11 @@
         {{-- Bar utama: logo + hamburger (sm) / logo + nav items (md+) --}}
         <div class="flex items-center justify-between py-4">
 
+            {{-- KODE BARU (Ganti baris 9-14 dengan ini) --}}
             <a href="{{ auth()->check()
                 ? (auth()->user()->role === 'super_admin'
                     ? route('superadmin')
-                    : route('tamu.create'))
+                    : route('rekap.index'))
                 : '/login' }}"
                 class="flex items-center gap-3 transition-opacity hover:opacity-90">
                 <img src="{{ asset('images/gresik.png') }}" alt="Logo Gresik" class="h-12 w-auto drop-shadow-md">

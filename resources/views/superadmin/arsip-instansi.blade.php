@@ -12,38 +12,6 @@
 </head>
 
 <body class="bg-gray-100 m-0 p-0">
-
-    <nav class="bg-linear-to-r from-[#1a2a6c] via-[#1a2a6c] to-[#1B75BC] shadow-lg">
-        <div class="w-full px-2 sm:px-6 lg:px-8">
-            <div class="flex items-center justify-between py-4">
-                <a href="{{ route('superadmin') }}" class="flex items-center gap-3 transition-opacity hover:opacity-90">
-                    <img src="{{ asset('images/gresik.png') }}" alt="Logo Gresik" class="h-12 w-auto drop-shadow-md">
-                </a>
-                <div class="hidden md:flex items-center gap-2">
-                    <a href="{{ route('rekap.index') }}"
-                        class="whitespace-nowrap px-4 py-2 text-sm font-medium flex items-center gap-2 rounded-lg text-white/60 hover:text-white border border-transparent hover:border-white/30 transition-all duration-200">
-                        <i class="ti ti-clipboard-list text-lg"></i>
-                        <span>Rekap</span>
-                    </a>
-                    <a href="{{ route('superadmin') }}"
-                        class="whitespace-nowrap px-4 py-2 text-sm font-medium flex items-center gap-2 rounded-lg text-white/60 hover:text-white border border-transparent hover:border-white/30 transition-all duration-200">
-                        <i class="ti ti-user-shield text-lg"></i>
-                        <span>Super Admin</span>
-                    </a>
-                    <div class="h-6 w-px bg-white/20 mx-1"></div>
-                    <form action="{{ route('logout') }}" method="POST" class="inline">
-                        @csrf
-                        <button type="submit"
-                            class="whitespace-nowrap px-4 py-2 text-sm font-medium flex items-center gap-2 rounded-lg bg-red-600 hover:bg-red-500 text-white shadow-sm cursor-pointer transition-all duration-200">
-                            <i class="ti ti-logout text-lg"></i>
-                            <span>Logout</span>
-                        </button>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </nav>
-
     <div class="p-6 max-w-7xl mx-auto">
 
         @if (session('success'))
@@ -60,7 +28,7 @@
                 <p class="text-sm text-gray-400">{{ $instansi->count() }} instansi diarsipkan</p>
             </div>
             <a href="{{ route('superadmin') }}"
-                class="flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl text-sm font-medium transition">
+                class="flex items-center gap-2 px-4 py-2 bg-gray-300 hover:bg-gray-200 text-gray-700 rounded-xl text-sm font-medium transition">
                 <i class="ti ti-arrow-left"></i> Kembali
             </a>
         </div>

@@ -1,8 +1,9 @@
 {{-- Tombol Lihat Arsip --}}
-<div class="flex justify-end mb-3">
+<div class="flex justify-end py-2 px-4">
     <a href="{{ route('instansi.arsip') }}"
-        class="flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-600 rounded-xl text-sm font-medium transition">
-        <i class="ti ti-archive"></i> Lihat Arsip
+        class="flex items-center gap-2 px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-600 rounded-xl text-sm font-medium transition shadow-xs">
+        <i class="ti ti-archive text-base"></i>
+        <span>Lihat Arsip</span>
     </a>
 </div>
 
@@ -74,7 +75,7 @@
 
         <div id="infoTamu" class="bg-yellow-50 border border-yellow-200 rounded-xl p-3 mb-4 hidden">
             <p class="text-sm text-yellow-700 text-center">
-                ⚠️ Instansi ini memiliki <span id="jumlahTamuHapus" class="font-bold"></span> data tamu.
+                Instansi ini memiliki <span id="jumlahTamuHapus" class="font-bold"></span> data tamu.
                 Data tamu tetap aman dan tidak akan terhapus.
             </p>
         </div>

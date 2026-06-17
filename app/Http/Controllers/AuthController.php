@@ -52,6 +52,7 @@ class AuthController extends Controller
         if (Auth::attempt($credentials)) {
             $admin = Auth::user();
 
+            // Cek status keaktifan akun
             if ($admin->status === 'nonaktif') {
                 Auth::logout();
                 return back()->withErrors([
@@ -59,9 +60,9 @@ class AuthController extends Controller
                 ])->onlyInput('username');
             }
 
+            // Cek apakah akun non-superadmin sudah punya instansi
             if ($admin->role !== 'super_admin' && empty($admin->instansi_id)) {
                 Auth::logout();
-
                 return back()->withErrors([
                     'login_error' => 'Akun Anda belum terhubung dengan Instansi. Silakan hubungi Super Admin.'
                 ])->onlyInput('username');
@@ -75,24 +76,26 @@ class AuthController extends Controller
             RateLimiter::clear($throttleKey);
             $request->session()->regenerate();
 
-            // Redirect berdasarkan role
+            // Cek validasi keberadaan instansi di database (untuk non-superadmin)
             if (
                 $admin->role !== 'super_admin' &&
                 !Instansi::where('id', $admin->instansi_id)->exists()
             ) {
                 Auth::logout();
-
                 return back()->withErrors([
                     'login_error' => 'Instansi yang terhubung dengan akun Anda tidak ditemukan. Silakan hubungi Super Admin.'
                 ])->onlyInput('username');
             }
-            // JIKA SUPER ADMIN, LEMPAR KE REKAP / CRUD
+
+            // --- BAGIAN REDIRECT YANG DIIPERBAIKI ---
+
+            // Jika yang login Super Admin, paksa langsung masuk ke dashboard Super Admin
             if ($admin->role === 'super_admin') {
-                return redirect()->intended(route('superadmin')); // Sesuaikan dengan nama route halaman rekap/index kamu
+                return redirect()->route('superadmin');
             }
 
-            // JIKA ADMIN INSTANSI BISA, BARU KE FORM TAMU
-            return redirect()->intended(route('tamu.create'));
+            // Jika yang login Admin Instansi, arahkan ke halaman utama monitoring (Rekap)
+            return redirect()->route('rekap.index');
         }
 
         // F. JIKA GAGAL: CATAT HIT
@@ -103,6 +106,7 @@ class AuthController extends Controller
         ])->onlyInput('username');
     }
 
+    // 3. Proses Logout
     public function logout(Request $request)
     {
         Auth::logout();
